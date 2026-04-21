@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
 import { analyzeDecision } from './mlModel.js';
 
@@ -28,10 +28,55 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
+  const [homeProgress, setHomeProgress] = useState(0);
+  const homeScrollRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    if (user || step !== 'welcome') {
+      setHomeProgress(0);
+      return;
+    }
+
+    let ticking = false;
+
+    const updateScrollProgress = () => {
+      const sectionEl = homeScrollRef.current;
+      if (!sectionEl) {
+        ticking = false;
+        return;
+      }
+
+      const sectionStart = sectionEl.offsetTop;
+      const totalScrollable = Math.max(sectionEl.offsetHeight - window.innerHeight, 1);
+      const sectionEnd = sectionStart + totalScrollable;
+      const currentY = window.scrollY;
+      const scrolledInSection = Math.max(0, Math.min(currentY - sectionStart, sectionEnd - sectionStart));
+      const nextProgress = Number((scrolledInSection / totalScrollable).toFixed(3));
+
+      setHomeProgress((prev) => (Math.abs(prev - nextProgress) > 0.005 ? nextProgress : prev));
+      ticking = false;
+    };
+
+    const onScrollOrResize = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(updateScrollProgress);
+      }
+    };
+
+    updateScrollProgress();
+    window.addEventListener('scroll', onScrollOrResize, { passive: true });
+    window.addEventListener('resize', onScrollOrResize);
+
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [user, step]);
 
   const handleSignIn = () => {
     if (email && password) {
@@ -70,6 +115,14 @@ export default function App() {
     setView('dash');
   };
 
+  const clampedProgress = Math.max(0, Math.min(1, homeProgress));
+  const smoothProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
+  const titleScale = 1 - smoothProgress * 0.48;
+  const titleLeft = 50 - smoothProgress * 46;
+  const titleTop = 52 - smoothProgress * 45;
+  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 2.4);
+  const isTitleDocked = smoothProgress > 0.88;
+
   return (
     <div style={{ width: '100%', minHeight: '100vh' }}>
       <div className="grid-bg"></div>
@@ -97,7 +150,46 @@ export default function App() {
 
       {!user ? (
         <div className="page active">
-          <div className="auth-page">
+          <div className={`auth-page ${step === 'welcome' ? 'home-mode' : ''}`}>
+            {step === 'welcome' ? (
+              <section className="home-scroll-page" ref={homeScrollRef}>
+                <div className="home-scroll-sticky">
+                  <div
+                    className={`home-welcome-title ${isTitleDocked ? 'home-welcome-title-docked' : ''}`}
+                    style={{
+                      left: `${titleLeft}%`,
+                      top: `${titleTop}%`,
+                      transform: `translate(-50%, -50%) scale(${titleScale})`,
+                    }}
+                  >
+                    <span className="home-welcome-prefix" style={{ opacity: welcomeOpacity }}>Welcome to </span>
+                    <span className="home-welcome-name">CogniGuard</span>
+                  </div>
+                </div>
+
+                <div className="home-login-stage">
+                  <div className="home-cta-panel">
+                    <div className="auth-title" style={{ marginBottom: '10px' }}>Your AI-powered impulse intervention system</div>
+                    <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
+                      Keep scrolling until the headline docks. Sign in once the transition completes.
+                    </p>
+                    <button
+                      className="auth-btn"
+                      onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
+                      style={{ marginBottom: '10px' }}
+                    >
+                      Sign In →
+                    </button>
+                    <button
+                      className="auth-btn secondary"
+                      onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
+                    >
+                      Create Account
+                    </button>
+                  </div>
+                </div>
+              </section>
+            ) : (
             <div className="auth-card">
               {step === 'welcome' && (
                 <div className="auth-step active">
@@ -374,6 +466,7 @@ export default function App() {
                 </div>
               )}
             </div>
+            )}
           </div>
         </div>
       ) : (
