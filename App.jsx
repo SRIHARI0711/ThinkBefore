@@ -30,6 +30,9 @@ export default function App() {
   const [showSignupPw, setShowSignupPw] = useState(false);
   const [homeProgress, setHomeProgress] = useState(0);
   const homeScrollRef = useRef(null);
+  const homeTitleRef = useRef(null);
+  const [homeViewport, setHomeViewport] = useState({ width: 0, height: 0 });
+  const [homeTitleSize, setHomeTitleSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
@@ -78,6 +81,31 @@ export default function App() {
     };
   }, [user, step]);
 
+  useEffect(() => {
+    if (user || step !== 'welcome') {
+      return;
+    }
+
+    const measureHomeHero = () => {
+      setHomeViewport({ width: window.innerWidth, height: window.innerHeight });
+
+      const titleEl = homeTitleRef.current;
+      if (titleEl) {
+        setHomeTitleSize({
+          width: titleEl.offsetWidth,
+          height: titleEl.offsetHeight,
+        });
+      }
+    };
+
+    measureHomeHero();
+    window.addEventListener('resize', measureHomeHero);
+
+    return () => {
+      window.removeEventListener('resize', measureHomeHero);
+    };
+  }, [user, step]);
+
   const handleSignIn = () => {
     if (email && password) {
       setUser({ email, nickname: email.split('@')[0], avatarColor: '#f0a500' });
@@ -117,11 +145,21 @@ export default function App() {
 
   const clampedProgress = Math.max(0, Math.min(1, homeProgress));
   const smoothProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
-  const titleScale = 1 - smoothProgress * 0.48;
-  const titleLeft = 50 - smoothProgress * 46;
-  const titleTop = 52 - smoothProgress * 45;
-  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 2.4);
-  const isTitleDocked = smoothProgress > 0.88;
+  const heroWidth = homeViewport.width || 0;
+  const heroHeight = Math.max((homeViewport.height || 0) - 58, 1);
+  const titleStartLeft = Math.max((heroWidth - homeTitleSize.width) / 2, 24);
+  const titleStartTop = Math.max((heroHeight - homeTitleSize.height) / 2, 24);
+  const titleEndLeft = 74;
+  const titleEndTop = -32;
+  const titleLeft = titleStartLeft + (titleEndLeft - titleStartLeft) * smoothProgress;
+  const titleTop = titleStartTop + (titleEndTop - titleStartTop) * smoothProgress;
+  const titleScale = 1 - smoothProgress * 0.75;
+  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 1.05);
+  const prefixOpacity = Math.max(0, 1 - smoothProgress * 3);
+  const loginBoxProgress = Math.max(0, (smoothProgress - 0.4) * 1.66);
+  const loginBoxOpacity = loginBoxProgress;
+  const loginBoxTranslateY = (1 - loginBoxProgress) * 80;
+  const isTitleDocked = smoothProgress > 0.8;
 
   return (
     <div style={{ width: '100%', minHeight: '100vh' }}>
@@ -132,7 +170,7 @@ export default function App() {
       <nav className="topbar">
         <a className="brand" href="#">
           <div className="brand-icon">CG</div>
-          <div className="brand-name">CogniGuard</div>
+          <div className="brand-name" style={{ opacity: smoothProgress > 0.9 ? 1 : 0, transition: 'opacity 0.3s' }}>CogniGuard</div>
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {user && <div style={{ color: 'var(--text2)', fontSize: '14px', fontWeight: '500' }}>{user.nickname}</div>}
@@ -152,40 +190,51 @@ export default function App() {
         <div className="page active">
           <div className={`auth-page ${step === 'welcome' ? 'home-mode' : ''}`}>
             {step === 'welcome' ? (
-              <section className="home-scroll-page" ref={homeScrollRef}>
+              <section className="home-scroll-page" ref={homeScrollRef} style={{ height: '300vh' }}>
                 <div className="home-scroll-sticky">
                   <div
                     className={`home-welcome-title ${isTitleDocked ? 'home-welcome-title-docked' : ''}`}
+                    ref={homeTitleRef}
                     style={{
-                      left: `${titleLeft}%`,
-                      top: `${titleTop}%`,
-                      transform: `translate(-50%, -50%) scale(${titleScale})`,
+                      left: `${titleLeft}px`,
+                      top: `${titleTop}px`,
+                      transform: `scale(${titleScale})`,
+                      opacity: welcomeOpacity,
                     }}
                   >
-                    <span className="home-welcome-prefix" style={{ opacity: welcomeOpacity }}>Welcome to </span>
+                    <span className="home-welcome-prefix" style={{ opacity: prefixOpacity }}>Welcome to </span>
                     <span className="home-welcome-name">CogniGuard</span>
                   </div>
-                </div>
 
-                <div className="home-login-stage">
-                  <div className="home-cta-panel">
-                    <div className="auth-title" style={{ marginBottom: '10px' }}>Your AI-powered impulse intervention system</div>
-                    <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
-                      Keep scrolling until the headline docks. Sign in once the transition completes.
-                    </p>
-                    <button
-                      className="auth-btn"
-                      onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
-                      style={{ marginBottom: '10px' }}
-                    >
-                      Sign In →
-                    </button>
-                    <button
-                      className="auth-btn secondary"
-                      onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
-                    >
-                      Create Account
-                    </button>
+                  <div className="home-login-stage" style={{ 
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: loginBoxOpacity, 
+                    transform: `translateY(${loginBoxTranslateY}px)`,
+                    pointerEvents: loginBoxProgress > 0.8 ? 'all' : 'none'
+                  }}>
+                    <div className="home-cta-panel">
+                      <div className="auth-title" style={{ marginBottom: '10px' }}>Your AI-powered impulse intervention system</div>
+                      <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
+                        Keep scrolling until the headline docks. Sign in once the transition completes.
+                      </p>
+                      <button
+                        className="auth-btn"
+                        onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
+                        style={{ marginBottom: '10px' }}
+                      >
+                        Sign In →
+                      </button>
+                      <button
+                        className="auth-btn secondary"
+                        onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
+                      >
+                        Create Account
+                      </button>
+                    </div>
                   </div>
                 </div>
               </section>
