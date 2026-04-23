@@ -31,8 +31,10 @@ export default function App() {
   const [homeProgress, setHomeProgress] = useState(0);
   const homeScrollRef = useRef(null);
   const homeTitleRef = useRef(null);
+  const homeLogoRef = useRef(null);
   const [homeViewport, setHomeViewport] = useState({ width: 0, height: 0 });
   const [homeTitleSize, setHomeTitleSize] = useState({ width: 0, height: 0 });
+  const [homeLogoRect, setHomeLogoRect] = useState({ left: 0, top: 0, width: 32, height: 32 });
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
@@ -53,14 +55,12 @@ export default function App() {
         return;
       }
 
-      const sectionStart = sectionEl.offsetTop;
-      const totalScrollable = Math.max(sectionEl.offsetHeight - window.innerHeight, 1);
-      const sectionEnd = sectionStart + totalScrollable;
-      const currentY = window.scrollY;
-      const scrolledInSection = Math.max(0, Math.min(currentY - sectionStart, sectionEnd - sectionStart));
-      const nextProgress = Number((scrolledInSection / totalScrollable).toFixed(3));
+      const rect = sectionEl.getBoundingClientRect();
+      const totalScrollable = Math.max(sectionEl.offsetHeight - window.innerHeight, 100);
+      const progress = -rect.top / totalScrollable;
+      const nextProgress = Number(Math.max(0, Math.min(1, progress)).toFixed(3));
 
-      setHomeProgress((prev) => (Math.abs(prev - nextProgress) > 0.005 ? nextProgress : prev));
+      setHomeProgress(nextProgress);
       ticking = false;
     };
 
@@ -94,6 +94,17 @@ export default function App() {
         setHomeTitleSize({
           width: titleEl.offsetWidth,
           height: titleEl.offsetHeight,
+        });
+      }
+
+      const logoEl = homeLogoRef.current;
+      if (logoEl) {
+        const logoRect = logoEl.getBoundingClientRect();
+        setHomeLogoRect({
+          left: logoRect.left,
+          top: logoRect.top,
+          width: logoRect.width,
+          height: logoRect.height,
         });
       }
     };
@@ -147,19 +158,28 @@ export default function App() {
   const smoothProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
   const heroWidth = homeViewport.width || 0;
   const heroHeight = Math.max((homeViewport.height || 0) - 58, 1);
-  const titleStartLeft = Math.max((heroWidth - homeTitleSize.width) / 2, 24);
-  const titleStartTop = Math.max((heroHeight - homeTitleSize.height) / 2, 24);
-  const titleEndLeft = 74;
-  const titleEndTop = -32;
+  const titleStartLeft = heroWidth ? Math.max((heroWidth - homeTitleSize.width) / 2, 24) : 0;
+  const titleStartTop = heroHeight ? Math.max((heroHeight - homeTitleSize.height) / 2, 24) : 0;
+  const dockScale = 0.22;
+  const dockedTitleHeight = homeTitleSize.height * dockScale;
+  const titleEndLeft = homeLogoRect.left + homeLogoRect.width * 0.2;
+  const titleEndTop = homeLogoRect.top - 58 + (homeLogoRect.height - dockedTitleHeight) / 2;
   const titleLeft = titleStartLeft + (titleEndLeft - titleStartLeft) * smoothProgress;
   const titleTop = titleStartTop + (titleEndTop - titleStartTop) * smoothProgress;
-  const titleScale = 1 - smoothProgress * 0.75;
-  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 1.05);
-  const prefixOpacity = Math.max(0, 1 - smoothProgress * 3);
-  const loginBoxProgress = Math.max(0, (smoothProgress - 0.4) * 1.66);
-  const loginBoxOpacity = loginBoxProgress;
-  const loginBoxTranslateY = (1 - loginBoxProgress) * 80;
-  const isTitleDocked = smoothProgress > 0.8;
+  const titleScale = 1 - smoothProgress * 0.78;
+  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 1.35);
+  const prefixOpacity = Math.max(0, 1 - smoothProgress * 4);
+  const titleMergeProgress = Math.max(0, Math.min(1, (smoothProgress - 0.68) / 0.2));
+  const titleBlur = titleMergeProgress * 8;
+  const titleSpacingTighten = -0.8 + titleMergeProgress * 1.2;
+  const titleGlow = 0.35 + (1 - titleMergeProgress) * 0.45;
+  const logoBlendProgress = Math.max(0, Math.min(1, (smoothProgress - 0.62) / 0.18));
+  const loginRevealThreshold = 0.78;
+  const isLoginBoxVisible = smoothProgress >= loginRevealThreshold;
+  const loginBoxOpacity = isLoginBoxVisible ? 1 : 0;
+  const loginBoxTranslateY = isLoginBoxVisible ? 0 : 72;
+  const brandNameOpacity = Math.max(0, (smoothProgress - 0.88) * 8.33);
+  const isTitleDocked = smoothProgress >= loginRevealThreshold;
 
   return (
     <div style={{ width: '100%', minHeight: '100vh' }}>
@@ -170,9 +190,22 @@ export default function App() {
       <nav className="topbar">
         <a className="brand" href="#">
           <div className="brand-icon">CG</div>
-          <div className="brand-name" style={{ opacity: smoothProgress > 0.9 ? 1 : 0, transition: 'opacity 0.3s' }}>CogniGuard</div>
+          <div className="brand-name" style={{ opacity: brandNameOpacity }}>CogniGuard</div>
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {!user && step === 'welcome' && (
+            <div
+              ref={homeLogoRef}
+              className={`home-corner-logo ${logoBlendProgress > 0.92 ? 'home-corner-logo-merged' : ''}`}
+              style={{
+                opacity: Math.max(0.22, logoBlendProgress),
+                transform: `scale(${0.86 + logoBlendProgress * 0.14})`,
+                boxShadow: `0 0 ${14 + logoBlendProgress * 18}px rgba(240,165,0,${0.26 + logoBlendProgress * 0.28})`,
+              }}
+            >
+              CG
+            </div>
+          )}
           {user && <div style={{ color: 'var(--text2)', fontSize: '14px', fontWeight: '500' }}>{user.nickname}</div>}
           <div 
             onClick={() => setIsDark(!isDark)} 
@@ -190,8 +223,8 @@ export default function App() {
         <div className="page active">
           <div className={`auth-page ${step === 'welcome' ? 'home-mode' : ''}`}>
             {step === 'welcome' ? (
-              <section className="home-scroll-page" ref={homeScrollRef} style={{ height: '300vh' }}>
-                <div className="home-scroll-sticky">
+              <section className="home-scroll-page" ref={homeScrollRef} style={{ height: '300vh', position: 'relative' }}>
+                <div className="home-scroll-sticky" style={{ zIndex: 5 }}>
                   <div
                     className={`home-welcome-title ${isTitleDocked ? 'home-welcome-title-docked' : ''}`}
                     ref={homeTitleRef}
@@ -200,6 +233,11 @@ export default function App() {
                       top: `${titleTop}px`,
                       transform: `scale(${titleScale})`,
                       opacity: welcomeOpacity,
+                      filter: `blur(${titleBlur}px)`,
+                      letterSpacing: `${titleSpacingTighten}px`,
+                      textShadow: `0 12px 28px rgba(0,0,0,${titleGlow})`,
+                      zIndex: 10,
+                      transformOrigin: 'top left'
                     }}
                   >
                     <span className="home-welcome-prefix" style={{ opacity: prefixOpacity }}>Welcome to </span>
@@ -212,14 +250,16 @@ export default function App() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    opacity: loginBoxOpacity, 
+                    opacity: loginBoxOpacity,
                     transform: `translateY(${loginBoxTranslateY}px)`,
-                    pointerEvents: loginBoxProgress > 0.8 ? 'all' : 'none'
+                    pointerEvents: isLoginBoxVisible ? 'all' : 'none',
+                    transition: 'none',
+                    zIndex: 20
                   }}>
                     <div className="home-cta-panel">
                       <div className="auth-title" style={{ marginBottom: '10px' }}>Your AI-powered impulse intervention system</div>
                       <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
-                        Keep scrolling until the headline docks. Sign in once the transition completes.
+                        Scroll until the headline docks into the top-right logo. The login card appears immediately.
                       </p>
                       <button
                         className="auth-btn"
