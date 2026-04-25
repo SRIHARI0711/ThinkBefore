@@ -13,6 +13,13 @@ const COLORS = [
   { hex: '#ec4899', label: 'Pink' },
 ];
 
+const DECISION_EXAMPLES = [
+  "Should I buy this expensive gadget right now?",
+  "I want to send an angry message to my boss",
+  "Should I skip my workout today?",
+  "Should I make a big purchase decision?"
+];
+
 export default function App() {
   const [page, setPage] = useState('auth');
   const [step, setStep] = useState('welcome');
@@ -25,101 +32,19 @@ export default function App() {
   const [view, setView] = useState('dash');
   const [text, setText] = useState('');
   const [result, setResult] = useState(null);
+  const [category, setCategory] = useState('shopping');
   const [history, setHistory] = useState([]);
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
-  const [homeProgress, setHomeProgress] = useState(0);
-  const homeScrollRef = useRef(null);
-  const homeTitleRef = useRef(null);
-  const homeLogoRef = useRef(null);
-  const [homeViewport, setHomeViewport] = useState({ width: 0, height: 0 });
-  const [homeTitleSize, setHomeTitleSize] = useState({ width: 0, height: 0 });
-  const [homeLogoRect, setHomeLogoRect] = useState({ left: 0, top: 0, width: 32, height: 32 });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
   }, [isDark]);
 
-  useEffect(() => {
-    if (user || step !== 'welcome') {
-      setHomeProgress(0);
-      return;
-    }
-
-    let ticking = false;
-
-    const updateScrollProgress = () => {
-      const sectionEl = homeScrollRef.current;
-      if (!sectionEl) {
-        ticking = false;
-        return;
-      }
-
-      const rect = sectionEl.getBoundingClientRect();
-      const totalScrollable = Math.max(sectionEl.offsetHeight - window.innerHeight, 100);
-      const progress = -rect.top / totalScrollable;
-      const nextProgress = Number(Math.max(0, Math.min(1, progress)).toFixed(3));
-
-      setHomeProgress(nextProgress);
-      ticking = false;
-    };
-
-    const onScrollOrResize = () => {
-      if (!ticking) {
-        ticking = true;
-        window.requestAnimationFrame(updateScrollProgress);
-      }
-    };
-
-    updateScrollProgress();
-    window.addEventListener('scroll', onScrollOrResize, { passive: true });
-    window.addEventListener('resize', onScrollOrResize);
-
-    return () => {
-      window.removeEventListener('scroll', onScrollOrResize);
-      window.removeEventListener('resize', onScrollOrResize);
-    };
-  }, [user, step]);
-
-  useEffect(() => {
-    if (user || step !== 'welcome') {
-      return;
-    }
-
-    const measureHomeHero = () => {
-      setHomeViewport({ width: window.innerWidth, height: window.innerHeight });
-
-      const titleEl = homeTitleRef.current;
-      if (titleEl) {
-        setHomeTitleSize({
-          width: titleEl.offsetWidth,
-          height: titleEl.offsetHeight,
-        });
-      }
-
-      const logoEl = homeLogoRef.current;
-      if (logoEl) {
-        const logoRect = logoEl.getBoundingClientRect();
-        setHomeLogoRect({
-          left: logoRect.left,
-          top: logoRect.top,
-          width: logoRect.width,
-          height: logoRect.height,
-        });
-      }
-    };
-
-    measureHomeHero();
-    window.addEventListener('resize', measureHomeHero);
-
-    return () => {
-      window.removeEventListener('resize', measureHomeHero);
-    };
-  }, [user, step]);
-
   const handleSignIn = () => {
     if (email && password) {
-      setUser({ email, nickname: email.split('@')[0], avatarColor: '#f0a500' });
+      setUser({ email, nickname: email.split('@')[0], avatarColor: '#2563eb' });
       setPage('app');
       setView('dash');
     }
@@ -135,10 +60,14 @@ export default function App() {
 
   const handleAnalyze = () => {
     if (!text.trim()) return;
-    const analysis = analyzeDecision(text);
-    setResult(analysis);
-    setHistory([analysis, ...history]);
-    setText('');
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      const analysis = analyzeDecision(text);
+      setResult(analysis);
+      setHistory([analysis, ...history]);
+      setText('');
+      setIsAnalyzing(false);
+    }, 600);
   };
 
   const handleLogout = () => {
@@ -154,32 +83,25 @@ export default function App() {
     setView('dash');
   };
 
-  const clampedProgress = Math.max(0, Math.min(1, homeProgress));
-  const smoothProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress);
-  const heroWidth = homeViewport.width || 0;
-  const heroHeight = Math.max((homeViewport.height || 0) - 58, 1);
-  const titleStartLeft = heroWidth ? Math.max((heroWidth - homeTitleSize.width) / 2, 24) : 0;
-  const titleStartTop = heroHeight ? Math.max((heroHeight - homeTitleSize.height) / 2, 24) : 0;
-  const dockScale = 0.22;
-  const dockedTitleHeight = homeTitleSize.height * dockScale;
-  const titleEndLeft = homeLogoRect.left + homeLogoRect.width * 0.2;
-  const titleEndTop = homeLogoRect.top - 58 + (homeLogoRect.height - dockedTitleHeight) / 2;
-  const titleLeft = titleStartLeft + (titleEndLeft - titleStartLeft) * smoothProgress;
-  const titleTop = titleStartTop + (titleEndTop - titleStartTop) * smoothProgress;
-  const titleScale = 1 - smoothProgress * 0.78;
-  const welcomeOpacity = Math.max(0, 1 - smoothProgress * 1.35);
-  const prefixOpacity = Math.max(0, 1 - smoothProgress * 4);
-  const titleMergeProgress = Math.max(0, Math.min(1, (smoothProgress - 0.68) / 0.2));
-  const titleBlur = titleMergeProgress * 8;
-  const titleSpacingTighten = -0.8 + titleMergeProgress * 1.2;
-  const titleGlow = 0.35 + (1 - titleMergeProgress) * 0.45;
-  const logoBlendProgress = Math.max(0, Math.min(1, (smoothProgress - 0.62) / 0.18));
-  const loginRevealThreshold = 0.78;
-  const isLoginBoxVisible = smoothProgress >= loginRevealThreshold;
-  const loginBoxOpacity = isLoginBoxVisible ? 1 : 0;
-  const loginBoxTranslateY = isLoginBoxVisible ? 0 : 72;
-  const brandNameOpacity = Math.max(0, (smoothProgress - 0.88) * 8.33);
-  const isTitleDocked = smoothProgress >= loginRevealThreshold;
+  const getRiskColor = (risk) => {
+    switch(risk) {
+      case 'critical': return '#ef4444';
+      case 'high': return '#f59e0b';
+      case 'medium': return '#3b82f6';
+      case 'low': return '#10b981';
+      default: return '#6b7280';
+    }
+  };
+
+  const getRiskBg = (risk) => {
+    switch(risk) {
+      case 'critical': return 'rgba(239, 68, 68, 0.1)';
+      case 'high': return 'rgba(245, 158, 11, 0.1)';
+      case 'medium': return 'rgba(59, 130, 246, 0.1)';
+      case 'low': return 'rgba(16, 185, 129, 0.1)';
+      default: return 'rgba(107, 114, 128, 0.1)';
+    }
+  };
 
   return (
     <div style={{ width: '100%', minHeight: '100vh' }}>
@@ -190,22 +112,9 @@ export default function App() {
       <nav className="topbar">
         <a className="brand" href="#">
           <div className="brand-icon">CG</div>
-          <div className="brand-name" style={{ opacity: brandNameOpacity }}>CogniGuard</div>
+          <div className="brand-name">CogniAuth</div>
         </a>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {!user && step === 'welcome' && (
-            <div
-              ref={homeLogoRef}
-              className={`home-corner-logo ${logoBlendProgress > 0.92 ? 'home-corner-logo-merged' : ''}`}
-              style={{
-                opacity: Math.max(0.22, logoBlendProgress),
-                transform: `scale(${0.86 + logoBlendProgress * 0.14})`,
-                boxShadow: `0 0 ${14 + logoBlendProgress * 18}px rgba(240,165,0,${0.26 + logoBlendProgress * 0.28})`,
-              }}
-            >
-              CG
-            </div>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {user && <div style={{ color: 'var(--text2)', fontSize: '14px', fontWeight: '500' }}>{user.nickname}</div>}
           <div 
             onClick={() => setIsDark(!isDark)} 
@@ -223,59 +132,110 @@ export default function App() {
         <div className="page active">
           <div className={`auth-page ${step === 'welcome' ? 'home-mode' : ''}`}>
             {step === 'welcome' ? (
-              <section className="home-scroll-page" ref={homeScrollRef} style={{ height: '300vh', position: 'relative' }}>
-                <div className="home-scroll-sticky" style={{ zIndex: 5 }}>
-                  <div
-                    className={`home-welcome-title ${isTitleDocked ? 'home-welcome-title-docked' : ''}`}
-                    ref={homeTitleRef}
-                    style={{
-                      left: `${titleLeft}px`,
-                      top: `${titleTop}px`,
-                      transform: `scale(${titleScale})`,
-                      opacity: welcomeOpacity,
-                      filter: `blur(${titleBlur}px)`,
-                      letterSpacing: `${titleSpacingTighten}px`,
-                      textShadow: `0 12px 28px rgba(0,0,0,${titleGlow})`,
-                      zIndex: 10,
-                      transformOrigin: 'top left'
-                    }}
-                  >
-                    <span className="home-welcome-prefix" style={{ opacity: prefixOpacity }}>Welcome to </span>
-                    <span className="home-welcome-name">CogniGuard</span>
-                  </div>
-
-                  <div className="home-login-stage" style={{ 
-                    position: 'absolute',
-                    inset: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: loginBoxOpacity,
-                    transform: `translateY(${loginBoxTranslateY}px)`,
-                    pointerEvents: isLoginBoxVisible ? 'all' : 'none',
-                    transition: 'none',
-                    zIndex: 20
-                  }}>
-                    <div className="home-cta-panel">
-                      <div className="auth-title" style={{ marginBottom: '10px' }}>Your AI-powered impulse intervention system</div>
-                      <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
-                        Scroll until the headline docks into the top-right logo. The login card appears immediately.
-                      </p>
-                      <button
-                        className="auth-btn"
+              <section className="home-page">
+                {/* Hero Section */}
+                <div className="home-hero">
+                  <div className="hero-content">
+                    <h1 className="hero-title">Pause Before You Act</h1>
+                    <p className="hero-subtitle">
+                      AI-powered analysis helps you make decisions you won't regret. Get real-time intervention before impulsive choices.
+                    </p>
+                    <div className="hero-cta-group">
+                      <button 
+                        className="cta-btn primary"
                         onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
-                        style={{ marginBottom: '10px' }}
                       >
-                        Sign In →
+                        Get Started →
                       </button>
-                      <button
-                        className="auth-btn secondary"
+                      <button 
+                        className="cta-btn secondary"
                         onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
                       >
                         Create Account
                       </button>
                     </div>
                   </div>
+                  <div className="hero-visual">
+                    <div className="visual-element brain-icon">🧠</div>
+                  </div>
+                </div>
+
+                {/* Features Section */}
+                <div className="home-section">
+                  <h2 className="section-title">Why CogniAuth Works</h2>
+                  <div className="features-grid">
+                    <div className="feature-card">
+                      <div className="feature-icon">⚡</div>
+                      <h3>Real-Time Analysis</h3>
+                      <p>Analyzes your decision the moment you consider it. Get instant insights without delays.</p>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">⚠️</div>
+                      <h3>Risk Detection</h3>
+                      <p>Identifies impulsive patterns before you act. See your behavior patterns and warning signs.</p>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">💡</div>
+                      <h3>Smart Interventions</h3>
+                      <p>Get instant, actionable advice tailored to your decision. Know exactly what to do next.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Use Cases Section */}
+                <div className="home-section">
+                  <h2 className="section-title">Real-World Scenarios</h2>
+                  <div className="usecases-grid">
+                    <div className="usecase-card">
+                      <div className="usecase-label">Shopping</div>
+                      <p className="usecase-scenario">"Should I buy this expensive gadget?"</p>
+                      <div className="usecase-intervention">💡 Try waiting 24 hours. Most impulse regrets happen within this window.</div>
+                    </div>
+                    <div className="usecase-card">
+                      <div className="usecase-label">Messaging</div>
+                      <p className="usecase-scenario">"I want to send this angry email"</p>
+                      <div className="usecase-intervention">⚠️ Emotional tone detected. Save as draft first—review when calm.</div>
+                    </div>
+                    <div className="usecase-card">
+                      <div className="usecase-label">Productivity</div>
+                      <p className="usecase-scenario">"Should I skip my workout?"</p>
+                      <div className="usecase-intervention">🎯 You've skipped 3x this week. This decision is a pattern.</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust Section */}
+                <div className="home-section trust-section">
+                  <h2 className="section-title">Built on Trust</h2>
+                  <div className="trust-grid">
+                    <div className="trust-card">
+                      <div className="trust-icon">🔒</div>
+                      <h4>Privacy First</h4>
+                      <p>All analysis happens locally. Your data never leaves your device. No cloud storage, no tracking.</p>
+                    </div>
+                    <div className="trust-card">
+                      <div className="trust-icon">🧬</div>
+                      <h4>Explainable AI</h4>
+                      <p>Understand exactly why each decision was flagged. Transparent reasoning, not black-box analysis.</p>
+                    </div>
+                    <div className="trust-card">
+                      <div className="trust-icon">📊</div>
+                      <h4>Evidence-Based</h4>
+                      <p>Built on behavioral science research. Our intervention framework comes from psychology and neuroscience.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Final CTA */}
+                <div className="home-final-cta">
+                  <h2>Ready to Make Better Decisions?</h2>
+                  <p>Join hundreds of users preventing impulsive regrets every day.</p>
+                  <button 
+                    className="cta-btn primary large"
+                    onClick={() => { setEmail(''); setPassword(''); setStep('signup-email'); }}
+                  >
+                    Start Free Today →
+                  </button>
                 </div>
               </section>
             ) : (
@@ -575,16 +535,7 @@ export default function App() {
                 onClick={() => setView('history')}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="nav-icon">◫</span> Decision History
-              </div>
-              <div className="nav-sep"></div>
-              <div 
-                className={`nav-item ${view === 'analyzer' ? 'active' : ''}`}
-                onClick={() => setView('analyzer')}
-                style={{ cursor: 'pointer' }}
-                title="Open the full impulse analyzer"
-              >
-                <span className="nav-icon">🧠</span> AI Analyzer
+                <span className="nav-icon">◫</span> History
               </div>
               <div className="nav-sep"></div>
               <div 
@@ -592,14 +543,13 @@ export default function App() {
                 onClick={() => setView('profile')}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="nav-icon">◎</span> My Profile
+                <span className="nav-icon">◎</span> Profile
               </div>
               <div className="nav-sep"></div>
               <div 
                 className="nav-item logout-item"
                 onClick={handleLogout}
-                style={{ cursor: 'pointer', color: 'var(--red)', fontWeight: '500' }}
-                title="Sign out of your account"
+                style={{ cursor: 'pointer' }}
               >
                 <span className="nav-icon">→</span> Sign Out
               </div>
@@ -608,281 +558,415 @@ export default function App() {
               {view === 'dash' && (
                 <div className="dash-view active">
                   <div className="view-header">
-                    <div className="view-title">Good day, {user.nickname}!</div>
-                    <div className="view-sub">Here's an overview of your decision intelligence activity.</div>
+                    <div className="view-title">Dashboard</div>
+                    <div className="view-sub">Analyze decisions in real-time and get instant interventions.</div>
                   </div>
+                  
+                  {/* Stats Grid */}
                   <div className="stats-grid">
-                    <div className="stat-card amber">
-                      <div className="stat-val amber">{history.length}</div>
-                      <div className="stat-lbl">Total Analyzed</div>
+                    <div className="stat-card">
+                      <div className="stat-icon">📊</div>
+                      <div className="stat-val">{history.length}</div>
+                      <div className="stat-lbl">Analyzed</div>
                     </div>
-                    <div className="stat-card red">
-                      <div className="stat-val red">{history.filter(h => h.predictedRisk === 'critical').length}</div>
+                    <div className="stat-card">
+                      <div className="stat-icon">⚠️</div>
+                      <div className="stat-val">{history.filter(h => h.predictedRisk === 'critical' || h.predictedRisk === 'high').length}</div>
                       <div className="stat-lbl">Interventions</div>
                     </div>
-                    <div className="stat-card green">
-                      <div className="stat-val green">{history.filter(h => h.predictedRisk === 'low').length}</div>
+                    <div className="stat-card">
+                      <div className="stat-icon">✓</div>
+                      <div className="stat-val">{history.filter(h => h.predictedRisk === 'low').length}</div>
                       <div className="stat-lbl">Approved</div>
                     </div>
-                    <div className="stat-card blue">
-                      <div className="stat-val blue">0</div>
-                      <div className="stat-lbl">Day Streak</div>
+                    <div className="stat-card">
+                      <div className="stat-icon">🔥</div>
+                      <div className="stat-val">—</div>
+                      <div className="stat-lbl">Streak</div>
                     </div>
                   </div>
-                  <div className="section-title">Quick Analysis</div>
-                  <div className="decision-panel">
-                    <textarea 
-                      className="decision-quick-input" 
-                      placeholder="Describe a decision you are about to make…" 
-                      rows="3"
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                    ></textarea>
-                    <div className="decision-btn-row">
-                      <button 
-                        className="quick-analyze-btn"
-                        onClick={handleAnalyze}
-                        disabled={!text.trim()}
-                      >
-                        ⚡ Analyze →
-                      </button>
-                      <span style={{ fontSize: '12px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace" }}>Local AI · No API key needed</span>
-                    </div>
-                    {result && (
-                      <div className="quick-result" style={{ marginTop: '16px', padding: '16px', background: 'var(--bg2)', borderRadius: '12px' }}>
-                        <div className="qr-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                          <span 
+
+                  {/* Decision Input Section */}
+                  <div className="decision-input-section">
+                    <h3 className="section-heading">Analyze a Decision</h3>
+                    <p className="section-desc">Describe any decision you're considering right now. Be specific for better analysis.</p>
+                    
+                    <div style={{ marginBottom: '16px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category (optional)</div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {['shopping', 'messaging', 'productivity', 'finance'].map(cat => (
+                          <button
+                            key={cat}
+                            onClick={() => setCategory(cat)}
                             style={{
-                              padding: '6px 12px',
-                              borderRadius: '6px',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              background: result.predictedRisk === 'critical' ? 'var(--red)' : result.predictedRisk === 'high' ? 'var(--amber)' : result.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)',
-                              color: '#fff'
+                              padding: '8px 14px',
+                              borderRadius: '8px',
+                              border: '1px solid ' + (category === cat ? 'var(--blue)' : 'var(--border)'),
+                              background: category === cat ? 'rgba(37, 99, 235, 0.1)' : 'var(--bg3)',
+                              color: category === cat ? '#2563eb' : 'var(--text2)',
+                              fontSize: '13px',
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
                             }}
                           >
-                            {result.predictedRisk.toUpperCase()}
-                          </span>
-                          <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)' }}>
-                            {result.severityScore}/98
-                          </span>
+                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <textarea 
+                      className="decision-input" 
+                      placeholder="What decision are you considering? (e.g., 'Should I buy this $200 headphone today even though I just got paid?')" 
+                      rows="5"
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      style={{ marginBottom: '12px' }}
+                    ></textarea>
+
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', alignItems: 'center' }}>
+                      <button 
+                        className="analyze-btn"
+                        onClick={handleAnalyze}
+                        disabled={!text.trim() || isAnalyzing}
+                        style={{ opacity: (!text.trim() || isAnalyzing) ? 0.5 : 1 }}
+                      >
+                        {isAnalyzing ? (
+                          <>
+                            <span style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid white', borderRadius: '50%', animation: 'spin 0.6s linear infinite', marginRight: '8px' }}></span>
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>⚡ Analyze Decision</>
+                        )}
+                      </button>
+                      <span style={{ fontSize: '12px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace" }}>
+                        Local AI · Private · Instant
+                      </span>
+                    </div>
+
+                    {/* Quick Examples */}
+                    {!result && text.length === 0 && (
+                      <div style={{ marginBottom: '24px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text3)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Try an example:</div>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {DECISION_EXAMPLES.map((example, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setText(example)}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border)',
+                                background: 'var(--bg2)',
+                                color: 'var(--text2)',
+                                fontSize: '12px',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {example.slice(0, 35)}...
+                            </button>
+                          ))}
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: '12px' }}>
-                          <div style={{ padding: '10px', borderRadius: '10px', background: 'var(--bg3)' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Behavior</div>
-                            <div style={{ fontSize: '13px', color: 'var(--text1)', fontWeight: '600' }}>{result.behavior.replace('-', ' ').toUpperCase()}</div>
-                          </div>
-                          <div style={{ padding: '10px', borderRadius: '10px', background: 'var(--bg3)' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>HARMFULNESS</div>
-                            <div style={{ fontSize: '13px', color: 'var(--text1)', fontWeight: '600' }}>{result.harmfulnessScore}/98</div>
-                          </div>
-                          <div style={{ padding: '10px', borderRadius: '10px', background: 'var(--bg3)' }}>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>NEGATIVITY</div>
-                            <div style={{ fontSize: '13px', color: 'var(--text1)', fontWeight: '600' }}>{result.negativityScore}/98</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Result Display */}
+                  {result && (
+                    <div className="result-section">
+                      <div className="result-header">
+                        <h3>Analysis Results</h3>
+                        <button 
+                          onClick={() => setResult(null)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            color: 'var(--text3)'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* Risk Score and Meter */}
+                      <div className="result-risk-box">
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px' }}>RISK LEVEL</div>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                            <div 
+                              style={{
+                                fontSize: '48px',
+                                fontWeight: '800',
+                                color: getRiskColor(result.predictedRisk),
+                                fontFamily: "'DM Mono',monospace"
+                              }}
+                            >
+                              {result.severityScore}
+                            </div>
+                            <div>
+                              <div 
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '6px 14px',
+                                  borderRadius: '8px',
+                                  background: getRiskBg(result.predictedRisk),
+                                  color: getRiskColor(result.predictedRisk),
+                                  fontSize: '13px',
+                                  fontWeight: '700',
+                                  letterSpacing: '1px'
+                                }}
+                              >
+                                {result.predictedRisk.toUpperCase()}
+                              </div>
+                              <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>out of 100</div>
+                            </div>
                           </div>
                         </div>
-                        <div style={{ width: '100%', height: '6px', background: 'var(--bg3)', borderRadius: '3px', overflow: 'hidden', marginBottom: '12px' }}>
+                        
+                        {/* Meter */}
+                        <div style={{ height: '8px', background: 'var(--bg3)', borderRadius: '4px', overflow: 'hidden' }}>
                           <div 
                             style={{
-                              width: `${(result.severityScore / 98) * 100}%`,
+                              width: `${(result.severityScore / 100) * 100}%`,
                               height: '100%',
-                              background: result.predictedRisk === 'critical' ? 'var(--red)' : result.predictedRisk === 'high' ? 'var(--amber)' : result.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)',
-                              transition: 'width 0.3s'
+                              background: getRiskColor(result.predictedRisk),
+                              borderRadius: '4px',
+                              transition: 'width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)'
                             }}
                           ></div>
                         </div>
-                        <p style={{ margin: '0', fontSize: '14px', color: 'var(--text2)' }}>
+                      </div>
+
+                      {/* Analysis Details */}
+                      <div className="result-analysis">
+                        <h4 className="result-subheading">Decision Breakdown</h4>
+                        <div className="analysis-grid">
+                          <div className="analysis-item">
+                            <div className="analysis-label">Behavior Type</div>
+                            <div className="analysis-value">{result.behavior.replace('-', ' ').charAt(0).toUpperCase() + result.behavior.replace('-', ' ').slice(1)}</div>
+                          </div>
+                          <div className="analysis-item">
+                            <div className="analysis-label">Harmfulness</div>
+                            <div className="analysis-value">{result.harmfulnessScore}/100</div>
+                          </div>
+                          <div className="analysis-item">
+                            <div className="analysis-label">Emotional Charge</div>
+                            <div className="analysis-value">{result.negativityScore}/100</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Intervention */}
+                      <div className="result-intervention">
+                        <h4 className="result-subheading">💡 Recommended Intervention</h4>
+                        <p style={{ margin: '0', fontSize: '14px', color: 'var(--text2)', lineHeight: '1.6' }}>
                           {result.intervention}
                         </p>
-                        {result.consequences && (
-                          <div style={{ marginTop: '14px', padding: '14px', borderRadius: '12px', background: 'rgba(232, 74, 111, 0.05)', border: '1px solid rgba(232, 74, 111, 0.15)' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--red)', marginBottom: '10px' }}>Predicted Consequences</div>
-                            <ul style={{ margin: 0, paddingLeft: '18px', color: 'var(--text2)', fontSize: '13px', lineHeight: '1.7' }}>
-                              {result.consequences.map((item, idx) => (
-                                <li key={idx}>{item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="section-title" style={{ marginTop: '24px' }}>Recent Activity</div>
-                  <div className="activity-feed">
-                    {history.length === 0 ? (
-                      <div className="empty-state">
-                        <div className="empty-icon">🔍</div>
-                        No decisions analyzed yet. Use the analyzer above to get started.
-                      </div>
-                    ) : (
-                      history.slice(0, 5).map((item, idx) => (
-                        <div 
-                          key={idx}
-                          style={{ 
-                            padding: '12px 16px',
-                            marginBottom: '8px',
-                            borderLeft: '3px solid ' + (item.predictedRisk === 'critical' ? 'var(--red)' : item.predictedRisk === 'high' ? 'var(--amber)' : item.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)'),
-                            borderRadius: '8px',
-                            background: 'var(--bg2)',
-                            fontSize: '13px'
-                          }}
-                        >
-                          <div style={{ fontWeight: '500', color: 'var(--text1)', marginBottom: '4px'}}>
-                            "{item.text}"
-                          </div>
-                          <div style={{ color: 'var(--text3)', fontSize: '12px' }}>
-                            {item.behavior.replace('-', ' ').charAt(0).toUpperCase() + item.behavior.replace('-', ' ').slice(1)} · Severity: {item.severityScore} · {item.predictedRisk.toUpperCase()}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
 
-              {view === 'history' && (
-                <div className="history-view active" style={{ padding: '24px' }}>
-                  <div className="view-header">
-                    <div className="view-title">Decision History</div>
-                    <div className="view-sub">All your analyzed decisions — view your complete record.</div>
-                  </div>
-                  <div style={{ marginTop: '24px' }}>
-                    {history.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px' }}>
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>◫</div>
-                        <div style={{ fontSize: '16px', fontWeight: '500', color: 'var(--text1)', marginBottom: '8px' }}>No decisions analyzed yet</div>
-                        <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing your decisions from the Dashboard to build your complete decision history.</div>
-                        <button 
-                          className="auth-btn"
-                          onClick={() => setView('dash')}
-                          style={{ padding: '10px 20px', fontSize: '14px' }}
-                        >
-                          Go to Dashboard →
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'var(--bg2)', borderRadius: '8px' }}>
-                          <div style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '500' }}>
-                            📊 Total Decisions: <span style={{ color: 'var(--amber)', fontWeight: '700' }}>{history.length}</span>
-                          </div>
+                      {/* Consequences if present */}
+                      {result.consequences && result.consequences.length > 0 && (
+                        <div className="result-consequences">
+                          <h4 className="result-subheading">⚠️ Potential Consequences</h4>
+                          <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: 'var(--text2)', lineHeight: '1.7' }}>
+                            {result.consequences.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
                         </div>
-                        {history.map((item, idx) => (
+                      )}
+
+                      <button 
+                        className="auth-btn"
+                        onClick={() => { setText(''); setResult(null); }}
+                        style={{ marginTop: '16px', width: '100%' }}
+                      >
+                        Analyze Another Decision
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Recent Activity */}
+                  {history.length > 0 && !result && (
+                    <div style={{ marginTop: '32px' }}>
+                      <h3 className="section-heading">Recent Analyses</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {history.slice(0, 5).map((item, idx) => (
                           <div 
                             key={idx}
                             style={{ 
-                              padding: '16px',
-                              marginBottom: '12px',
-                              border: '1px solid var(--border)',
-                              borderRadius: '10px',
+                              padding: '14px 16px',
+                              borderLeft: '4px solid ' + getRiskColor(item.predictedRisk),
+                              borderRadius: '8px',
                               background: 'var(--bg2)',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
+                              fontSize: '13px',
+                              transition: 'all 0.2s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = 'var(--bg3)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg2)'}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                              <div style={{ flex: 1, marginRight: '16px' }}>
-                                <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
-                                  "{item.text}"
-                                </div>
-                                <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-                                  Behavior: {item.behavior.replace('-', ' ').charAt(0).toUpperCase() + item.behavior.replace('-', ' ').slice(1)} · Severity: {item.severityScore}/98 · {item.timestamp}
-                                </div>
-                              </div>
-                              <span 
-                                style={{
-                                  padding: '6px 12px',
-                                  borderRadius: '6px',
-                                  fontSize: '11px',
-                                  fontWeight: '600',
-                                  background: item.predictedRisk === 'critical' ? 'var(--red)' : item.predictedRisk === 'high' ? 'var(--amber)' : item.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)',
-                                  color: '#fff',
-                                  whiteSpace: 'nowrap'
-                                }}
-                              >
+                            <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '4px' }}>
+                              "{item.text.slice(0, 60)}{item.text.length > 60 ? '...' : ''}"
+                            </div>
+                            <div style={{ color: 'var(--text3)', fontSize: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                              <span>{item.behavior.replace('-', ' ')}</span>
+                              <span>•</span>
+                              <span style={{ color: getRiskColor(item.predictedRisk), fontWeight: '600' }}>
                                 {item.predictedRisk.toUpperCase()}
                               </span>
                             </div>
                           </div>
                         ))}
                       </div>
-                    )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {view === 'history' && (
+                <div className="history-view active">
+                  <div className="view-header">
+                    <div className="view-title">Decision History</div>
+                    <div className="view-sub">Review all your analyzed decisions.</div>
                   </div>
+                  
+                  {history.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px', marginTop: '24px' }}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>◫</div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>No decisions yet</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing decisions to build your complete history.</div>
+                      <button 
+                        className="auth-btn"
+                        onClick={() => setView('dash')}
+                        style={{ padding: '10px 20px', fontSize: '14px', maxWidth: '300px', margin: '0 auto' }}
+                      >
+                        Go to Dashboard →
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: '24px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {history.map((item, idx) => (
+                          <div 
+                            key={idx}
+                            style={{
+                              padding: '16px',
+                              border: '1px solid var(--border)',
+                              borderRadius: '10px',
+                              background: 'var(--bg2)',
+                              display: 'flex',
+                              gap: '16px',
+                              justifyContent: 'space-between',
+                              alignItems: 'flex-start',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
+                                "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
+                              </div>
+                              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                                {item.behavior.replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
+                              </div>
+                            </div>
+                            <div 
+                              style={{
+                                padding: '8px 14px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                background: getRiskBg(item.predictedRisk),
+                                color: getRiskColor(item.predictedRisk),
+                                whiteSpace: 'nowrap',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                              }}
+                            >
+                              {item.predictedRisk}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {view === 'profile' && (
-                <div className="profile-view active" style={{ padding: '24px' }}>
+                <div className="profile-view active">
                   <div className="view-header">
                     <div className="view-title">My Profile</div>
-                    <div className="view-sub">Manage your identity and view your behavioral patterns.</div>
+                    <div className="view-sub">Manage your account and view your activity.</div>
                   </div>
-                  <div style={{ marginTop: '24px', padding: '24px', background: 'var(--bg2)', borderRadius: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+
+                  <div style={{ marginTop: '24px', padding: '28px', background: 'var(--bg2)', borderRadius: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '28px' }}>
                       <div 
                         style={{ 
-                          width: '80px', 
-                          height: '80px', 
+                          width: '88px', 
+                          height: '88px', 
                           background: user.avatarColor,
                           borderRadius: '12px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '32px',
+                          fontSize: '36px',
                           fontWeight: '700',
-                          color: '#fff'
+                          color: '#fff',
+                          flexShrink: 0
                         }}
                       >
                         {user.nickname.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div style={{ fontSize: '18px', fontWeight: '600', color: 'var(--text1)' }}>{user.nickname}</div>
-                        <div style={{ fontSize: '13px', color: 'var(--text3)' }}>{user.email}</div>
-                        <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
-                          <span style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--amber)', color: '#000', borderRadius: '4px', fontWeight: '600' }}>⚡ Guardian</span>
-                          <span style={{ padding: '4px 8px', fontSize: '11px', background: 'var(--green)', color: '#000', borderRadius: '4px', fontWeight: '600' }}>✓ Verified</span>
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '4px' }}>{user.nickname}</div>
+                        <div style={{ fontSize: '13px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace", marginBottom: '12px' }}>{user.email}</div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <span style={{ padding: '4px 10px', fontSize: '11px', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb', borderRadius: '6px', fontWeight: '600' }}>✓ Active</span>
+                          <span style={{ padding: '4px 10px', fontSize: '11px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '6px', fontWeight: '600' }}>🔒 Private</span>
                         </div>
                       </div>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px', marginBottom: '24px' }}>
-                      <div style={{ textAlign: 'center', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--amber)' }}>{history.length}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>Decisions</div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: '#2563eb' }}>{history.length}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>Decisions Analyzed</div>
                       </div>
-                      <div style={{ textAlign: 'center', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--red)' }}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: '#ef4444' }}>
                           {history.filter(h => h.predictedRisk === 'critical' || h.predictedRisk === 'high').length}
                         </div>
                         <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>Interventions</div>
                       </div>
-                      <div style={{ textAlign: 'center', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--green)' }}>—</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>Member Since</div>
+                      <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981' }}>
+                          {history.filter(h => h.predictedRisk === 'low').length}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>Approved</div>
                       </div>
                     </div>
-                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '24px' }}>
-                      <div style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: '1.6' }}>
-                        <p style={{ margin: '0 0 12px 0' }}>
-                          <strong>Account Status:</strong> Active and verified ✓
-                        </p>
-                        <p style={{ margin: '0 0 12px 0' }}>
-                          <strong>Profile Type:</strong> CogniGuard Guardian
-                        </p>
-                        <p style={{ margin: '0' }}>
-                          <strong>All data is stored locally</strong> and encrypted for your privacy.
-                        </p>
-                      </div>
+
+                    <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--border)', fontSize: '13px', color: 'var(--text2)', lineHeight: '1.6' }}>
+                      <p style={{ margin: '0 0 12px 0' }}>
+                        <strong>Privacy Status:</strong> All data is stored locally on your device and encrypted.
+                      </p>
+                      <p style={{ margin: '0' }}>
+                        <strong>Account Type:</strong> CogniAuth Guardian — Full access to decision analysis and history.
+                      </p>
                     </div>
                   </div>
+
                   <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     <button 
                       className="auth-btn secondary" 
                       onClick={() => setView('dash')}
-                      style={{ padding: '10px 24px' }}
+                      style={{ padding: '10px 24px', maxWidth: '200px' }}
                     >
-                      ← Back to Dashboard
+                      ← Back
                     </button>
                     <button 
                       className="topbar-signout" 
@@ -895,86 +979,6 @@ export default function App() {
                 </div>
               )}
 
-              {view === 'analyzer' && (
-                <div className="analyzer-view active" style={{ padding: '24px' }}>
-                  <div className="view-header">
-                    <div className="view-title">AI Impulse Analyzer</div>
-                    <div className="view-sub">Deep dive analysis of your decision impulses and behavioral patterns.</div>
-                  </div>
-                  <div style={{ marginTop: '24px' }}>
-                    <div style={{ padding: '24px', background: 'var(--bg2)', borderRadius: '12px', marginBottom: '24px' }}>
-                      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '16px' }}>🧠 Analyze New Decision</div>
-                      <textarea 
-                        className="decision-quick-input" 
-                        placeholder="Describe a decision you want to analyze in detail…" 
-                        rows="5"
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg3)', color: 'var(--text1)', fontFamily: 'inherit', fontSize: '14px', marginBottom: '12px' }}
-                      ></textarea>
-                      <button 
-                        className="quick-analyze-btn"
-                        onClick={handleAnalyze}
-                        disabled={!text.trim()}
-                        style={{ padding: '10px 20px', fontSize: '14px' }}
-                      >
-                        ⚡ Analyze Decision →
-                      </button>
-                    </div>
-
-                    {result && (
-                      <div style={{ padding: '24px', background: 'var(--bg2)', borderRadius: '12px', marginBottom: '24px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-                          <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', textAlign: 'center', borderLeft: '3px solid ' + (result.predictedRisk === 'critical' ? 'var(--red)' : result.predictedRisk === 'high' ? 'var(--amber)' : result.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)') }}>
-                            <div style={{ fontSize: '24px', fontWeight: '700', color: result.predictedRisk === 'critical' ? 'var(--red)' : result.predictedRisk === 'high' ? 'var(--amber)' : result.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)', marginBottom: '4px' }}>
-                              {result.severityScore}/98
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600' }}>SEVERITY</div>
-                          </div>
-                          <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', textAlign: 'center', borderLeft: '3px solid var(--amber)' }}>
-                            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', marginBottom: '4px' }}>
-                              {result.domain.toUpperCase()}
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600' }}>DOMAIN</div>
-                          </div>
-                          <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', textAlign: 'center', borderLeft: '3px solid var(--blue)' }}>
-                            <div style={{ fontSize: '14px', fontWeight: '700', color: result.predictedRisk === 'critical' ? 'var(--red)' : result.predictedRisk === 'high' ? 'var(--amber)' : result.predictedRisk === 'medium' ? 'var(--blue)' : 'var(--green)', marginBottom: '4px', textTransform: 'uppercase' }}>
-                              {result.predictedRisk}
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600' }}>RISK LEVEL</div>
-                          </div>
-                          <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', textAlign: 'center', borderLeft: '3px solid var(--green)' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--text1)', marginBottom: '4px' }}>
-                              {result.timestamp.split(',')[0]}
-                            </div>
-                            <div style={{ fontSize: '11px', color: 'var(--text3)', fontWeight: '600' }}>TIMESTAMP</div>
-                          </div>
-                        </div>
-                        <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', borderLeft: '3px solid var(--amber)', marginBottom: '16px' }}>
-                          <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>💡 Intervention Suggestion</div>
-                          <div style={{ fontSize: '14px', color: 'var(--text2)', lineHeight: '1.5' }}>
-                            {result.intervention}
-                          </div>
-                        </div>
-                        {result.consequences && (
-                          <div style={{ padding: '16px', background: 'var(--bg3)', borderRadius: '8px', borderLeft: '3px solid var(--red)', marginBottom: '16px' }}>
-                            <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--red)', marginBottom: '12px' }}>
-                              ⚠️ Potential Consequences ({result.consequenceSeverity})
-                            </div>
-                            <ul style={{ margin: '0', paddingLeft: '20px', color: 'var(--text2)', fontSize: '13px', lineHeight: '1.7' }}>
-                              {result.consequences.map((consequence, idx) => (
-                                <li key={idx} style={{ marginBottom: '8px' }}>
-                                  {consequence}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
