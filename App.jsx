@@ -14,10 +14,10 @@ const COLORS = [
 ];
 
 const DECISION_EXAMPLES = [
-  "Should I buy this expensive gadget right now?",
-  "I want to send an angry message to my boss",
-  "Should I skip my workout today?",
-  "Should I make a big purchase decision?"
+  "Got a $2K bonus and thinking about splurging on a new laptop I don't really need",
+  "I want to send an angry email to my boss over this decision",
+  "Thinking about texting my ex at 2 AM to tell them I made a mistake",
+  "My coworker got promoted instead of me. Should I submit my resignation?"
 ];
 
 export default function App() {
@@ -122,8 +122,8 @@ export default function App() {
             style={{ cursor: 'pointer' }}
             title="Toggle light / dark mode"
           >
-            <div className="theme-toggle-thumb">{isDark ? '🌙' : '☀️'}</div>
-            <div className="theme-toggle-icons"><span>🌙</span><span>☀️</span></div>
+            <div className="theme-toggle-thumb">{isDark ? '' : ''}</div>
+            <div className="theme-toggle-icons"><span>◐</span><span>●</span></div>
           </div>
         </div>
       </nav>
@@ -156,7 +156,25 @@ export default function App() {
                     </div>
                   </div>
                   <div className="hero-visual">
-                    <div className="visual-element brain-icon">🧠</div>
+                    <div className="visual-element brain-icon">
+                      <div style={{
+                        width: '160px',
+                        height: '160px',
+                        borderRadius: '24px',
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                        boxShadow: '0 20px 60px rgba(37, 99, 235, 0.3)',
+                        animation: 'float 3s ease-in-out infinite'
+                      }}>
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
+                          <circle cx="12" cy="8" r="3"/>
+                          <path d="M12 11v5M8 16h8M6 16c0 2-1 3-1 3M18 16c0 2 1 3 1 3M9 13c-1.5 0-2-1-2-2M15 13c1.5 0 2-1 2-2"/>
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -165,19 +183,19 @@ export default function App() {
                   <h2 className="section-title">Why CogniAuth Works</h2>
                   <div className="features-grid">
                     <div className="feature-card">
-                      <div className="feature-icon">⚡</div>
-                      <h3>Real-Time Analysis</h3>
-                      <p>Analyzes your decision the moment you consider it. Get instant insights without delays.</p>
+                      <div className="feature-icon-minimal">▲</div>
+                      <h3>Stop Before You Regret</h3>
+                      <p>Real-time analysis the moment you consider a decision. Know instantly whether this impulse is one you'll thank yourself for later.</p>
                     </div>
                     <div className="feature-card">
-                      <div className="feature-icon">⚠️</div>
-                      <h3>Risk Detection</h3>
-                      <p>Identifies impulsive patterns before you act. See your behavior patterns and warning signs.</p>
+                      <div className="feature-icon-minimal">▯</div>
+                      <h3>See Your Patterns Before They Cost You</h3>
+                      <p>Identify the behavioral patterns that trigger your regrets. Watch as CogniAuth learns what usually goes wrong for you.</p>
                     </div>
                     <div className="feature-card">
-                      <div className="feature-icon">💡</div>
-                      <h3>Smart Interventions</h3>
-                      <p>Get instant, actionable advice tailored to your decision. Know exactly what to do next.</p>
+                      <div className="feature-icon-minimal">◉</div>
+                      <h3>Get Expert Advice When You Need It Most</h3>
+                      <p>Instead of generic feedback, receive personalized interventions designed for your specific decision. Real guidance, real impact.</p>
                     </div>
                   </div>
                 </div>
@@ -187,19 +205,24 @@ export default function App() {
                   <h2 className="section-title">Real-World Scenarios</h2>
                   <div className="usecases-grid">
                     <div className="usecase-card">
-                      <div className="usecase-label">Shopping</div>
-                      <p className="usecase-scenario">"Should I buy this expensive gadget?"</p>
-                      <div className="usecase-intervention">💡 Try waiting 24 hours. Most impulse regrets happen within this window.</div>
+                      <div className="usecase-label">Financial</div>
+                      <p className="usecase-scenario">"Got a $2K bonus—thinking about splurging on a new laptop"</p>
+                      <div className="usecase-intervention">→ Wait 48 hours. Most regrets on major purchases happen within this window.</div>
                     </div>
                     <div className="usecase-card">
-                      <div className="usecase-label">Messaging</div>
-                      <p className="usecase-scenario">"I want to send this angry email"</p>
-                      <div className="usecase-intervention">⚠️ Emotional tone detected. Save as draft first—review when calm.</div>
+                      <div className="usecase-label">Relationships</div>
+                      <p className="usecase-scenario">"Thinking about texting my ex at 2 AM"</p>
+                      <div className="usecase-intervention">→ Strong emotional charge detected. Sleep on it. You'll feel different tomorrow.</div>
                     </div>
                     <div className="usecase-card">
-                      <div className="usecase-label">Productivity</div>
-                      <p className="usecase-scenario">"Should I skip my workout?"</p>
-                      <div className="usecase-intervention">🎯 You've skipped 3x this week. This decision is a pattern.</div>
+                      <div className="usecase-label">Career</div>
+                      <p className="usecase-scenario">"My coworker got promoted. Should I submit my resignation?"</p>
+                      <div className="usecase-intervention">→ This is an emotional reaction to disappointment. Discuss with a mentor first.</div>
+                    </div>
+                    <div className="usecase-card">
+                      <div className="usecase-label">Communication</div>
+                      <p className="usecase-scenario">"I want to send an angry email to my boss right now"</p>
+                      <div className="usecase-intervention">→ High emotional tone detected. Save as draft—review when calm and ready.</div>
                     </div>
                   </div>
                 </div>
@@ -209,19 +232,19 @@ export default function App() {
                   <h2 className="section-title">Built on Trust</h2>
                   <div className="trust-grid">
                     <div className="trust-card">
-                      <div className="trust-icon">🔒</div>
+                      <div className="trust-icon-minimal">■</div>
                       <h4>Privacy First</h4>
-                      <p>All analysis happens locally. Your data never leaves your device. No cloud storage, no tracking.</p>
+                      <p>All analysis happens locally on your device. Your decisions and data never leave your computer. No cloud storage. No tracking. No data sales.</p>
                     </div>
                     <div className="trust-card">
-                      <div className="trust-icon">🧬</div>
+                      <div className="trust-icon-minimal">●</div>
                       <h4>Explainable AI</h4>
-                      <p>Understand exactly why each decision was flagged. Transparent reasoning, not black-box analysis.</p>
+                      <p>You'll understand exactly why CogniAuth flagged a decision and what factors contributed to the risk score. No black boxes. Full transparency into how we think.</p>
                     </div>
                     <div className="trust-card">
-                      <div className="trust-icon">📊</div>
+                      <div className="trust-icon-minimal">✚</div>
                       <h4>Evidence-Based</h4>
-                      <p>Built on behavioral science research. Our intervention framework comes from psychology and neuroscience.</p>
+                      <p>Our intervention framework draws from behavioral economics and neuroscience research on impulsive decision-making. Built on 20+ years of psychology studies.</p>
                     </div>
                   </div>
                 </div>
@@ -242,8 +265,7 @@ export default function App() {
             <div className="auth-card">
               {step === 'welcome' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>🧠</div>
-                  <div className="auth-title">CogniGuard</div>
+                  <div className="auth-title">CogniAuth</div>
                   <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
                     Your AI-powered impulse intervention system.<br/>Sign in or create a new account to get started.
                   </p>
@@ -261,14 +283,13 @@ export default function App() {
                     Create Account
                   </button>
                   <div style={{ marginTop: '18px', textAlign: 'center', fontSize: '12px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace" }}>
-                    ◈ Local AI · Works offline · Private
+                    ● Local AI · Works offline · Private
                   </div>
                 </div>
               )}
 
               {step === 'login-email' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>🔑</div>
                   <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>↩ Sign In</div>
                   <div className="auth-title">Welcome back</div>
                   <p className="auth-subtitle">Enter your registered email address.</p>
@@ -301,7 +322,6 @@ export default function App() {
 
               {step === 'login-pw' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>🔐</div>
                   <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>↩ Sign In</div>
                   <div className="auth-title">Enter password</div>
                   <p className="auth-subtitle">Signing in as <span style={{ color: 'var(--amber)', fontWeight: '600' }}>{email}</span></p>
@@ -325,15 +345,17 @@ export default function App() {
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          fontSize: '18px',
+                          fontSize: '14px',
                           padding: '0',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          color: 'var(--text3)',
+                          fontWeight: '600'
                         }}
                         title={showLoginPw ? 'Hide password' : 'Show password'}
                       >
-                        {showLoginPw ? '👁‍🗨' : '👁'}
+                        {showLoginPw ? 'Hide' : 'Show'}
                       </button>
                     </div>
                   </div>
@@ -355,7 +377,6 @@ export default function App() {
 
               {step === 'signup-email' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>📧</div>
                   <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>✦ New Account</div>
                   <div className="auth-title">Verify your email</div>
                   <p className="auth-subtitle">Enter your email to receive a verification code.</p>
@@ -388,7 +409,6 @@ export default function App() {
 
               {step === 'signup-nick' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>✨</div>
                   <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>✦ New Account</div>
                   <div className="auth-title">Create your profile</div>
                   <p className="auth-subtitle">Pick a nickname and avatar color.</p>
@@ -464,7 +484,6 @@ export default function App() {
 
               {step === 'signup-pw' && (
                 <div className="auth-step active">
-                  <div style={{ fontSize: '48px', marginBottom: '14px' }}>🛡</div>
                   <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>✦ New Account</div>
                   <div className="auth-title">Secure your account</div>
                   <p className="auth-subtitle">Set a strong password you will use to sign in.</p>
@@ -487,15 +506,17 @@ export default function App() {
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          fontSize: '18px',
+                          fontSize: '14px',
                           padding: '0',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          color: 'var(--text3)',
+                          fontWeight: '600'
                         }}
                         title={showSignupPw ? 'Hide password' : 'Show password'}
                       >
-                        {showSignupPw ? '👁‍🗨' : '👁'}
+                        {showSignupPw ? 'Hide' : 'Show'}
                       </button>
                     </div>
                   </div>
@@ -527,7 +548,7 @@ export default function App() {
                 onClick={() => setView('dash')}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="nav-icon">⊞</span> Dashboard
+                <span className="nav-icon">■</span> Dashboard
               </div>
               <div className="nav-sep"></div>
               <div 
@@ -535,7 +556,7 @@ export default function App() {
                 onClick={() => setView('history')}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="nav-icon">◫</span> History
+                <span className="nav-icon">●</span> History
               </div>
               <div className="nav-sep"></div>
               <div 
@@ -543,7 +564,7 @@ export default function App() {
                 onClick={() => setView('profile')}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="nav-icon">◎</span> Profile
+                <span className="nav-icon">■</span> Profile
               </div>
               <div className="nav-sep"></div>
               <div 
@@ -565,22 +586,22 @@ export default function App() {
                   {/* Stats Grid */}
                   <div className="stats-grid">
                     <div className="stat-card">
-                      <div className="stat-icon">📊</div>
+                      <div className="stat-icon-minimal">▯</div>
                       <div className="stat-val">{history.length}</div>
                       <div className="stat-lbl">Analyzed</div>
                     </div>
                     <div className="stat-card">
-                      <div className="stat-icon">⚠️</div>
+                      <div className="stat-icon-minimal">▲</div>
                       <div className="stat-val">{history.filter(h => h.predictedRisk === 'critical' || h.predictedRisk === 'high').length}</div>
                       <div className="stat-lbl">Interventions</div>
                     </div>
                     <div className="stat-card">
-                      <div className="stat-icon">✓</div>
+                      <div className="stat-icon-minimal">✓</div>
                       <div className="stat-val">{history.filter(h => h.predictedRisk === 'low').length}</div>
                       <div className="stat-lbl">Approved</div>
                     </div>
                     <div className="stat-card">
-                      <div className="stat-icon">🔥</div>
+                      <div className="stat-icon-minimal">●</div>
                       <div className="stat-val">—</div>
                       <div className="stat-lbl">Streak</div>
                     </div>
@@ -630,7 +651,7 @@ export default function App() {
                         className="analyze-btn"
                         onClick={handleAnalyze}
                         disabled={!text.trim() || isAnalyzing}
-                        style={{ opacity: (!text.trim() || isAnalyzing) ? 0.5 : 1 }}
+                        style={{ opacity: (!text.trim() || isAnalyzing) ? 0.5 : 1, minHeight: '48px' }}
                       >
                         {isAnalyzing ? (
                           <>
@@ -638,7 +659,7 @@ export default function App() {
                             Analyzing...
                           </>
                         ) : (
-                          <>⚡ Analyze Decision</>
+                          <>Analyze Decision</>
                         )}
                       </button>
                       <span style={{ fontSize: '12px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace" }}>
@@ -694,7 +715,7 @@ export default function App() {
                       </div>
 
                       {/* Risk Score and Meter */}
-                      <div className="result-risk-box">
+                      <div className={`result-risk-box ${result.predictedRisk === 'critical' || result.predictedRisk === 'high' ? result.predictedRisk : ''}`}>
                         <div style={{ marginBottom: '16px' }}>
                           <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px' }}>RISK LEVEL</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
@@ -736,7 +757,7 @@ export default function App() {
                               height: '100%',
                               background: getRiskColor(result.predictedRisk),
                               borderRadius: '4px',
-                              transition: 'width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)'
+                              transition: result.predictedRisk === 'critical' ? 'width 0.5s cubic-bezier(0.34, 1.2, 0.64, 1)' : 'width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)'
                             }}
                           ></div>
                         </div>
@@ -763,7 +784,7 @@ export default function App() {
 
                       {/* Intervention */}
                       <div className="result-intervention">
-                        <h4 className="result-subheading">💡 Recommended Intervention</h4>
+                        <h4 className="result-subheading">→ Recommended Intervention</h4>
                         <p style={{ margin: '0', fontSize: '14px', color: 'var(--text2)', lineHeight: '1.6' }}>
                           {result.intervention}
                         </p>
@@ -772,7 +793,7 @@ export default function App() {
                       {/* Consequences if present */}
                       {result.consequences && result.consequences.length > 0 && (
                         <div className="result-consequences">
-                          <h4 className="result-subheading">⚠️ Potential Consequences</h4>
+                          <h4 className="result-subheading">⚠ Potential Consequences</h4>
                           <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: 'var(--text2)', lineHeight: '1.7' }}>
                             {result.consequences.map((item, idx) => (
                               <li key={idx}>{item}</li>
@@ -835,7 +856,6 @@ export default function App() {
                   
                   {history.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px', marginTop: '24px' }}>
-                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>◫</div>
                       <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>No decisions yet</div>
                       <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing decisions to build your complete history.</div>
                       <button 
@@ -926,7 +946,7 @@ export default function App() {
                         <div style={{ fontSize: '13px', color: 'var(--text3)', fontFamily: "'DM Mono',monospace", marginBottom: '12px' }}>{user.email}</div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <span style={{ padding: '4px 10px', fontSize: '11px', background: 'rgba(37, 99, 235, 0.15)', color: '#2563eb', borderRadius: '6px', fontWeight: '600' }}>✓ Active</span>
-                          <span style={{ padding: '4px 10px', fontSize: '11px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '6px', fontWeight: '600' }}>🔒 Private</span>
+                          <span style={{ padding: '4px 10px', fontSize: '11px', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '6px', fontWeight: '600' }}>■ Private</span>
                         </div>
                       </div>
                     </div>
