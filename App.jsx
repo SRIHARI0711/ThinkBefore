@@ -1,6 +1,21 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
 import { analyzeDecision } from './mlModel.js';
+import { 
+  generateOTP, 
+  sendOTPEmail, 
+  verifyOTP, 
+  clearOTP,
+  loadEmailConfig,
+  saveEmailConfig,
+  getEmailConfig 
+} from './emailService.js';
+import { 
+  registerUser, 
+  authenticateUser, 
+  userExists, 
+  getUser 
+} from './userDatabase.js';
 
 const COLORS = [
   { hex: '#f0a500', label: 'Amber' },
@@ -37,25 +52,134 @@ export default function App() {
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  // OTP and Authentication States
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [emailConfig, setEmailConfigState] = useState(null);
+  const [showEmailSettings, setShowEmailSettings] = useState(false);
+  const [editEmailFrom, setEditEmailFrom] = useState('');
+  const [editEmailSenderName, setEditEmailSenderName] = useState('');
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
+    // Load email configuration on startup
+    loadEmailConfig();
+    const config = getEmailConfig();
+    setEmailConfigState(config);
+    setEditEmailFrom(config.fromEmail);
+    setEditEmailSenderName(config.senderName);
   }, [isDark]);
 
   const handleSignIn = () => {
-    if (email && password) {
-      setUser({ email, nickname: email.split('@')[0], avatarColor: '#2563eb' });
+    setAuthError('');
+    if (!email || !password) {
+      setAuthError('Please enter both email and password');
+      return;
+    }
+
+    // Authenticate against user database
+    const result = authenticateUser(email, password);
+    
+    if (result.success) {
+      setUser(result.user);
       setPage('app');
       setView('dash');
+      setPassword('');
+    } else {
+      setAuthError(result.message);
     }
   };
 
   const handleSignUp = () => {
-    if (email && nickname && password) {
-      setUser({ email, nickname, avatarColor: color });
+    // Register user in database
+    const result = registerUser(email, password, nickname, color);
+    
+    if (result.success) {
+      setUser({ email, nickname, avatarColor: color, emailLower: email.toLowerCase() });
       setPage('app');
       setView('dash');
+      setPassword('');
+    } else {
+      setAuthError(result.message);
     }
+  };
+
+  const handleSendOTP = async () => {
+    setOtpError('');
+    if (!email) {
+      setOtpError('Please enter an email address');
+      return;
+    }
+
+    if (userExists(email)) {
+      setOtpError('This email is already registered');
+      return;
+    }
+
+    setIsSendingOtp(true);
+    const generatedOTP = generateOTP(6);
+    const result = await sendOTPEmail(email, generatedOTP);
+    
+    if (result.success) {
+      setOtpSent(true);
+      setOtp('');
+      setOtpError('');
+      setStep('signup-otp'); // Move to OTP verification step
+      // Show OTP in dev mode
+      if (result.otp) {
+        setTimeout(() => {
+          setOtpError(`[Dev Mode] Your OTP: ${result.otp} (expires in 10 minutes)`);
+        }, 500);
+      }
+    } else {
+      setOtpError(result.message);
+    }
+    setIsSendingOtp(false);
+  };
+
+  const handleVerifyOTP = () => {
+    setOtpError('');
+    if (!otp) {
+      setOtpError('Please enter the OTP');
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    const result = verifyOTP(email, otp);
+    
+    if (result.valid) {
+      setOtpSent(false);
+      setOtp('');
+      setOtpError('');
+      setStep('signup-nick'); // Move to nickname selection after OTP verification
+    } else {
+      setOtpError(result.message);
+    }
+    setIsVerifyingOtp(false);
+  };
+
+  const handleResendOTP = async () => {
+    setOtpError('');
+    setIsSendingOtp(true);
+    const generatedOTP = generateOTP(6);
+    const result = await sendOTPEmail(email, generatedOTP);
+    
+    if (result.success) {
+      setOtp('');
+      setOtpError('OTP resent successfully');
+      setTimeout(() => setOtpError(''), 3000);
+      if (result.otp) {
+        setOtpError(`OTP resent! [Dev Mode] Code: ${result.otp}`);
+      }
+    } else {
+      setOtpError('Failed to resend OTP: ' + result.message);
+    }
+    setIsSendingOtp(false);
   };
 
   const handleAnalyze = () => {
@@ -81,6 +205,10 @@ export default function App() {
     setResult(null);
     setHistory([]);
     setView('dash');
+    setOtp('');
+    setOtpSent(false);
+    setOtpError('');
+    setAuthError('');
   };
 
   const getRiskColor = (risk) => {
@@ -359,6 +487,20 @@ export default function App() {
                       </button>
                     </div>
                   </div>
+                  {authError && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {authError}
+                    </div>
+                  )}
                   <button 
                     className="auth-btn" 
                     onClick={handleSignIn}
@@ -367,7 +509,7 @@ export default function App() {
                   </button>
                   <button 
                     className="auth-btn secondary" 
-                    onClick={() => setStep('login-email')}
+                    onClick={() => { setStep('login-email'); setAuthError(''); }}
                     style={{ marginTop: '8px' }}
                   >
                     ← Back
@@ -388,18 +530,94 @@ export default function App() {
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && setStep('signup-nick')}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendOTP()}
+                      disabled={isSendingOtp}
                     />
                   </div>
+                  {otpError && !otpSent && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: otpError.includes('Dev Mode') ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                      border: otpError.includes('Dev Mode') ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+                      color: otpError.includes('Dev Mode') ? '#3b82f6' : '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {otpError}
+                    </div>
+                  )}
                   <button 
-                    className="auth-btn" 
-                    onClick={() => setStep('signup-nick')}
+                    className="auth-btn"
+                    onClick={handleSendOTP}
+                    disabled={isSendingOtp}
                   >
-                    Send Code →
+                    {isSendingOtp ? 'Sending...' : 'Send Code →'}
                   </button>
                   <button 
                     className="auth-btn secondary" 
-                    onClick={() => setStep('welcome')}
+                    onClick={() => { setStep('welcome'); setOtpError(''); }}
+                    style={{ marginTop: '8px' }}
+                  >
+                    ← Back
+                  </button>
+                </div>
+              )}
+
+              {step === 'signup-otp' && (
+                <div className="auth-step active">
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>✦ New Account</div>
+                  <div className="auth-title">Verify your email</div>
+                  <p className="auth-subtitle">
+                    We sent a 6-digit code to <span style={{ color: 'var(--amber)', fontWeight: '600' }}>{email}</span>
+                  </p>
+                  <div className="field-wrap">
+                    <div className="field-label"><span className="field-dot"></span>Enter OTP code</div>
+                    <input 
+                      className="auth-input" 
+                      type="text" 
+                      placeholder="000000"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.slice(0, 6))}
+                      onKeyPress={(e) => e.key === 'Enter' && handleVerifyOTP()}
+                      maxLength="6"
+                      disabled={isVerifyingOtp}
+                      style={{ letterSpacing: '8px', fontSize: '18px', fontFamily: "'DM Mono',monospace" }}
+                    />
+                  </div>
+                  {otpError && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {otpError}
+                    </div>
+                  )}
+                  <button 
+                    className="auth-btn"
+                    onClick={handleVerifyOTP}
+                    disabled={isVerifyingOtp || otp.length !== 6}
+                  >
+                    {isVerifyingOtp ? 'Verifying...' : 'Verify Code →'}
+                  </button>
+                  <button 
+                    className="auth-btn secondary" 
+                    onClick={handleResendOTP}
+                    disabled={isSendingOtp}
+                    style={{ marginTop: '8px' }}
+                  >
+                    {isSendingOtp ? 'Resending...' : 'Resend Code'}
+                  </button>
+                  <button 
+                    className="auth-btn secondary" 
+                    onClick={() => { setStep('signup-email'); setOtpError(''); setOtp(''); }}
                     style={{ marginTop: '8px' }}
                   >
                     ← Back
@@ -978,6 +1196,94 @@ export default function App() {
                         <strong>Account Type:</strong> CogniAuth Guardian — Full access to decision analysis and history.
                       </p>
                     </div>
+                  </div>
+
+                  {/* Email Configuration Section */}
+                  <div style={{ marginTop: '24px', padding: '28px', background: 'var(--bg2)', borderRadius: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)' }}>Email Settings</div>
+                      <button 
+                        onClick={() => setShowEmailSettings(!showEmailSettings)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--amber)',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {showEmailSettings ? 'Hide' : 'Edit'}
+                      </button>
+                    </div>
+
+                    {!showEmailSettings ? (
+                      <div style={{ fontSize: '13px', color: 'var(--text3)' }}>
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong>Sender Email:</strong> {emailConfig?.fromEmail || 'cogniguard@example.com'}
+                        </div>
+                        <div>
+                          <strong>Sender Name:</strong> {emailConfig?.senderName || 'CogniAuth'}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="field-wrap">
+                          <div className="field-label"><span className="field-dot"></span>Sender Email Address</div>
+                          <input 
+                            className="auth-input" 
+                            type="email" 
+                            placeholder="cogniguard@example.com"
+                            value={editEmailFrom}
+                            onChange={(e) => setEditEmailFrom(e.target.value)}
+                          />
+                          <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>
+                            OTP emails will be sent from this address
+                          </div>
+                        </div>
+                        <div className="field-wrap">
+                          <div className="field-label"><span className="field-dot"></span>Sender Name</div>
+                          <input 
+                            className="auth-input" 
+                            type="text" 
+                            placeholder="CogniAuth"
+                            value={editEmailSenderName}
+                            onChange={(e) => setEditEmailSenderName(e.target.value)}
+                          />
+                          <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>
+                            Display name for OTP emails
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                          <button 
+                            className="auth-btn"
+                            onClick={() => {
+                              saveEmailConfig({
+                                fromEmail: editEmailFrom,
+                                senderName: editEmailSenderName
+                              });
+                              const updatedConfig = getEmailConfig();
+                              setEmailConfigState(updatedConfig);
+                              setShowEmailSettings(false);
+                            }}
+                            style={{ flex: 1 }}
+                          >
+                            Save Changes
+                          </button>
+                          <button 
+                            className="auth-btn secondary"
+                            onClick={() => {
+                              setShowEmailSettings(false);
+                              setEditEmailFrom(emailConfig?.fromEmail || 'cogniguard@example.com');
+                              setEditEmailSenderName(emailConfig?.senderName || 'CogniAuth');
+                            }}
+                            style={{ flex: 1 }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ marginTop: '24px', display: 'flex', gap: '12px', justifyContent: 'center' }}>
