@@ -14,7 +14,9 @@ import {
   registerUser, 
   authenticateUser, 
   userExists, 
-  getUser 
+  getUser,
+  validatePassword,
+  changePassword 
 } from './userDatabase.js';
 
 const COLORS = [
@@ -52,6 +54,17 @@ export default function App() {
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState([]);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [newPasswordErrors, setNewPasswordErrors] = useState([]);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [passwordChangeMessage, setPasswordChangeMessage] = useState('');
+  const [passwordChangeError, setPasswordChangeError] = useState('');
   
   // OTP and Authentication States
   const [otp, setOtp] = useState('');
@@ -182,6 +195,54 @@ export default function App() {
     setIsSendingOtp(false);
   };
 
+  const handleChangePassword = () => {
+    setPasswordChangeError('');
+    setPasswordChangeMessage('');
+    
+    // Validate inputs
+    if (!currentPassword) {
+      setPasswordChangeError('Please enter your current password');
+      return;
+    }
+    
+    if (!newPassword) {
+      setPasswordChangeError('Please enter a new password');
+      return;
+    }
+    
+    if (!confirmPassword) {
+      setPasswordChangeError('Please confirm your new password');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordChangeError('New passwords do not match');
+      return;
+    }
+    
+    if (newPassword === currentPassword) {
+      setPasswordChangeError('New password must be different from current password');
+      return;
+    }
+    
+    // Call the changePassword function
+    const result = changePassword(user.email, currentPassword, newPassword);
+    
+    if (result.success) {
+      setPasswordChangeMessage(result.message);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setNewPasswordErrors([]);
+      setTimeout(() => {
+        setShowChangePassword(false);
+        setPasswordChangeMessage('');
+      }, 2000);
+    } else {
+      setPasswordChangeError(result.message);
+    }
+  };
+
   const handleAnalyze = () => {
     if (!text.trim()) return;
     setIsAnalyzing(true);
@@ -209,6 +270,7 @@ export default function App() {
     setOtpSent(false);
     setOtpError('');
     setAuthError('');
+    setPasswordErrors([]);
   };
 
   const getRiskColor = (risk) => {
@@ -713,7 +775,15 @@ export default function App() {
                         type={showSignupPw ? 'text' : 'password'}
                         placeholder="Min. 8 characters"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          if (e.target.value) {
+                            const validation = validatePassword(e.target.value);
+                            setPasswordErrors(validation.errors);
+                          } else {
+                            setPasswordErrors([]);
+                          }
+                        }}
                         style={{ paddingRight: '40px' }}
                       />
                       <button
@@ -738,15 +808,75 @@ export default function App() {
                       </button>
                     </div>
                   </div>
+                  
+                  {password && passwordErrors.length > 0 && (
+                    <div style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      marginTop: '12px',
+                      marginBottom: '12px'
+                    }}>
+                      <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                        Password requirements not met:
+                      </div>
+                      {passwordErrors.map((error, idx) => (
+                        <div key={idx} style={{ color: '#ef4444', fontSize: '12px', marginBottom: idx < passwordErrors.length - 1 ? '6px' : '0' }}>
+                          • {error}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {password && passwordErrors.length === 0 && (
+                    <div style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      marginTop: '12px',
+                      marginBottom: '12px',
+                      color: '#10b981',
+                      fontSize: '13px',
+                      fontWeight: '500'
+                    }}>
+                      ✓ Password meets all requirements
+                    </div>
+                  )}
+                  
+                  {authError && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px'
+                    }}>
+                      {authError}
+                    </div>
+                  )}
+                  
                   <button 
                     className="auth-btn" 
                     onClick={handleSignUp}
+                    disabled={password.length === 0 || passwordErrors.length > 0}
+                    style={{
+                      opacity: password.length === 0 || passwordErrors.length > 0 ? 0.5 : 1,
+                      cursor: password.length === 0 || passwordErrors.length > 0 ? 'not-allowed' : 'pointer'
+                    }}
                   >
                     Create Account →
                   </button>
                   <button 
                     className="auth-btn secondary" 
-                    onClick={() => setStep('signup-nick')}
+                    onClick={() => {
+                      setStep('signup-nick');
+                      setPasswordErrors([]);
+                      setAuthError('');
+                    }}
                     style={{ marginTop: '8px' }}
                   >
                     ← Back
@@ -1276,6 +1406,281 @@ export default function App() {
                               setShowEmailSettings(false);
                               setEditEmailFrom(emailConfig?.fromEmail || 'cogniguard@example.com');
                               setEditEmailSenderName(emailConfig?.senderName || 'CogniAuth');
+                            }}
+                            style={{ flex: 1 }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Password Security Section */}
+                  <div style={{ marginTop: '24px', padding: '28px', background: 'var(--bg2)', borderRadius: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)' }}>Security Settings</div>
+                      <button 
+                        onClick={() => {
+                          setShowChangePassword(!showChangePassword);
+                          setCurrentPassword('');
+                          setNewPassword('');
+                          setConfirmPassword('');
+                          setNewPasswordErrors([]);
+                          setPasswordChangeMessage('');
+                          setPasswordChangeError('');
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--amber)',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {showChangePassword ? 'Hide' : 'Change Password'}
+                      </button>
+                    </div>
+
+                    {!showChangePassword ? (
+                      <div style={{ fontSize: '13px', color: 'var(--text3)' }}>
+                        <p style={{ margin: '0' }}>
+                          Keep your account secure by using a strong password. Your password is never shared and stored securely on your device.
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        {/* Current Password */}
+                        <div className="field-wrap">
+                          <div className="field-label"><span className="field-dot"></span>Current Password</div>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input 
+                              className="auth-input" 
+                              type={showCurrentPw ? 'text' : 'password'}
+                              placeholder="Enter your current password"
+                              value={currentPassword}
+                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              style={{ paddingRight: '40px' }}
+                            />
+                            <button
+                              onClick={() => setShowCurrentPw(!showCurrentPw)}
+                              style={{
+                                position: 'absolute',
+                                right: '12px',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                padding: '0',
+                                color: 'var(--text3)',
+                                fontWeight: '600'
+                              }}
+                              title={showCurrentPw ? 'Hide' : 'Show'}
+                            >
+                              {showCurrentPw ? 'Hide' : 'Show'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* New Password */}
+                        <div className="field-wrap">
+                          <div className="field-label"><span className="field-dot"></span>New Password</div>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input 
+                              className="auth-input" 
+                              type={showNewPw ? 'text' : 'password'}
+                              placeholder="Enter a new password"
+                              value={newPassword}
+                              onChange={(e) => {
+                                setNewPassword(e.target.value);
+                                if (e.target.value) {
+                                  const validation = validatePassword(e.target.value);
+                                  setNewPasswordErrors(validation.errors);
+                                } else {
+                                  setNewPasswordErrors([]);
+                                }
+                              }}
+                              style={{ paddingRight: '40px' }}
+                            />
+                            <button
+                              onClick={() => setShowNewPw(!showNewPw)}
+                              style={{
+                                position: 'absolute',
+                                right: '12px',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                padding: '0',
+                                color: 'var(--text3)',
+                                fontWeight: '600'
+                              }}
+                              title={showNewPw ? 'Hide' : 'Show'}
+                            >
+                              {showNewPw ? 'Hide' : 'Show'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Password Requirements Feedback */}
+                        {newPassword && newPasswordErrors.length > 0 && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px'
+                          }}>
+                            <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                              Password requirements not met:
+                            </div>
+                            {newPasswordErrors.map((error, idx) => (
+                              <div key={idx} style={{ color: '#ef4444', fontSize: '12px', marginBottom: idx < newPasswordErrors.length - 1 ? '6px' : '0' }}>
+                                • {error}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {newPassword && newPasswordErrors.length === 0 && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#10b981',
+                            fontSize: '13px',
+                            fontWeight: '500'
+                          }}>
+                            ✓ Password meets all requirements
+                          </div>
+                        )}
+
+                        {/* Confirm Password */}
+                        <div className="field-wrap">
+                          <div className="field-label"><span className="field-dot"></span>Confirm New Password</div>
+                          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <input 
+                              className="auth-input" 
+                              type={showConfirmPw ? 'text' : 'password'}
+                              placeholder="Confirm your new password"
+                              value={confirmPassword}
+                              onChange={(e) => setConfirmPassword(e.target.value)}
+                              style={{ paddingRight: '40px' }}
+                            />
+                            <button
+                              onClick={() => setShowConfirmPw(!showConfirmPw)}
+                              style={{
+                                position: 'absolute',
+                                right: '12px',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                padding: '0',
+                                color: 'var(--text3)',
+                                fontWeight: '600'
+                              }}
+                              title={showConfirmPw ? 'Hide' : 'Show'}
+                            >
+                              {showConfirmPw ? 'Hide' : 'Show'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Confirm Match Feedback */}
+                        {confirmPassword && newPassword && confirmPassword !== newPassword && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#ef4444',
+                            fontSize: '13px'
+                          }}>
+                            • Passwords do not match
+                          </div>
+                        )}
+
+                        {confirmPassword && newPassword && confirmPassword === newPassword && newPasswordErrors.length === 0 && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#10b981',
+                            fontSize: '13px',
+                            fontWeight: '500'
+                          }}>
+                            ✓ Passwords match and meet requirements
+                          </div>
+                        )}
+
+                        {/* Error Message */}
+                        {passwordChangeError && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#ef4444',
+                            fontSize: '13px'
+                          }}>
+                            {passwordChangeError}
+                          </div>
+                        )}
+
+                        {/* Success Message */}
+                        {passwordChangeMessage && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#10b981',
+                            fontSize: '13px',
+                            fontWeight: '500'
+                          }}>
+                            ✓ {passwordChangeMessage}
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                          <button 
+                            className="auth-btn"
+                            onClick={handleChangePassword}
+                            disabled={!currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword)}
+                            style={{
+                              flex: 1,
+                              opacity: !currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 0.5 : 1,
+                              cursor: !currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 'not-allowed' : 'pointer'
+                            }}
+                          >
+                            Update Password
+                          </button>
+                          <button 
+                            className="auth-btn secondary"
+                            onClick={() => {
+                              setShowChangePassword(false);
+                              setCurrentPassword('');
+                              setNewPassword('');
+                              setConfirmPassword('');
+                              setNewPasswordErrors([]);
+                              setPasswordChangeMessage('');
+                              setPasswordChangeError('');
                             }}
                             style={{ flex: 1 }}
                           >

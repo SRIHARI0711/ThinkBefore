@@ -1,6 +1,31 @@
 // User Database Service
 // Manages user registration, authentication, and profile storage
 
+// Validate password strength
+export function validatePassword(password) {
+  const errors = [];
+  
+  // Check minimum length (8 characters)
+  if (!password || password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+  
+  // Check for at least one uppercase letter
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+  
+  // Check for at least one special character
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Password must contain at least one special character (!@#$%^&* etc)');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors: errors
+  };
+}
+
 // Get all registered users from localStorage
 export function getAllUsers() {
   const stored = localStorage.getItem('users');
@@ -39,6 +64,15 @@ export function registerUser(email, password, nickname, avatarColor) {
     return {
       success: false,
       message: 'Email already registered'
+    };
+  }
+
+  // Validate password strength
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    return {
+      success: false,
+      message: passwordValidation.errors.join('. ')
     };
   }
 
@@ -130,6 +164,15 @@ export function changePassword(email, oldPassword, newPassword) {
     return {
       success: false,
       message: 'Current password is incorrect'
+    };
+  }
+
+  // Validate new password strength
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    return {
+      success: false,
+      message: passwordValidation.errors.join('. ')
     };
   }
 
