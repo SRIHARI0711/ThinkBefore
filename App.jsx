@@ -962,7 +962,7 @@ export default function App() {
                     <div style={{ marginBottom: '16px' }}>
                       <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category (optional)</div>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {['shopping', 'messaging', 'productivity', 'finance'].map(cat => (
+                        {['shopping', 'messaging', 'productivity', 'finance', 'relationships', 'career', 'health', 'travel', 'education', 'leisure', 'legal', 'family', 'investments', 'social'].map(cat => (
                           <button
                             key={cat}
                             onClick={() => setCategory(cat)}

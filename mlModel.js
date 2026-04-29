@@ -11,6 +11,12 @@ const CATEGORY_DOMAINS = {
   relationship: 'relationship',
   'safety-risk': 'safety',
   'legal-risk': 'legal',
+  career: 'career',
+  travel: 'travel',
+  education: 'education',
+  family: 'family',
+  leisure: 'leisure',
+  investments: 'financial',
   other: 'other'
 };
 
@@ -95,7 +101,13 @@ const CATEGORY_PATTERNS = {
   'self-care': new Set(['sleep', 'rest', 'exercise', 'therapy', 'meditate', 'wellbeing', 'well-being', 'self-care', 'care']),
   relationship: new Set(['breakup', 'partner', 'spouse', 'boyfriend', 'girlfriend', 'relationship', 'trust', 'love', 'dating']),
   'safety-risk': new Set(['seatbelt', 'drive', 'drunk', 'crash', 'accident', 'helmet', 'unsafe', 'danger', 'shortcut', 'speed', 'traffic']),
-  'legal-risk': new Set(['steal', 'break', 'illegal', 'police', 'law', 'crime', 'charge', 'court', 'sentence', 'judge'])
+  'legal-risk': new Set(['steal', 'break', 'illegal', 'police', 'law', 'crime', 'charge', 'court', 'sentence', 'judge']),
+  career: new Set(['job', 'career', 'promotion', 'salary', 'boss', 'resign', 'resign', 'hire', 'interview', 'colleague', 'work', 'project', 'manager']),
+  travel: new Set(['trip', 'travel', 'vacation', 'flight', 'drive', 'destination', 'abroad', 'holiday', 'tour', 'passport', 'tickets']),
+  education: new Set(['school', 'college', 'university', 'degree', 'course', 'study', 'exam', 'major', 'graduation', 'learning', 'education']),
+  family: new Set(['family', 'parent', 'sibling', 'child', 'relative', 'mother', 'father', 'brother', 'sister', 'kids', 'children']),
+  leisure: new Set(['hobby', 'gaming', 'sport', 'movie', 'entertainment', 'relax', 'vacation', 'fun', 'recreation', 'hobbies', 'game']),
+  investments: new Set(['invest', 'stock', 'crypto', 'bitcoin', 'market', 'trading', 'portfolio', 'broker', 'fund', 'profit', 'return'])
 };
 
 const FEATURE_NAMES = [
@@ -120,7 +132,13 @@ const FEATURE_NAMES = [
   'selfCareCount',
   'relationshipCount',
   'safetyRiskCount',
-  'legalRiskCount'
+  'legalRiskCount',
+  'careerCount',
+  'travelCount',
+  'educationCount',
+  'familyCount',
+  'leisureCount',
+  'investmentsCount'
 ];
 
 const vectorize = (text) => {
@@ -159,17 +177,17 @@ const MODEL_WEIGHTS = {
   severity: [
     0.1, 4.0, 2.0, -1.0, 6.0, 10.0, -4.0, 2.0, 1.0, 0.05,
     6.0, 3.0, 9.0, 7.0, 4.0, 5.0, 2.0, 4.0, -3.0, 3.0,
-    8.0, 9.0
+    8.0, 9.0, 3.0, 2.0, 2.0, 2.0, 1.0, 4.0
   ],
   harmfulness: [
     0.05, 1.0, 0.5, 0.0, 2.0, 10.0, -3.0, 1.0, 0.5, 0.02,
     4.0, 2.0, 8.0, 6.0, 3.0, 4.0, 1.0, 3.0, -2.0, 2.0,
-    7.0, 8.0
+    7.0, 8.0, 2.0, 1.5, 1.5, 1.5, 0.5, 3.0
   ],
   negativity: [
     0.1, 1.0, 0.5, 1.0, 5.0, 7.0, -2.0, 1.0, 0.5, 0.02,
     3.0, 2.0, 6.0, 5.0, 2.0, 3.0, 1.0, 2.0, -1.0, 1.0,
-    5.0, 6.0
+    5.0, 6.0, 2.0, 1.0, 1.0, 1.0, 0.5, 2.5
   ]
 };
 
