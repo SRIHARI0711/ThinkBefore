@@ -250,7 +250,6 @@ export default function App() {
       const analysis = analyzeDecision(text);
       setResult(analysis);
       setHistory([analysis, ...history]);
-      setText('');
       setIsAnalyzing(false);
     }, 600);
   };
