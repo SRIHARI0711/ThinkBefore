@@ -169,7 +169,7 @@ html,body{height:100%;font-family:'Outfit',sans-serif;background:var(--bg0);colo
 .result-risk-box.high{animation:pulse-subtle 2s infinite;border-color:rgba(245,158,11,.2)}
 .result-analysis{margin-bottom:24px}
 .result-subheading{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text1);margin-bottom:12px;letter-spacing:-.2px}
-.analysis-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px}
+.analysis-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:16px}
 .analysis-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
 .analysis-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .analysis-value{font-size:16px;font-weight:700;color:var(--text1);font-family:'DM Mono',monospace}

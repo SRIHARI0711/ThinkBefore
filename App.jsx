@@ -1115,16 +1115,28 @@ export default function App() {
                         <h4 className="result-subheading">Decision Breakdown</h4>
                         <div className="analysis-grid">
                           <div className="analysis-item">
-                            <div className="analysis-label">Behavior Type</div>
-                            <div className="analysis-value">{result.behavior.replace('-', ' ').charAt(0).toUpperCase() + result.behavior.replace('-', ' ').slice(1)}</div>
+                            <div className="analysis-label">Severity Score</div>
+                            <div className="analysis-value">{result.severityScore}/100</div>
                           </div>
                           <div className="analysis-item">
                             <div className="analysis-label">Harmfulness</div>
                             <div className="analysis-value">{result.harmfulnessScore}/100</div>
                           </div>
                           <div className="analysis-item">
-                            <div className="analysis-label">Emotional Charge</div>
+                            <div className="analysis-label">Negativity Score</div>
                             <div className="analysis-value">{result.negativityScore}/100</div>
+                          </div>
+                          <div className="analysis-item">
+                            <div className="analysis-label">Behavior Type</div>
+                            <div className="analysis-value">{result.behavior.replace('-', ' ').charAt(0).toUpperCase() + result.behavior.replace('-', ' ').slice(1)}</div>
+                          </div>
+                          <div className="analysis-item">
+                            <div className="analysis-label">Domain</div>
+                            <div className="analysis-value">{result.domain.replace('-', ' ').charAt(0).toUpperCase() + result.domain.replace('-', ' ').slice(1)}</div>
+                          </div>
+                          <div className="analysis-item">
+                            <div className="analysis-label">Risk Level</div>
+                            <div className="analysis-value" style={{ color: getRiskColor(result.predictedRisk), fontWeight: '700' }}>{result.predictedRisk.toUpperCase()}</div>
                           </div>
                         </div>
                       </div>
