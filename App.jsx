@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
 import { analyzeDecision } from './mlModel.js';
+import AnimatedBackground from './AnimatedBackground.jsx';
 import { 
   generateOTP, 
   sendOTPEmail, 
@@ -297,6 +298,9 @@ export default function App() {
       <div className="grid-bg"></div>
       <div className="glow-orb a"></div>
       <div className="glow-orb b"></div>
+      
+      {/* Animated background only on home page before login */}
+      {!user && step === 'welcome' && <AnimatedBackground />}
 
       <nav className="topbar">
         <a className="brand" href="#">
