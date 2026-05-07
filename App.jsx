@@ -9,7 +9,8 @@ import {
   clearOTP,
   loadEmailConfig,
   saveEmailConfig,
-  getEmailConfig 
+  getEmailConfig,
+  getOTPTimeRemaining
 } from './emailService.js';
 import { 
   registerUser, 
@@ -78,6 +79,8 @@ export default function App() {
   const [showEmailSettings, setShowEmailSettings] = useState(false);
   const [editEmailFrom, setEditEmailFrom] = useState('');
   const [editEmailSenderName, setEditEmailSenderName] = useState('');
+  const [otpTimeRemaining, setOtpTimeRemaining] = useState(0);
+  const otpTimerRef = useRef(null);
 
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
@@ -88,6 +91,32 @@ export default function App() {
     setEditEmailFrom(config.fromEmail);
     setEditEmailSenderName(config.senderName);
   }, [isDark]);
+
+  // OTP Timer Effect - Updates every second when OTP is sent
+  useEffect(() => {
+    if (otpSent && step === 'signup-otp' && email) {
+      // Set initial time remaining
+      const timeRemaining = getOTPTimeRemaining(email);
+      setOtpTimeRemaining(timeRemaining);
+
+      // Start countdown timer
+      otpTimerRef.current = setInterval(() => {
+        const remaining = getOTPTimeRemaining(email);
+        setOtpTimeRemaining(remaining);
+        
+        // Stop timer when OTP expires
+        if (remaining <= 0) {
+          clearInterval(otpTimerRef.current);
+        }
+      }, 1000);
+
+      return () => {
+        if (otpTimerRef.current) {
+          clearInterval(otpTimerRef.current);
+        }
+      };
+    }
+  }, [otpSent, step, email]);
 
   const handleSignIn = () => {
     setAuthError('');
@@ -143,11 +172,12 @@ export default function App() {
       setOtpSent(true);
       setOtp('');
       setOtpError('');
+      setOtpTimeRemaining(60); // Initialize to 60 seconds
       setStep('signup-otp'); // Move to OTP verification step
       // Show OTP in dev mode
       if (result.otp) {
         setTimeout(() => {
-          setOtpError(`[Dev Mode] Your OTP: ${result.otp} (expires in 10 minutes)`);
+          setOtpError(`[Dev Mode] Your OTP: ${result.otp} (expires in 1 minute)`);
         }, 500);
       }
     } else {
@@ -185,6 +215,7 @@ export default function App() {
     
     if (result.success) {
       setOtp('');
+      setOtpTimeRemaining(60); // Reset timer to 60 seconds
       setOtpError('OTP resent successfully');
       setTimeout(() => setOtpError(''), 3000);
       if (result.otp) {
@@ -256,6 +287,11 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    // Clear OTP timer
+    if (otpTimerRef.current) {
+      clearInterval(otpTimerRef.current);
+    }
+    
     setUser(null);
     setPage('auth');
     setStep('welcome');
@@ -271,6 +307,7 @@ export default function App() {
     setOtpError('');
     setAuthError('');
     setPasswordErrors([]);
+    setOtpTimeRemaining(0);
   };
 
   const getRiskColor = (risk) => {
@@ -665,6 +702,23 @@ export default function App() {
                       {otpError}
                     </div>
                   )}
+                  
+                  {/* Timer Display */}
+                  <div style={{
+                    padding: '12px',
+                    borderRadius: '8px',
+                    background: 'rgba(250, 204, 21, 0.1)',
+                    border: '1px solid rgba(250, 204, 21, 0.3)',
+                    color: 'var(--amber)',
+                    fontSize: '13px',
+                    textAlign: 'center',
+                    marginBottom: '12px',
+                    marginTop: '12px',
+                    fontWeight: '500'
+                  }}>
+                    <div>⏱️ Code expires in: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{otpTimeRemaining}s</span></div>
+                  </div>
+                  
                   <button 
                     className="auth-btn"
                     onClick={handleVerifyOTP}
@@ -672,17 +726,20 @@ export default function App() {
                   >
                     {isVerifyingOtp ? 'Verifying...' : 'Verify Code →'}
                   </button>
+                  
                   <button 
                     className="auth-btn secondary" 
                     onClick={handleResendOTP}
-                    disabled={isSendingOtp}
+                    disabled={isSendingOtp || otpTimeRemaining > 0}
                     style={{ marginTop: '8px' }}
+                    title={otpTimeRemaining > 0 ? `Resend available in ${otpTimeRemaining}s` : 'Click to resend OTP'}
                   >
-                    {isSendingOtp ? 'Resending...' : 'Resend Code'}
+                    {isSendingOtp ? 'Resending...' : otpTimeRemaining > 0 ? `Resend in ${otpTimeRemaining}s` : 'Resend Code'}
                   </button>
+                  
                   <button 
                     className="auth-btn secondary" 
-                    onClick={() => { setStep('signup-email'); setOtpError(''); setOtp(''); }}
+                    onClick={() => { setStep('signup-email'); setOtpError(''); setOtp(''); setOtpTimeRemaining(0); }}
                     style={{ marginTop: '8px' }}
                   >
                     ← Back

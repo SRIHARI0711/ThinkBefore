@@ -67,7 +67,7 @@ export async function sendOTPEmail(userEmail, otp) {
       localStorage.setItem(`otp_${userEmail}`, JSON.stringify({
         code: otp,
         timestamp: Date.now(),
-        expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
+        expiresAt: Date.now() + 1 * 60 * 1000 // 1 minute
       }));
 
       console.log(`[Development Mode] OTP for ${userEmail}: ${otp}`);
@@ -88,6 +88,25 @@ export async function sendOTPEmail(userEmail, otp) {
   }
 }
 
+// Get OTP expiry time remaining in seconds
+export function getOTPTimeRemaining(userEmail) {
+  const stored = localStorage.getItem(`otp_${userEmail}`);
+  
+  if (!stored) {
+    return 0;
+  }
+
+  const otpData = JSON.parse(stored);
+  const timeRemaining = otpData.expiresAt - Date.now();
+  
+  if (timeRemaining <= 0) {
+    localStorage.removeItem(`otp_${userEmail}`);
+    return 0;
+  }
+  
+  return Math.ceil(timeRemaining / 1000); // Return in seconds
+}
+
 // Verify OTP code
 export function verifyOTP(userEmail, enteredOTP) {
   const stored = localStorage.getItem(`otp_${userEmail}`);
@@ -101,7 +120,7 @@ export function verifyOTP(userEmail, enteredOTP) {
 
   const otpData = JSON.parse(stored);
   
-  // Check if OTP has expired (10 minutes)
+  // Check if OTP has expired (1 minute)
   if (Date.now() > otpData.expiresAt) {
     localStorage.removeItem(`otp_${userEmail}`);
     return {
