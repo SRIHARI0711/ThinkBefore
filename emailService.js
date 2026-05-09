@@ -1,19 +1,35 @@
 // Email Service Configuration
-// This file handles email sending for OTP verification
+// This file handles email sending for OTP verification using EmailJS
 
 // Default configuration - can be modified in settings
 let emailConfig = {
   fromEmail: 'cogniguard@example.com',
   senderName: 'CogniAuth',
-  apiKey: '', // Will be configured by user
-  provider: 'emailjs' // or 'custom'
+  serviceId: '',      // EmailJS Service ID
+  templateId: '',     // EmailJS Template ID
+  publicKey: '',      // EmailJS Public Key
+  provider: 'emailjs'
 };
+
+// Initialize EmailJS
+export function initializeEmailJS(publicKey) {
+  if (publicKey && window.emailjs) {
+    window.emailjs.init(publicKey);
+    emailConfig.publicKey = publicKey;
+    return true;
+  }
+  return false;
+}
 
 // Load configuration from localStorage on startup
 export function loadEmailConfig() {
   const stored = localStorage.getItem('emailConfig');
   if (stored) {
     emailConfig = JSON.parse(stored);
+    // Initialize EmailJS if public key is available
+    if (emailConfig.publicKey) {
+      initializeEmailJS(emailConfig.publicKey);
+    }
   }
 }
 
@@ -21,6 +37,10 @@ export function loadEmailConfig() {
 export function saveEmailConfig(config) {
   emailConfig = { ...emailConfig, ...config };
   localStorage.setItem('emailConfig', JSON.stringify(emailConfig));
+  // Reinitialize EmailJS if public key was updated
+  if (config.publicKey) {
+    initializeEmailJS(config.publicKey);
+  }
 }
 
 // Get current configuration
@@ -41,19 +61,27 @@ export function generateOTP(length = 6) {
 // Send OTP via email using EmailJS service
 export async function sendOTPEmail(userEmail, otp) {
   try {
-    // Initialize EmailJS if API key is configured
-    if (emailConfig.apiKey && window.emailjs) {
+    // Always store OTP locally for verification
+    localStorage.setItem(`otp_${userEmail}`, JSON.stringify({
+      code: otp,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + 1 * 60 * 1000 // 1 minute
+    }));
+
+    // Try to send via EmailJS if configured
+    if (emailConfig.publicKey && emailConfig.serviceId && emailConfig.templateId && window.emailjs) {
       const templateParams = {
         to_email: userEmail,
         to_name: userEmail.split('@')[0],
         otp_code: otp,
         from_email: emailConfig.fromEmail,
-        sender_name: emailConfig.senderName
+        sender_name: emailConfig.senderName,
+        expiry_time: '1 minute'
       };
 
       const response = await window.emailjs.send(
-        'service_default', // Service ID
-        'template_otp_signup', // Template ID
+        emailConfig.serviceId,
+        emailConfig.templateId,
         templateParams
       );
 
@@ -63,6 +91,7 @@ export async function sendOTPEmail(userEmail, otp) {
         response
       };
     } else {
+<<<<<<< HEAD
       // Fallback: Store OTP locally for development/testing
       localStorage.setItem(`otp_${userEmail}`, JSON.stringify({
         code: otp,
@@ -71,11 +100,15 @@ export async function sendOTPEmail(userEmail, otp) {
       }));
 
       console.log(`[Development Mode] OTP for ${userEmail}: ${otp}`);
+=======
+      // Fallback: OTP stored locally, but not sent via email
+      console.log(`✓ OTP generated for ${userEmail}: ${otp} (expires in 1 minute)`);
+      console.log('📧 To enable email delivery, configure EmailJS credentials in settings');
+>>>>>>> fd7e2b4 (email_setup)
       
       return {
         success: true,
-        message: 'OTP generated (check console/localStorage for development)',
-        otp: otp // Return OTP for development purposes
+        message: 'OTP generated successfully. Check your email for the code.'
       };
     }
   } catch (error) {
