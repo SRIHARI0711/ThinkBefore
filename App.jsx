@@ -174,15 +174,12 @@ export default function App() {
       setOtpError('');
       setOtpTimeRemaining(60); // Initialize to 60 seconds
       setStep('signup-otp'); // Move to OTP verification step
-<<<<<<< HEAD
       // Show OTP in dev mode
       if (result.otp) {
         setTimeout(() => {
           setOtpError(`[Dev Mode] Your OTP: ${result.otp} (expires in 1 minute)`);
         }, 500);
       }
-=======
->>>>>>> fd7e2b4 (email_setup)
     } else {
       setOtpError(result.message);
     }

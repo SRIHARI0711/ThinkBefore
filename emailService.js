@@ -91,7 +91,6 @@ export async function sendOTPEmail(userEmail, otp) {
         response
       };
     } else {
-<<<<<<< HEAD
       // Fallback: Store OTP locally for development/testing
       localStorage.setItem(`otp_${userEmail}`, JSON.stringify({
         code: otp,
@@ -100,11 +99,6 @@ export async function sendOTPEmail(userEmail, otp) {
       }));
 
       console.log(`[Development Mode] OTP for ${userEmail}: ${otp}`);
-=======
-      // Fallback: OTP stored locally, but not sent via email
-      console.log(`✓ OTP generated for ${userEmail}: ${otp} (expires in 1 minute)`);
-      console.log('📧 To enable email delivery, configure EmailJS credentials in settings');
->>>>>>> fd7e2b4 (email_setup)
       
       return {
         success: true,
