@@ -1,0 +1,2241 @@
+{
+  "type": "gaussian-naive-bayes",
+  "version": "1.0",
+  "timestamp": "2026-05-14T14:32:48.532Z",
+  "categories": [
+    "career",
+    "consent-risk",
+    "education",
+    "environment-risk",
+    "ethics",
+    "family",
+    "financial",
+    "health-risk",
+    "legal-risk",
+    "leisure",
+    "productivity",
+    "relationship",
+    "safety-risk",
+    "self-care",
+    "social",
+    "travel",
+    "violence"
+  ],
+  "classPriors": {
+    "career": 0.08064516129032258,
+    "consent-risk": 0.11290322580645161,
+    "education": 0.07258064516129033,
+    "environment-risk": 0.07258064516129033,
+    "ethics": 0.04032258064516129,
+    "family": 0.056451612903225805,
+    "financial": 0.07258064516129033,
+    "health-risk": 0.08064516129032258,
+    "legal-risk": 0.04032258064516129,
+    "leisure": 0.04032258064516129,
+    "productivity": 0.04032258064516129,
+    "relationship": 0.04838709677419355,
+    "safety-risk": 0.04838709677419355,
+    "self-care": 0.016129032258064516,
+    "social": 0.056451612903225805,
+    "travel": 0.056451612903225805,
+    "violence": 0.06451612903225806
+  },
+  "featureStats": {
+    "career": {
+      "tokenCount": {
+        "mean": 8.5,
+        "std": 1.2845232582557624
+      },
+      "questionWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "modalWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "negationCount": {
+        "mean": 0.2,
+        "std": 0.40000000125
+      },
+      "urgencyCount": {
+        "mean": 0.1,
+        "std": 0.3000000016666667
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "uniqueTokenCount": {
+        "mean": 8.4,
+        "std": 1.2000000004166667
+      },
+      "textLength": {
+        "mean": 46.1,
+        "std": 6.139218191349776
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0.1,
+        "std": 0.3000000016666667
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "consent-risk": {
+      "tokenCount": {
+        "mean": 8.071428571428571,
+        "std": 1.3868919888567752
+      },
+      "questionWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "modalWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "negationCount": {
+        "mean": 0.35714285714285715,
+        "std": 0.47915742479345325
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "uniqueTokenCount": {
+        "mean": 8.071428571428571,
+        "std": 1.3868919888567752
+      },
+      "textLength": {
+        "mean": 48.714285714285715,
+        "std": 5.456694072887139
+      },
+      "consent-riskCount": {
+        "mean": 0.6428571428571429,
+        "std": 0.6102859826276832
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0.21428571428571427,
+        "std": 0.41032590454268864
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "education": {
+      "tokenCount": {
+        "mean": 8.444444444444445,
+        "std": 0.6849348899487715
+      },
+      "questionWordCount": {
+        "mean": 0.5555555555555556,
+        "std": 0.49690399600618385
+      },
+      "modalWordCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.49690399600618385
+      },
+      "negationCount": {
+        "mean": 0.1111111111111111,
+        "std": 0.3142696821183448
+      },
+      "urgencyCount": {
+        "mean": 0.1111111111111111,
+        "std": 0.3142696821183447
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.49690399600618385
+      },
+      "uniqueTokenCount": {
+        "mean": 8.444444444444445,
+        "std": 0.6849348899487715
+      },
+      "textLength": {
+        "mean": 44.44444444444444,
+        "std": 5.539978161120435
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0.1111111111111111,
+        "std": 0.3142696821183447
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0.1111111111111111,
+        "std": 0.3142696821183447
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0.2222222222222222,
+        "std": 0.4157397108442246
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "environment-risk": {
+      "tokenCount": {
+        "mean": 7.444444444444445,
+        "std": 1.065740338983095
+      },
+      "questionWordCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.49690399600618385
+      },
+      "modalWordCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.49690399600618385
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.49690399600618385
+      },
+      "uniqueTokenCount": {
+        "mean": 7.333333333333333,
+        "std": 1.1547005388122642
+      },
+      "textLength": {
+        "mean": 42.333333333333336,
+        "std": 7.874007874075311
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0.4444444444444444,
+        "std": 0.6849348899487716
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "ethics": {
+      "tokenCount": {
+        "mean": 8.2,
+        "std": 1.4696938460101139
+      },
+      "questionWordCount": {
+        "mean": 0.8,
+        "std": 0.40000000125
+      },
+      "modalWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "positiveWordCount": {
+        "mean": 0.4,
+        "std": 0.4898979495772564
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.8,
+        "std": 0.40000000125
+      },
+      "uniqueTokenCount": {
+        "mean": 8,
+        "std": 1.4142135627266486
+      },
+      "textLength": {
+        "mean": 38.8,
+        "std": 4.707440918482143
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "family": {
+      "tokenCount": {
+        "mean": 7.428571428571429,
+        "std": 1.2936264486918556
+      },
+      "questionWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "modalWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "negationCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "uniqueTokenCount": {
+        "mean": 7.428571428571429,
+        "std": 1.2936264486918556
+      },
+      "textLength": {
+        "mean": 39.285714285714285,
+        "std": 4.164965639295263
+      },
+      "consent-riskCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407517
+      },
+      "environment-riskCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407517
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "ethicsCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0.42857142857142855,
+        "std": 0.49487166031575647
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "financial": {
+      "tokenCount": {
+        "mean": 8.777777777777779,
+        "std": 1.7497795278439305
+      },
+      "questionWordCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "modalWordCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "uniqueTokenCount": {
+        "mean": 8.555555555555555,
+        "std": 1.5713484029549705
+      },
+      "textLength": {
+        "mean": 46.888888888888886,
+        "std": 9.230919593637998
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0.8888888888888888,
+        "std": 0.5665577246150543
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0.5555555555555556,
+        "std": 0.6849348899487716
+      }
+    },
+    "health-risk": {
+      "tokenCount": {
+        "mean": 6.8,
+        "std": 1.1661903793978066
+      },
+      "questionWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "modalWordCount": {
+        "mean": 0.4,
+        "std": 0.48989794957725635
+      },
+      "negationCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0.1,
+        "std": 0.3000000016666667
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "uniqueTokenCount": {
+        "mean": 6.8,
+        "std": 1.1661903793978066
+      },
+      "textLength": {
+        "mean": 39.2,
+        "std": 9.947864092406974
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0.7,
+        "std": 0.6403124245241536
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0.2,
+        "std": 0.40000000125
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "legal-risk": {
+      "tokenCount": {
+        "mean": 7.2,
+        "std": 0.7483314780229413
+      },
+      "questionWordCount": {
+        "mean": 0.4,
+        "std": 0.4898979495772564
+      },
+      "modalWordCount": {
+        "mean": 0.4,
+        "std": 0.4898979495772564
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.4,
+        "std": 0.4898979495772564
+      },
+      "uniqueTokenCount": {
+        "mean": 7.2,
+        "std": 0.7483314780229413
+      },
+      "textLength": {
+        "mean": 37.8,
+        "std": 8.034923770702495
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0.2,
+        "std": 0.40000000125
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "leisure": {
+      "tokenCount": {
+        "mean": 7.2,
+        "std": 0.40000000124999996
+      },
+      "questionWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "modalWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "uniqueTokenCount": {
+        "mean": 7.2,
+        "std": 0.40000000124999996
+      },
+      "textLength": {
+        "mean": 35.4,
+        "std": 3.929376541004947
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0.2,
+        "std": 0.40000000125000007
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "productivity": {
+      "tokenCount": {
+        "mean": 8.4,
+        "std": 1.0198039032088473
+      },
+      "questionWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "modalWordCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6,
+        "std": 0.4898979495772564
+      },
+      "uniqueTokenCount": {
+        "mean": 8.4,
+        "std": 1.0198039032088473
+      },
+      "textLength": {
+        "mean": 45,
+        "std": 5.4405882035860795
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0.8,
+        "std": 0.9797958976235817
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0.4,
+        "std": 0.4898979495772564
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0.2,
+        "std": 0.40000000125
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "relationship": {
+      "tokenCount": {
+        "mean": 7.833333333333333,
+        "std": 1.5723301889941002
+      },
+      "questionWordCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "modalWordCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0.3333333333333333,
+        "std": 0.7453559931707503
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "uniqueTokenCount": {
+        "mean": 7.833333333333333,
+        "std": 1.5723301889941002
+      },
+      "textLength": {
+        "mean": 40.333333333333336,
+        "std": 6.649979114495189
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0.3333333333333333,
+        "std": 0.47140452185169185
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0.16666666666666666,
+        "std": 0.3726779975916058
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "safety-risk": {
+      "tokenCount": {
+        "mean": 7.166666666666667,
+        "std": 1.3437096250885292
+      },
+      "questionWordCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "modalWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "uniqueTokenCount": {
+        "mean": 7.166666666666667,
+        "std": 1.3437096250885292
+      },
+      "textLength": {
+        "mean": 37.166666666666664,
+        "std": 8.070866675264119
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0.6666666666666666,
+        "std": 0.47140452185169185
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0.16666666666666666,
+        "std": 0.3726779975916058
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "self-care": {
+      "tokenCount": {
+        "mean": 9,
+        "std": 1.0000000005
+      },
+      "questionWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "modalWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "uniqueTokenCount": {
+        "mean": 8.5,
+        "std": 0.500000001
+      },
+      "textLength": {
+        "mean": 45.5,
+        "std": 9.500000000052632
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "social": {
+      "tokenCount": {
+        "mean": 7,
+        "std": 1.0690449681174048
+      },
+      "questionWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "modalWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "uniqueTokenCount": {
+        "mean": 6.857142857142857,
+        "std": 0.8329931284352879
+      },
+      "textLength": {
+        "mean": 38.857142857142854,
+        "std": 4.290473548025453
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0.2857142857142857,
+        "std": 0.4517539525594228
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407516
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "travel": {
+      "tokenCount": {
+        "mean": 8.142857142857142,
+        "std": 1.4568627185125707
+      },
+      "questionWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "modalWordCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "negationCount": {
+        "mean": 0.42857142857142855,
+        "std": 0.49487166031575647
+      },
+      "urgencyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.5714285714285714,
+        "std": 0.49487166031575647
+      },
+      "uniqueTokenCount": {
+        "mean": 7.857142857142857,
+        "std": 1.4568627185125707
+      },
+      "textLength": {
+        "mean": 42,
+        "std": 7.559289460250688
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0.7142857142857143,
+        "std": 0.6998542129381997
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0.14285714285714285,
+        "std": 0.3499271075407517
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    },
+    "violence": {
+      "tokenCount": {
+        "mean": 6.75,
+        "std": 1.5612494999198558
+      },
+      "questionWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "modalWordCount": {
+        "mean": 0.5,
+        "std": 0.500000001
+      },
+      "negationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "urgencyCount": {
+        "mean": 0.25,
+        "std": 0.6614378285220767
+      },
+      "riskIndicatorCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "positiveWordCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "exclamationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "questionMarkCount": {
+        "mean": 0.625,
+        "std": 0.48412291930872264
+      },
+      "uniqueTokenCount": {
+        "mean": 6.75,
+        "std": 1.5612494999198558
+      },
+      "textLength": {
+        "mean": 37,
+        "std": 9.42072184076146
+      },
+      "consent-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "environment-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "violenceCount": {
+        "mean": 0.375,
+        "std": 0.48412291930872264
+      },
+      "health-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "productivityCount": {
+        "mean": 0.125,
+        "std": 0.3307189153949317
+      },
+      "financialCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "socialCount": {
+        "mean": 0.125,
+        "std": 0.3307189153949317
+      },
+      "ethicsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "self-careCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "relationshipCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "safety-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "legal-riskCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "careerCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "travelCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "educationCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "familyCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "leisureCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      },
+      "investmentsCount": {
+        "mean": 0,
+        "std": 0.000031622776601683795
+      }
+    }
+  },
+  "metrics": {
+    "validation": {
+      "accuracy": 0.2692307692307692,
+      "macroF1": 0.1403361344537815,
+      "perClass": {
+        "career": {
+          "precision": 1,
+          "recall": 0.6666666666666666,
+          "f1": 0.8
+        },
+        "consent-risk": {
+          "precision": 0.16666666666666666,
+          "recall": 1,
+          "f1": 0.2857142857142857
+        },
+        "education": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "environment-risk": {
+          "precision": 0.25,
+          "recall": 1,
+          "f1": 0.4
+        },
+        "ethics": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "family": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "financial": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "health-risk": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "legal-risk": {
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "f1": 0.4
+        },
+        "leisure": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        },
+        "productivity": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "relationship": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "safety-risk": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "self-care": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "social": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "travel": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "violence": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        }
+      }
+    },
+    "test": {
+      "accuracy": 0.21428571428571427,
+      "macroF1": 0.1372549019607843,
+      "perClass": {
+        "career": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "consent-risk": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "education": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "environment-risk": {
+          "precision": 0.3333333333333333,
+          "recall": 1,
+          "f1": 0.5
+        },
+        "ethics": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "family": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "financial": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "health-risk": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "legal-risk": {
+          "precision": 0.1111111111111111,
+          "recall": 0.3333333333333333,
+          "f1": 0.16666666666666666
+        },
+        "leisure": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "productivity": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        },
+        "relationship": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5
+        },
+        "safety-risk": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "self-care": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "social": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "travel": {
+          "precision": 0,
+          "recall": 0,
+          "f1": 0
+        },
+        "violence": {
+          "precision": 1,
+          "recall": 0.5,
+          "f1": 0.6666666666666666
+        }
+      }
+    }
+  },
+  "datasetInfo": {
+    "totalSamples": 178,
+    "trainSamples": 124,
+    "validationSamples": 26,
+    "testSamples": 28
+  }
+}
