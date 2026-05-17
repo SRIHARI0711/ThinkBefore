@@ -54,7 +54,7 @@ const loadTrainedModelNode = () => {
   if (!fs || !path || !__dirname) {
     return null;
   }
-  
+  //try-catch block
   try {
     const modelPath = path.join(__dirname, 'ml-model-trained.json');
     
