@@ -125,7 +125,7 @@ testCases.forEach((test, idx) => {
   }
 });
 
-// Summary
+//Test Summary
 console.log('=== TEST SUMMARY ===\n');
 console.log(`Total Tests: ${testCases.length}`);
 console.log(`Passed: ${passed} (${(passed / testCases.length * 100).toFixed(1)}%)`);
