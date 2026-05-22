@@ -212,3 +212,34 @@ export function deleteUserAccount(email, password) {
     message: 'Account deleted successfully'
   };
 }
+
+// Reset password using token (for forgot password flow)
+export function resetPassword(email, newPassword) {
+  const users = getAllUsers();
+  const emailLower = email.toLowerCase();
+
+  if (!(emailLower in users)) {
+    return {
+      success: false,
+      message: 'User not found'
+    };
+  }
+
+  // Validate new password strength
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    return {
+      success: false,
+      message: passwordValidation.errors.join('. ')
+    };
+  }
+
+  // Update password
+  users[emailLower].password = newPassword;
+  saveUsers(users);
+
+  return {
+    success: true,
+    message: 'Password reset successfully'
+  };
+}

@@ -10,7 +10,11 @@ import {
   loadEmailConfig,
   saveEmailConfig,
   getEmailConfig,
-  getOTPTimeRemaining
+  getOTPTimeRemaining,
+  sendPasswordResetEmail,
+  verifyResetToken,
+  markResetTokenAsUsed,
+  clearResetToken
 } from './emailService.js';
 import { 
   registerUser, 
@@ -18,7 +22,8 @@ import {
   userExists, 
   getUser,
   validatePassword,
-  changePassword 
+  changePassword,
+  resetPassword
 } from './userDatabase.js';
 
 const COLORS = [
@@ -82,6 +87,20 @@ export default function App() {
   const [otpTimeRemaining, setOtpTimeRemaining] = useState(0);
   const otpTimerRef = useRef(null);
 
+  // Forgot Password States
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotError, setForgotError] = useState('');
+  const [forgotMessage, setForgotMessage] = useState('');
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [resetPasswordErrors, setResetPasswordErrors] = useState([]);
+  const [showResetNewPw, setShowResetNewPw] = useState(false);
+  const [showResetConfirmPw, setShowResetConfirmPw] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
     // Load email configuration on startup
@@ -90,6 +109,19 @@ export default function App() {
     setEmailConfigState(config);
     setEditEmailFrom(config.fromEmail);
     setEditEmailSenderName(config.senderName);
+
+    // Check for reset token in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const resetTokenParam = urlParams.get('token');
+    const emailParam = urlParams.get('email');
+    
+    if (resetTokenParam && emailParam) {
+      // User clicked on password reset link
+      setForgotEmail(decodeURIComponent(emailParam));
+      setResetToken(resetTokenParam);
+      setStep('reset-password');
+      setPage('auth');
+    }
   }, [isDark]);
 
   // OTP Timer Effect - Updates every second when OTP is sent
@@ -270,6 +302,112 @@ export default function App() {
     } else {
       setPasswordChangeError(result.message);
     }
+  };
+
+  // Forgot Password Handlers
+  const handleSendResetEmail = async () => {
+    setForgotError('');
+    setForgotMessage('');
+
+    if (!forgotEmail) {
+      setForgotError('Please enter your email address');
+      return;
+    }
+
+    // Check if user exists
+    if (!userExists(forgotEmail)) {
+      setForgotError('No account found with this email address');
+      return;
+    }
+
+    setIsSendingReset(true);
+    const user = getUser(forgotEmail);
+    const result = await sendPasswordResetEmail(forgotEmail, user?.nickname || forgotEmail.split('@')[0]);
+
+    if (result.success) {
+      setForgotMessage('Password reset link has been sent to your email. Check your inbox for further instructions.');
+      setResetToken(result.token); // Store token for dev mode
+      // Clear form after 3 seconds
+      setTimeout(() => {
+        setForgotEmail('');
+        setForgotError('');
+        setForgotMessage('');
+        setStep('login-email'); // Go back to login
+      }, 4000);
+    } else {
+      setForgotError(result.message);
+    }
+    setIsSendingReset(false);
+  };
+
+  const handleVerifyResetToken = () => {
+    setForgotError('');
+
+    if (!resetToken) {
+      setForgotError('Reset token is missing');
+      return;
+    }
+
+    const result = verifyResetToken(forgotEmail, resetToken);
+
+    if (result.valid) {
+      setForgotError('');
+      setStep('reset-password'); // Move to password reset step
+    } else {
+      setForgotError(result.message);
+    }
+  };
+
+  const handleResetPassword = () => {
+    setForgotError('');
+    setResetMessage('');
+
+    // Validate inputs
+    if (!resetNewPassword) {
+      setForgotError('Please enter a new password');
+      return;
+    }
+
+    if (!resetConfirmPassword) {
+      setForgotError('Please confirm your password');
+      return;
+    }
+
+    if (resetNewPassword !== resetConfirmPassword) {
+      setForgotError('Passwords do not match');
+      return;
+    }
+
+    // Validate password strength
+    const passwordValidation = validatePassword(resetNewPassword);
+    if (!passwordValidation.isValid) {
+      setResetPasswordErrors(passwordValidation.errors);
+      return;
+    }
+
+    setIsResettingPassword(true);
+
+    // Reset the password
+    const result = resetPassword(forgotEmail, resetNewPassword);
+
+    if (result.success) {
+      // Mark reset token as used
+      markResetTokenAsUsed(forgotEmail);
+      setResetMessage('Password reset successfully! Redirecting to login...');
+      setTimeout(() => {
+        setForgotEmail('');
+        setResetToken('');
+        setResetNewPassword('');
+        setResetConfirmPassword('');
+        setResetMessage('');
+        setForgotError('');
+        setResetPasswordErrors([]);
+        setStep('login-email');
+      }, 2000);
+    } else {
+      setForgotError(result.message);
+    }
+    setIsResettingPassword(false);
   };
 
   const handleAnalyze = () => {
@@ -606,6 +744,23 @@ export default function App() {
                   >
                     Sign In →
                   </button>
+                  <div style={{ textAlign: 'center', marginTop: '12px', marginBottom: '8px' }}>
+                    <button
+                      onClick={() => { setForgotEmail(''); setForgotError(''); setForgotMessage(''); setStep('forgot-email'); }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--amber)',
+                        cursor: 'pointer',
+                        fontSize: '13px',
+                        textDecoration: 'underline',
+                        fontWeight: '500',
+                        padding: '0'
+                      }}
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                   <button 
                     className="auth-btn secondary" 
                     onClick={() => { setStep('login-email'); setAuthError(''); }}
@@ -940,13 +1095,246 @@ export default function App() {
                   </button>
                 </div>
               )}
-            </div>
+
+              {step === 'forgot-email' && (
+                <div className="auth-step active">
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>↩ Forgot Password</div>
+                  <div className="auth-title">Reset your password</div>
+                  <p className="auth-subtitle">Enter the email address associated with your account.</p>
+                  <div className="field-wrap">
+                    <div className="field-label"><span className="field-dot"></span>Email address</div>
+                    <input 
+                      className="auth-input" 
+                      type="email" 
+                      placeholder="you@example.com" 
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendResetEmail()}
+                    />
+                  </div>
+                  {forgotError && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {forgotError}
+                    </div>
+                  )}
+                  {forgotMessage && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: '#10b981',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      ✓ {forgotMessage}
+                    </div>
+                  )}
+                  <button 
+                    className="auth-btn" 
+                    onClick={handleSendResetEmail}
+                    disabled={isSendingReset}
+                  >
+                    {isSendingReset ? 'Sending...' : 'Send Reset Link →'}
+                  </button>
+                  <button 
+                    className="auth-btn secondary" 
+                    onClick={() => { setForgotEmail(''); setForgotError(''); setStep('login-pw'); }}
+                    style={{ marginTop: '8px' }}
+                  >
+                    ← Back
+                  </button>
+                </div>
+              )}
+
+              {step === 'reset-password' && (
+                <div className="auth-step active">
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--amber)', marginBottom: '12px' }}>↩ Reset Password</div>
+                  <div className="auth-title">Create new password</div>
+                  <p className="auth-subtitle">Enter a strong new password for your account.</p>
+                  <div className="field-wrap">
+                    <div className="field-label"><span className="field-dot"></span>New password</div>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <input 
+                        className="auth-input" 
+                        type={showResetNewPw ? 'text' : 'password'}
+                        placeholder="Min. 8 characters"
+                        value={resetNewPassword}
+                        onChange={(e) => {
+                          setResetNewPassword(e.target.value);
+                          if (e.target.value) {
+                            const validation = validatePassword(e.target.value);
+                            setResetPasswordErrors(validation.errors);
+                          } else {
+                            setResetPasswordErrors([]);
+                          }
+                        }}
+                        style={{ paddingRight: '40px' }}
+                      />
+                      <button
+                        onClick={() => setShowResetNewPw(!showResetNewPw)}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'var(--text3)',
+                          fontWeight: '600'
+                        }}
+                        title={showResetNewPw ? 'Hide password' : 'Show password'}
+                      >
+                        {showResetNewPw ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="field-wrap">
+                    <div className="field-label"><span className="field-dot"></span>Confirm password</div>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <input 
+                        className="auth-input" 
+                        type={showResetConfirmPw ? 'text' : 'password'}
+                        placeholder="Confirm your password"
+                        value={resetConfirmPassword}
+                        onChange={(e) => setResetConfirmPassword(e.target.value)}
+                        style={{ paddingRight: '40px' }}
+                      />
+                      <button
+                        onClick={() => setShowResetConfirmPw(!showResetConfirmPw)}
+                        style={{
+                          position: 'absolute',
+                          right: '12px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'var(--text3)',
+                          fontWeight: '600'
+                        }}
+                        title={showResetConfirmPw ? 'Hide password' : 'Show password'}
+                      >
+                        {showResetConfirmPw ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {resetPasswordErrors.length > 0 && (
+                    <div style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      marginTop: '12px',
+                      marginBottom: '12px'
+                    }}>
+                      <div style={{ color: '#ef4444', fontSize: '13px', fontWeight: '500', marginBottom: '8px' }}>
+                        Password requirements not met:
+                      </div>
+                      {resetPasswordErrors.map((error, idx) => (
+                        <div key={idx} style={{ color: '#ef4444', fontSize: '12px', marginBottom: idx < resetPasswordErrors.length - 1 ? '6px' : '0' }}>
+                          • {error}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {resetNewPassword && resetPasswordErrors.length === 0 && (
+                    <div style={{
+                      padding: '12px',
+                      borderRadius: '8px',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      marginTop: '12px',
+                      marginBottom: '12px',
+                      color: '#10b981',
+                      fontSize: '13px',
+                      fontWeight: '500'
+                    }}>
+                      ✓ Password meets all requirements
+                    </div>
+                  )}
+
+                  {forgotError && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      {forgotError}
+                    </div>
+                  )}
+
+                  {resetMessage && (
+                    <div style={{
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      color: '#10b981',
+                      fontSize: '13px',
+                      marginBottom: '12px',
+                      marginTop: '12px'
+                    }}>
+                      ✓ {resetMessage}
+                    </div>
+                  )}
+
+                  <button 
+                    className="auth-btn" 
+                    onClick={handleResetPassword}
+                    disabled={isResettingPassword || resetNewPassword.length === 0 || resetPasswordErrors.length > 0}
+                    style={{
+                      opacity: isResettingPassword || resetNewPassword.length === 0 || resetPasswordErrors.length > 0 ? 0.5 : 1,
+                      cursor: isResettingPassword || resetNewPassword.length === 0 || resetPasswordErrors.length > 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {isResettingPassword ? 'Resetting...' : 'Reset Password →'}
+                  </button>
+                  <button 
+                    className="auth-btn secondary" 
+                    onClick={() => { 
+                      setForgotEmail(''); 
+                      setResetNewPassword(''); 
+                      setResetConfirmPassword(''); 
+                      setResetPasswordErrors([]);
+                      setForgotError('');
+                      setStep('login-pw'); 
+                    }}
+                    style={{ marginTop: '8px' }}
+                  >
+                    ← Back
+                  </button>
+                </div>
+              )}
             )}
           </div>
-        </div>
-      ) : (
-        <div className="page active">
-          <div className="app-shell">
+        ) : (
+          <div className="page active">
             <nav className="top-nav">
               <div 
                 className={`nav-item ${view === 'dash' ? 'active' : ''}`}
@@ -1781,7 +2169,6 @@ export default function App() {
 
             </div>
           </div>
-        </div>
       )}
     </div>
   );

@@ -5,9 +5,10 @@
 let emailConfig = {
   fromEmail: 'cogniguard@example.com',
   senderName: 'CogniAuth',
-  serviceId: '',      // EmailJS Service ID
-  templateId: '',     // EmailJS Template ID
-  publicKey: '',      // EmailJS Public Key
+  serviceId: '',           // EmailJS Service ID
+  templateId: '',          // EmailJS OTP Template ID
+  resetTemplateId: '',     // EmailJS Password Reset Template ID
+  publicKey: '',           // EmailJS Public Key
   provider: 'emailjs'
 };
 
@@ -174,4 +175,139 @@ export function verifyOTP(userEmail, enteredOTP) {
 // Clear stored OTP
 export function clearOTP(userEmail) {
   localStorage.removeItem(`otp_${userEmail}`);
+}
+
+// Generate password reset token (unique token with expiry)
+export function generateResetToken(userEmail, length = 32) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  
+  // Store token with expiry (24 hours)
+  localStorage.setItem(`reset_token_${userEmail}`, JSON.stringify({
+    token: token,
+    timestamp: Date.now(),
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+    used: false
+  }));
+  
+  return token;
+}
+
+// Send password reset email using EmailJS service
+export async function sendPasswordResetEmail(userEmail, userName) {
+  try {
+    // Check if user exists in our database
+    // (This will be validated in App.jsx before calling this function)
+    
+    // Generate reset token
+    const resetToken = generateResetToken(userEmail);
+    
+    // Create reset link - using URL encoding
+    const resetLink = `${window.location.origin}?page=auth&step=reset-password&token=${resetToken}&email=${encodeURIComponent(userEmail)}`;
+    
+    // Try to send via EmailJS if configured
+    if (emailConfig.publicKey && emailConfig.serviceId && emailConfig.resetTemplateId && window.emailjs) {
+      const templateParams = {
+        to_email: userEmail,
+        to_name: userName || userEmail.split('@')[0],
+        reset_link: resetLink,
+        from_email: emailConfig.fromEmail,
+        sender_name: emailConfig.senderName,
+        expiry_time: '24 hours'
+      };
+
+      const response = await window.emailjs.send(
+        emailConfig.serviceId,
+        emailConfig.resetTemplateId,
+        templateParams
+      );
+
+      return {
+        success: true,
+        message: 'Password reset link sent to ' + userEmail,
+        response,
+        token: resetToken // Return token for dev mode
+      };
+    } else {
+      // Fallback: Development mode
+      console.log(`[Development Mode] Reset link for ${userEmail}: ${resetLink}`);
+      console.log(`[Development Mode] Reset token: ${resetToken}`);
+      
+      return {
+        success: true,
+        message: 'Password reset link generated successfully. Check your email for the link.',
+        token: resetToken // Return token for dev mode
+      };
+    }
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    return {
+      success: false,
+      message: 'Failed to send password reset email: ' + error.message,
+      error
+    };
+  }
+}
+
+// Verify password reset token
+export function verifyResetToken(userEmail, token) {
+  const stored = localStorage.getItem(`reset_token_${userEmail}`);
+  
+  if (!stored) {
+    return {
+      valid: false,
+      message: 'No reset token found. Please request a new password reset.'
+    };
+  }
+
+  const tokenData = JSON.parse(stored);
+  
+  // Check if token has expired (24 hours)
+  if (Date.now() > tokenData.expiresAt) {
+    localStorage.removeItem(`reset_token_${userEmail}`);
+    return {
+      valid: false,
+      message: 'Reset link has expired. Please request a new one.'
+    };
+  }
+
+  // Check if token was already used
+  if (tokenData.used) {
+    return {
+      valid: false,
+      message: 'This reset link has already been used.'
+    };
+  }
+
+  // Verify token matches
+  if (tokenData.token !== token) {
+    return {
+      valid: false,
+      message: 'Invalid reset token.'
+    };
+  }
+
+  return {
+    valid: true,
+    message: 'Reset token verified successfully'
+  };
+}
+
+// Mark reset token as used
+export function markResetTokenAsUsed(userEmail) {
+  const stored = localStorage.getItem(`reset_token_${userEmail}`);
+  
+  if (stored) {
+    const tokenData = JSON.parse(stored);
+    tokenData.used = true;
+    localStorage.setItem(`reset_token_${userEmail}`, JSON.stringify(tokenData));
+  }
+}
+
+// Clear reset token
+export function clearResetToken(userEmail) {
+  localStorage.removeItem(`reset_token_${userEmail}`);
 }
