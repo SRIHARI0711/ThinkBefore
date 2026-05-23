@@ -1,36 +1,70 @@
 // Email Service Configuration
 // This file handles email sending for OTP verification using EmailJS
+// Configuration is fixed for all users - only admin can change these values
 
-// Default configuration - can be modified in settings
+// Fixed configuration - same for all users
 let emailConfig = {
-  fromEmail: 'cogniguard@example.com',
-  senderName: 'CogniAuth',
-  serviceId: '',           // EmailJS Service ID
-  templateId: '',          // EmailJS OTP Template ID
-  resetTemplateId: '',     // EmailJS Password Reset Template ID
-  publicKey: '',           // EmailJS Public Key
+  fromEmail: 'noreply.thinkbefore@gmail.com',
+  senderName: 'ThinkBefore',
+  serviceId: '',           // Will be set after you provide it
+  templateId: '',          // Will be set after you provide it
+  resetTemplateId: '',     // Will be set after you provide it
+  publicKey: '',           // Will be set after you provide it
   provider: 'emailjs'
 };
 
-// Initialize EmailJS
+// ==========================================
+// 🔐 ADMIN CONFIGURATION - PASTE YOUR IDs HERE
+// ==========================================
+// Get these values from your EmailJS account and paste them below
+// DO NOT SHARE THESE PUBLIC KEYS PUBLICLY!
+
+const EMAILJS_CONFIG = {
+  // Paste your EmailJS Service ID here (format: service_xxxxx)
+  SERVICE_ID: 'service_mgk426n',
+  
+  // Paste your OTP Verification Template ID here (format: template_xxxxx)
+  OTP_TEMPLATE_ID: 'template_1qgv09k',
+  
+  // Paste your Password Reset Template ID here (format: template_xxxxx)
+  RESET_TEMPLATE_ID: 'template_cs9iyfa',
+  
+  // Paste your EmailJS Public Key here
+  PUBLIC_KEY: 'migRVJbtXtmogMrXg'
+};
+
+// ==========================================
+// Apply configuration
+// ==========================================
+if (EMAILJS_CONFIG.SERVICE_ID) {
+  emailConfig.serviceId = EMAILJS_CONFIG.SERVICE_ID;
+}
+if (EMAILJS_CONFIG.OTP_TEMPLATE_ID) {
+  emailConfig.templateId = EMAILJS_CONFIG.OTP_TEMPLATE_ID;
+}
+if (EMAILJS_CONFIG.RESET_TEMPLATE_ID) {
+  emailConfig.resetTemplateId = EMAILJS_CONFIG.RESET_TEMPLATE_ID;
+}
+if (EMAILJS_CONFIG.PUBLIC_KEY) {
+  emailConfig.publicKey = EMAILJS_CONFIG.PUBLIC_KEY;
+}
+
+
+// Initialize EmailJS with public key
 export function initializeEmailJS(publicKey) {
   if (publicKey && window.emailjs) {
     window.emailjs.init(publicKey);
-    emailConfig.publicKey = publicKey;
     return true;
   }
   return false;
 }
 
-// Load configuration from localStorage on startup
+// Load configuration from admin settings on startup
 export function loadEmailConfig() {
-  const stored = localStorage.getItem('emailConfig');
-  if (stored) {
-    emailConfig = JSON.parse(stored);
-    // Initialize EmailJS if public key is available
-    if (emailConfig.publicKey) {
-      initializeEmailJS(emailConfig.publicKey);
-    }
+  // Use admin configuration (no localStorage override for users)
+  // Initialize EmailJS if public key is available
+  if (emailConfig.publicKey) {
+    initializeEmailJS(emailConfig.publicKey);
   }
 }
 
@@ -69,8 +103,22 @@ export async function sendOTPEmail(userEmail, otp) {
       expiresAt: Date.now() + 1 * 60 * 1000 // 1 minute
     }));
 
+    // Debug logging
+    console.log('📧 Email Config:', {
+      publicKey: emailConfig.publicKey ? '✓ Set' : '✗ Missing',
+      serviceId: emailConfig.serviceId ? '✓ Set' : '✗ Missing',
+      templateId: emailConfig.templateId ? '✓ Set' : '✗ Missing',
+      emailjsAvailable: window.emailjs ? '✓ Available' : '✗ Not loaded'
+    });
+
     // Try to send via EmailJS if configured
     if (emailConfig.publicKey && emailConfig.serviceId && emailConfig.templateId && window.emailjs) {
+      // Make sure EmailJS is initialized
+      if (!window.emailjs.isInitialized) {
+        console.log('🔄 Initializing EmailJS...');
+        window.emailjs.init(emailConfig.publicKey);
+      }
+
       const templateParams = {
         to_email: userEmail,
         to_name: userEmail.split('@')[0],
@@ -80,11 +128,15 @@ export async function sendOTPEmail(userEmail, otp) {
         expiry_time: '1 minute'
       };
 
+      console.log('📤 Sending OTP email with params:', templateParams);
+
       const response = await window.emailjs.send(
         emailConfig.serviceId,
         emailConfig.templateId,
         templateParams
       );
+
+      console.log('✅ OTP Email sent successfully:', response);
 
       return {
         success: true,
@@ -93,21 +145,24 @@ export async function sendOTPEmail(userEmail, otp) {
       };
     } else {
       // Fallback: Store OTP locally for development/testing
-      localStorage.setItem(`otp_${userEmail}`, JSON.stringify({
-        code: otp,
-        timestamp: Date.now(),
-        expiresAt: Date.now() + 1 * 60 * 1000 // 1 minute
-      }));
+      console.warn('⚠️ EmailJS not properly configured. Using fallback mode.');
+      console.warn('Missing:', {
+        publicKey: !emailConfig.publicKey,
+        serviceId: !emailConfig.serviceId,
+        templateId: !emailConfig.templateId,
+        emailjsLib: !window.emailjs
+      });
 
       console.log(`[Development Mode] OTP for ${userEmail}: ${otp}`);
       
       return {
         success: true,
-        message: 'OTP generated successfully. Check your email for the code.'
+        message: 'OTP generated successfully. Check browser console for code.',
+        otp: otp
       };
     }
   } catch (error) {
-    console.error('Error sending OTP:', error);
+    console.error('❌ Error sending OTP:', error);
     return {
       success: false,
       message: 'Failed to send OTP: ' + error.message,
@@ -208,8 +263,21 @@ export async function sendPasswordResetEmail(userEmail, userName) {
     // Create reset link - using URL encoding
     const resetLink = `${window.location.origin}?page=auth&step=reset-password&token=${resetToken}&email=${encodeURIComponent(userEmail)}`;
     
+    console.log('📧 Password Reset Email Config:', {
+      publicKey: emailConfig.publicKey ? '✓ Set' : '✗ Missing',
+      serviceId: emailConfig.serviceId ? '✓ Set' : '✗ Missing',
+      resetTemplateId: emailConfig.resetTemplateId ? '✓ Set' : '✗ Missing',
+      emailjsAvailable: window.emailjs ? '✓ Available' : '✗ Not loaded'
+    });
+
     // Try to send via EmailJS if configured
     if (emailConfig.publicKey && emailConfig.serviceId && emailConfig.resetTemplateId && window.emailjs) {
+      // Make sure EmailJS is initialized
+      if (!window.emailjs.isInitialized) {
+        console.log('🔄 Initializing EmailJS...');
+        window.emailjs.init(emailConfig.publicKey);
+      }
+
       const templateParams = {
         to_email: userEmail,
         to_name: userName || userEmail.split('@')[0],
@@ -219,11 +287,15 @@ export async function sendPasswordResetEmail(userEmail, userName) {
         expiry_time: '24 hours'
       };
 
+      console.log('📤 Sending password reset email with params:', templateParams);
+
       const response = await window.emailjs.send(
         emailConfig.serviceId,
         emailConfig.resetTemplateId,
         templateParams
       );
+
+      console.log('✅ Password reset email sent successfully:', response);
 
       return {
         success: true,
@@ -233,17 +305,18 @@ export async function sendPasswordResetEmail(userEmail, userName) {
       };
     } else {
       // Fallback: Development mode
+      console.warn('⚠️ EmailJS not properly configured. Using fallback mode.');
       console.log(`[Development Mode] Reset link for ${userEmail}: ${resetLink}`);
       console.log(`[Development Mode] Reset token: ${resetToken}`);
       
       return {
         success: true,
-        message: 'Password reset link generated successfully. Check your email for the link.',
+        message: 'Password reset link generated successfully. Check browser console for link.',
         token: resetToken // Return token for dev mode
       };
     }
   } catch (error) {
-    console.error('Error sending password reset email:', error);
+    console.error('❌ Error sending password reset email:', error);
     return {
       success: false,
       message: 'Failed to send password reset email: ' + error.message,

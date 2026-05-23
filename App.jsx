@@ -8,8 +8,6 @@ import {
   verifyOTP, 
   clearOTP,
   loadEmailConfig,
-  saveEmailConfig,
-  getEmailConfig,
   getOTPTimeRemaining,
   sendPasswordResetEmail,
   verifyResetToken,
@@ -80,10 +78,6 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [emailConfig, setEmailConfigState] = useState(null);
-  const [showEmailSettings, setShowEmailSettings] = useState(false);
-  const [editEmailFrom, setEditEmailFrom] = useState('');
-  const [editEmailSenderName, setEditEmailSenderName] = useState('');
   const [otpTimeRemaining, setOtpTimeRemaining] = useState(0);
   const otpTimerRef = useRef(null);
 
@@ -105,10 +99,6 @@ export default function App() {
     document.body.classList.toggle('light', !isDark);
     // Load email configuration on startup
     loadEmailConfig();
-    const config = getEmailConfig();
-    setEmailConfigState(config);
-    setEditEmailFrom(config.fromEmail);
-    setEditEmailSenderName(config.senderName);
 
     // Check for reset token in URL parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -1331,11 +1321,13 @@ export default function App() {
                   </button>
                 </div>
               )}
+            </div>
             )}
           </div>
-        ) : (
-          <div className="page active">
-            <nav className="top-nav">
+        </div>
+      ) : (
+        <div className="page active">
+          <nav className="top-nav">
               <div 
                 className={`nav-item ${view === 'dash' ? 'active' : ''}`}
                 onClick={() => setView('dash')}
@@ -1370,7 +1362,7 @@ export default function App() {
             </nav>
             <div className="main-area">
               {view === 'dash' && (
-                <div className="dash-view active">
+                <>
                   <div className="view-header">
                     <div className="view-title">Dashboard</div>
                     <div className="view-sub">Analyze decisions in real-time and get instant interventions.</div>
@@ -1649,80 +1641,80 @@ export default function App() {
                       </div>
                     </div>
                   )}
-                </div>
+                </>
               )}
 
               {view === 'history' && (
-                <div className="history-view active">
-                  <div className="view-header">
-                    <div className="view-title">Decision History</div>
-                    <div className="view-sub">Review all your analyzed decisions.</div>
-                  </div>
-                  
-                  {history.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px', marginTop: '24px' }}>
-                      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>No decisions yet</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing decisions to build your complete history.</div>
-                      <button 
-                        className="auth-btn"
-                        onClick={() => setView('dash')}
-                        style={{ padding: '10px 20px', fontSize: '14px', maxWidth: '300px', margin: '0 auto' }}
-                      >
-                        Go to Dashboard →
-                      </button>
+                  <div className="history-view active">
+                    <div className="view-header">
+                      <div className="view-title">Decision History</div>
+                      <div className="view-sub">Review all your analyzed decisions.</div>
                     </div>
-                  ) : (
-                    <div style={{ marginTop: '24px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {history.map((item, idx) => (
-                          <div 
-                            key={idx}
-                            style={{
-                              padding: '16px',
-                              border: '1px solid var(--border)',
-                              borderRadius: '10px',
-                              background: 'var(--bg2)',
-                              display: 'flex',
-                              gap: '16px',
-                              justifyContent: 'space-between',
-                              alignItems: 'flex-start',
-                              transition: 'all 0.2s'
-                            }}
-                          >
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
-                                "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
-                              </div>
-                              <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-                                {item.behavior.replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
-                              </div>
-                            </div>
+                    
+                    {history.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px', marginTop: '24px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>No decisions yet</div>
+                        <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing decisions to build your complete history.</div>
+                        <button 
+                          className="auth-btn"
+                          onClick={() => setView('dash')}
+                          style={{ padding: '10px 20px', fontSize: '14px', maxWidth: '300px', margin: '0 auto' }}
+                        >
+                          Go to Dashboard →
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '24px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          {history.map((item, idx) => (
                             <div 
+                              key={idx}
                               style={{
-                                padding: '8px 14px',
-                                borderRadius: '8px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                background: getRiskBg(item.predictedRisk),
-                                color: getRiskColor(item.predictedRisk),
-                                whiteSpace: 'nowrap',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
+                                padding: '16px',
+                                border: '1px solid var(--border)',
+                                borderRadius: '10px',
+                                background: 'var(--bg2)',
+                                display: 'flex',
+                                gap: '16px',
+                                justifyContent: 'space-between',
+                                alignItems: 'flex-start',
+                                transition: 'all 0.2s'
                               }}
                             >
-                              {item.predictedRisk}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
+                                  "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                                  {item.behavior.replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
+                                </div>
+                              </div>
+                              <div 
+                                style={{
+                                  padding: '8px 14px',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: '700',
+                                  background: getRiskBg(item.predictedRisk),
+                                  color: getRiskColor(item.predictedRisk),
+                                  whiteSpace: 'nowrap',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px'
+                                }}
+                              >
+                                {item.predictedRisk}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
               )}
 
               {view === 'profile' && (
-                <div className="profile-view active">
-                  <div className="view-header">
+                  <div className="profile-view active">
+                    <div className="view-header">
                     <div className="view-title">My Profile</div>
                     <div className="view-sub">Manage your account and view your activity.</div>
                   </div>
@@ -1785,93 +1777,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Email Configuration Section */}
-                  <div style={{ marginTop: '24px', padding: '28px', background: 'var(--bg2)', borderRadius: '14px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)' }}>Email Settings</div>
-                      <button 
-                        onClick={() => setShowEmailSettings(!showEmailSettings)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--amber)',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '14px'
-                        }}
-                      >
-                        {showEmailSettings ? 'Hide' : 'Edit'}
-                      </button>
-                    </div>
 
-                    {!showEmailSettings ? (
-                      <div style={{ fontSize: '13px', color: 'var(--text3)' }}>
-                        <div style={{ marginBottom: '8px' }}>
-                          <strong>Sender Email:</strong> {emailConfig?.fromEmail || 'cogniguard@example.com'}
-                        </div>
-                        <div>
-                          <strong>Sender Name:</strong> {emailConfig?.senderName || 'CogniAuth'}
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className="field-wrap">
-                          <div className="field-label"><span className="field-dot"></span>Sender Email Address</div>
-                          <input 
-                            className="auth-input" 
-                            type="email" 
-                            placeholder="cogniguard@example.com"
-                            value={editEmailFrom}
-                            onChange={(e) => setEditEmailFrom(e.target.value)}
-                          />
-                          <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>
-                            OTP emails will be sent from this address
-                          </div>
-                        </div>
-                        <div className="field-wrap">
-                          <div className="field-label"><span className="field-dot"></span>Sender Name</div>
-                          <input 
-                            className="auth-input" 
-                            type="text" 
-                            placeholder="CogniAuth"
-                            value={editEmailSenderName}
-                            onChange={(e) => setEditEmailSenderName(e.target.value)}
-                          />
-                          <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>
-                            Display name for OTP emails
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                          <button 
-                            className="auth-btn"
-                            onClick={() => {
-                              saveEmailConfig({
-                                fromEmail: editEmailFrom,
-                                senderName: editEmailSenderName
-                              });
-                              const updatedConfig = getEmailConfig();
-                              setEmailConfigState(updatedConfig);
-                              setShowEmailSettings(false);
-                            }}
-                            style={{ flex: 1 }}
-                          >
-                            Save Changes
-                          </button>
-                          <button 
-                            className="auth-btn secondary"
-                            onClick={() => {
-                              setShowEmailSettings(false);
-                              setEditEmailFrom(emailConfig?.fromEmail || 'cogniguard@example.com');
-                              setEditEmailSenderName(emailConfig?.senderName || 'CogniAuth');
-                            }}
-                            style={{ flex: 1 }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
 
                   {/* Password Security Section */}
                   <div style={{ marginTop: '24px', padding: '28px', background: 'var(--bg2)', borderRadius: '14px' }}>
@@ -2168,7 +2074,7 @@ export default function App() {
               )}
 
             </div>
-          </div>
+        </div>
       )}
     </div>
   );
