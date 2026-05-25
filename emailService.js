@@ -6,10 +6,10 @@
 let emailConfig = {
   fromEmail: 'noreply.thinkbefore@gmail.com',
   senderName: 'ThinkBefore',
-  serviceId: '',           // Will be set after you provide it
-  templateId: '',          // Will be set after you provide it
-  resetTemplateId: '',     // Will be set after you provide it
-  publicKey: '',           // Will be set after you provide it
+  serviceId: 'service_mgk42gn',        // ← Add this
+  templateId: 'template_1qgv09k',      // ← Add this
+  resetTemplateId: 'template_cs9iyfa', // ← Add this
+  publicKey: 'migRVJbtXtmogMrXg',      // ← Add this
   provider: 'emailjs'
 };
 

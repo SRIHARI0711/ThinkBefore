@@ -149,6 +149,17 @@ export function updateUserProfile(email, updates) {
 }
 
 // Change password
+export function verifyPassword(email, password) {
+  const users = getAllUsers();
+  const emailLower = email.toLowerCase();
+
+  if (!(emailLower in users)) {
+    return false;
+  }
+
+  return users[emailLower].password === password;
+}
+
 export function changePassword(email, oldPassword, newPassword) {
   const users = getAllUsers();
   const emailLower = email.toLowerCase();

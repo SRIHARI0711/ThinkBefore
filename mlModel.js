@@ -327,6 +327,45 @@ const getIntervention = (riskLevel) => {
   return interventions[riskLevel] || interventions.low;
 };
 
+// ==================== SCORE CALCULATION ====================
+
+const calculateScores = (text, category, riskLevel) => {
+  const tokens = tokenize(text.toLowerCase());
+  
+  // Map risk level to severity score (0-100)
+  const riskToSeverity = {
+    'critical': 85,
+    'high': 65,
+    'medium': 45,
+    'low': 20
+  };
+  
+  let severityScore = riskToSeverity[riskLevel] || 20;
+  
+  // Calculate harmfulness score based on negative/risk indicators
+  const harmfulnessIndicators = countMatches(tokens, WORD_SETS.riskIndicators);
+  const negationIndicators = countMatches(tokens, WORD_SETS.negationWords);
+  const harmfulnessScore = Math.min(100, (harmfulnessIndicators * 15) - (negationIndicators * 5));
+  
+  // Calculate negativity score based on urgency, negation, and risk words
+  const urgencyIndicators = countMatches(tokens, WORD_SETS.urgencyWords);
+  const negativeInfluence = negationIndicators + urgencyIndicators;
+  const positiveInfluence = countMatches(tokens, WORD_SETS.positiveWords);
+  let negativityScore = Math.max(0, (negativeInfluence * 10) - (positiveInfluence * 8));
+  negativityScore = Math.min(100, negativityScore);
+  
+  // Adjust severity score based on text length and content intensity
+  const textIntensity = (harmfulnessScore + negativityScore) / 2;
+  severityScore = Math.round((severityScore * 0.6) + (textIntensity * 0.4));
+  severityScore = Math.min(100, Math.max(0, severityScore));
+  
+  return {
+    severityScore: Math.round(severityScore),
+    harmfulnessScore: Math.round(Math.max(0, Math.min(100, harmfulnessScore))),
+    negativityScore: Math.round(negativityScore)
+  };
+};
+
 // ==================== MAIN PREDICTION FUNCTION ====================
 
 const analyzeDecision = (text) => {
@@ -355,6 +394,7 @@ const analyzeDecision = (text) => {
   }
 
   const riskLevel = getRiskLevel(predictedCategory);
+  const { severityScore, harmfulnessScore, negativityScore } = calculateScores(text, predictedCategory, riskLevel);
   const consequences = getConsequences(predictedCategory, riskLevel);
   const domain = CATEGORY_DOMAINS[predictedCategory] || 'other';
 
@@ -367,6 +407,9 @@ const analyzeDecision = (text) => {
     consequences,
     modelUsed,
     timestamp,
+    severityScore,
+    harmfulnessScore,
+    negativityScore,
     // Backward compatibility
     behavior: predictedCategory,
     predictedRisk: riskLevel,

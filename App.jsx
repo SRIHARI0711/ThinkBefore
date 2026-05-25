@@ -21,7 +21,8 @@ import {
   getUser,
   validatePassword,
   changePassword,
-  resetPassword
+  resetPassword,
+  verifyPassword
 } from './userDatabase.js';
 
 const COLORS = [
@@ -70,6 +71,7 @@ export default function App() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [passwordChangeMessage, setPasswordChangeMessage] = useState('');
   const [passwordChangeError, setPasswordChangeError] = useState('');
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
   
   // OTP and Authentication States
   const [otp, setOtp] = useState('');
@@ -244,6 +246,21 @@ export default function App() {
       setOtpError('Failed to resend OTP: ' + result.message);
     }
     setIsSendingOtp(false);
+  };
+
+  const validateCurrentPassword = (password) => {
+    if (!password) {
+      setCurrentPasswordError('');
+      return;
+    }
+    
+    // Check if current password is correct
+    const isPasswordCorrect = verifyPassword(user.email, password);
+    if (isPasswordCorrect) {
+      setCurrentPasswordError('');
+    } else {
+      setCurrentPasswordError('Current password is incorrect');
+    }
   };
 
   const handleChangePassword = () => {
@@ -1823,7 +1840,10 @@ export default function App() {
                               type={showCurrentPw ? 'text' : 'password'}
                               placeholder="Enter your current password"
                               value={currentPassword}
-                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              onChange={(e) => {
+                                setCurrentPassword(e.target.value);
+                                validateCurrentPassword(e.target.value);
+                              }}
                               style={{ paddingRight: '40px' }}
                             />
                             <button
@@ -1845,6 +1865,38 @@ export default function App() {
                             </button>
                           </div>
                         </div>
+
+                        {/* Current Password Error */}
+                        {currentPasswordError && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#ef4444',
+                            fontSize: '13px'
+                          }}>
+                            ✗ {currentPasswordError}
+                          </div>
+                        )}
+
+                        {currentPassword && !currentPasswordError && (
+                          <div style={{
+                            padding: '12px',
+                            borderRadius: '8px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            marginTop: '12px',
+                            marginBottom: '12px',
+                            color: '#10b981',
+                            fontSize: '13px',
+                            fontWeight: '500'
+                          }}>
+                            ✓ Current password is correct
+                          </div>
+                        )}
 
                         {/* New Password */}
                         <div className="field-wrap">
@@ -2025,11 +2077,11 @@ export default function App() {
                           <button 
                             className="auth-btn"
                             onClick={handleChangePassword}
-                            disabled={!currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword)}
+                            disabled={!currentPassword || currentPasswordError || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword)}
                             style={{
                               flex: 1,
-                              opacity: !currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 0.5 : 1,
-                              cursor: !currentPassword || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 'not-allowed' : 'pointer'
+                              opacity: !currentPassword || currentPasswordError || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 0.5 : 1,
+                              cursor: !currentPassword || currentPasswordError || !newPassword || !confirmPassword || newPasswordErrors.length > 0 || (newPassword !== confirmPassword) ? 'not-allowed' : 'pointer'
                             }}
                           >
                             Update Password
@@ -2044,6 +2096,7 @@ export default function App() {
                               setNewPasswordErrors([]);
                               setPasswordChangeMessage('');
                               setPasswordChangeError('');
+                              setCurrentPasswordError('');
                             }}
                             style={{ flex: 1 }}
                           >
