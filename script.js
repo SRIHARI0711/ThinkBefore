@@ -1,4 +1,5 @@
-// This file is deprecated - using React instead
+// This file is deprecated 
+// - using React instead
 // See App.jsx for all app logic
 
 // ─────────────────────────────────────────
