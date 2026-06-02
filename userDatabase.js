@@ -1,21 +1,23 @@
-// User Database Service
-// Manages user registration, authentication, and profile storage
+// userDatabase.js - Frontend service with MongoDB backend + compatibility wrapper
+// Returns promises that App.jsx can await
 
-// Validate password strength
+const API_BASE_URL = 'http://localhost:5000/api/auth';
+
+// Cache for user session data
+let currentUserCache = null;
+
+// Validate password strength (same validation as backend)
 export function validatePassword(password) {
   const errors = [];
   
-  // Check minimum length (8 characters)
   if (!password || password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
   
-  // Check for at least one uppercase letter
   if (!/[A-Z]/.test(password)) {
     errors.push('Password must contain at least one uppercase letter');
   }
   
-  // Check for at least one special character
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
     errors.push('Password must contain at least one special character (!@#$%^&* etc)');
   }
@@ -26,231 +28,282 @@ export function validatePassword(password) {
   };
 }
 
-// Get all registered users from localStorage
-export function getAllUsers() {
-  const stored = localStorage.getItem('users');
-  return stored ? JSON.parse(stored) : {};
+// Register new user
+export function registerUser(email, password, nickname, avatarColor) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          nickname,
+          avatarColor
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error registering user'
+        };
+      }
+
+      if (data.user) {
+        currentUserCache = data.user;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to register user. Make sure backend server is running on port 5000.'
+      };
+    }
+  })();
 }
 
-// Save users to localStorage
-function saveUsers(users) {
-  localStorage.setItem('users', JSON.stringify(users));
+// Authenticate user (login)
+export function authenticateUser(email, password) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Authentication failed'
+        };
+      }
+
+      if (data.user) {
+        currentUserCache = data.user;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to authenticate. Make sure backend server is running on port 5000.'
+      };
+    }
+  })();
 }
 
 // Check if user exists
 export function userExists(email) {
-  const users = getAllUsers();
-  return email.toLowerCase() in users;
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.success;
+      }
+      return false;
+    } catch (error) {
+      console.error('User exists check error:', error);
+      return false;
+    }
+  })();
 }
 
 // Get user by email
 export function getUser(email) {
-  const users = getAllUsers();
-  const user = users[email.toLowerCase()];
-  if (user) {
-    // Don't return password to frontend
-    const { password, ...safeUser } = user;
-    return safeUser;
-  }
-  return null;
-}
+  return (async () => {
+    try {
+      if (currentUserCache && currentUserCache.email === email.toLowerCase()) {
+        return currentUserCache;
+      }
 
-// Register new user
-export function registerUser(email, password, nickname, avatarColor) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
-  if (emailLower in users) {
-    return {
-      success: false,
-      message: 'Email already registered'
-    };
-  }
+      if (!response.ok) {
+        return null;
+      }
 
-  // Validate password strength
-  const passwordValidation = validatePassword(password);
-  if (!passwordValidation.isValid) {
-    return {
-      success: false,
-      message: passwordValidation.errors.join('. ')
-    };
-  }
-
-  users[emailLower] = {
-    email,
-    emailLower,
-    password: password, // In production, use bcrypt or similar
-    nickname,
-    avatarColor,
-    createdAt: new Date().toISOString(),
-    verified: true // Set to true after OTP verification in production
-  };
-
-  saveUsers(users);
-  
-  return {
-    success: true,
-    message: 'User registered successfully'
-  };
-}
-
-// Authenticate user (verify password)
-export function authenticateUser(email, password) {
-  const users = getAllUsers();
-  const user = users[email.toLowerCase()];
-
-  if (!user) {
-    return {
-      success: false,
-      message: 'User not found'
-    };
-  }
-
-  if (user.password !== password) {
-    return {
-      success: false,
-      message: 'Invalid password'
-    };
-  }
-
-  // Return user data without password
-  const { password: _, ...safeUser } = user;
-  return {
-    success: true,
-    message: 'Authentication successful',
-    user: safeUser
-  };
+      const data = await response.json();
+      if (data.success && data.user) {
+        currentUserCache = data.user;
+        return data.user;
+      }
+      return null;
+    } catch (error) {
+      console.error('Get user error:', error);
+      return null;
+    }
+  })();
 }
 
 // Update user profile
 export function updateUserProfile(email, updates) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates)
+      });
 
-  if (!(emailLower in users)) {
-    return {
-      success: false,
-      message: 'User not found'
-    };
-  }
+      const data = await response.json();
 
-  users[emailLower] = {
-    ...users[emailLower],
-    ...updates,
-    emailLower // Keep original lowercase email
-  };
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error updating profile'
+        };
+      }
 
-  saveUsers(users);
+      if (data.user) {
+        currentUserCache = data.user;
+      }
 
-  return {
-    success: true,
-    message: 'Profile updated successfully'
-  };
+      return data;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to update profile'
+      };
+    }
+  })();
 }
 
 // Change password
-export function verifyPassword(email, password) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
-
-  if (!(emailLower in users)) {
-    return false;
-  }
-
-  return users[emailLower].password === password;
-}
-
 export function changePassword(email, oldPassword, newPassword) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          currentPassword: oldPassword,
+          newPassword
+        })
+      });
 
-  if (!(emailLower in users)) {
-    return {
-      success: false,
-      message: 'User not found'
-    };
-  }
+      const data = await response.json();
 
-  if (users[emailLower].password !== oldPassword) {
-    return {
-      success: false,
-      message: 'Current password is incorrect'
-    };
-  }
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error changing password'
+        };
+      }
 
-  // Validate new password strength
-  const passwordValidation = validatePassword(newPassword);
-  if (!passwordValidation.isValid) {
-    return {
-      success: false,
-      message: passwordValidation.errors.join('. ')
-    };
-  }
-
-  users[emailLower].password = newPassword;
-  saveUsers(users);
-
-  return {
-    success: true,
-    message: 'Password changed successfully'
-  };
+      return data;
+    } catch (error) {
+      console.error('Change password error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to change password'
+      };
+    }
+  })();
 }
 
-// Delete user account
-export function deleteUserAccount(email, password) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
-
-  if (!(emailLower in users)) {
-    return {
-      success: false,
-      message: 'User not found'
-    };
-  }
-
-  if (users[emailLower].password !== password) {
-    return {
-      success: false,
-      message: 'Password is incorrect'
-    };
-  }
-
-  delete users[emailLower];
-  saveUsers(users);
-
-  return {
-    success: true,
-    message: 'Account deleted successfully'
-  };
+// Verify password (for security checks)
+export function verifyPassword(email, password) {
+  return (async () => {
+    try {
+      const result = await authenticateUser(email, password);
+      return result && result.success;
+    } catch (error) {
+      console.error('Verify password error:', error);
+      return false;
+    }
+  })();
 }
 
-// Reset password using token (for forgot password flow)
+// Reset password
 export function resetPassword(email, newPassword) {
-  const users = getAllUsers();
-  const emailLower = email.toLowerCase();
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          newPassword
+        })
+      });
 
-  if (!(emailLower in users)) {
-    return {
-      success: false,
-      message: 'User not found'
-    };
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to reset password'
+      };
+    }
+  })();
+}
+
+// Get all users (for admin purposes - optional)
+export function getAllUsers() {
+  console.warn('getAllUsers() is deprecated with MongoDB backend');
+  return {};
+}
+
+// Session management helpers
+export function saveUserSession(user) {
+  if (user && user.email) {
+    currentUserCache = user;
+    sessionStorage.setItem('currentUser', JSON.stringify(user));
   }
+}
 
-  // Validate new password strength
-  const passwordValidation = validatePassword(newPassword);
-  if (!passwordValidation.isValid) {
-    return {
-      success: false,
-      message: passwordValidation.errors.join('. ')
-    };
+export function getUserSession() {
+  const userStr = sessionStorage.getItem('currentUser');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      currentUserCache = user;
+      return user;
+    } catch (e) {
+      return null;
+    }
   }
+  return currentUserCache;
+}
 
-  // Update password
-  users[emailLower].password = newPassword;
-  saveUsers(users);
-
-  return {
-    success: true,
-    message: 'Password reset successfully'
-  };
+export function clearUserSession() {
+  currentUserCache = null;
+  sessionStorage.removeItem('currentUser');
 }
