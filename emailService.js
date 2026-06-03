@@ -1,6 +1,6 @@
 // Email Service Configuration
 // This file handles email sending for OTP verification using EmailJS
-// Configuration is fixed for all users - only admin can change these values
+// Configuration is fixed for all users, only admin can change these values
 
 // Fixed configuration - same for all users
 let emailConfig = {
