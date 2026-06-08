@@ -123,6 +123,7 @@ const WORD_SETS = {
 };
 
 const countMatches = (tokens, set) => tokens.reduce((sum, token) => sum + (set.has(token) ? 1 : 0), 0);
+const clampScore = (value) => Math.max(0, Math.min(100, Math.round(value)));
 
 const CATEGORY_PATTERNS = {
   'consent-risk': new Set(['kiss', 'touch', 'sexual', 'consent', 'assault', 'contact', 'intimate', 'private', 'personal', 'hug']),
@@ -411,43 +412,201 @@ const getIntervention = (riskLevel, category = '') => {
 // ==================== SCORE CALCULATION ====================
 
 const calculateScores = (text, prediction) => {
-  const tokens = tokenize(text.toLowerCase());
+  const normalizedText = text.toLowerCase();
+  const tokens = tokenize(normalizedText);
 
-  // Base severity score from risk level
-  const riskLevelScores = {
-    'critical': 85,
-    'high': 65,
-    'medium': 45,
-    'low': 20
+  const categorySeverityWeights = {
+    'violence': 36,
+    'consent-risk': 34,
+    'legal-risk': 32,
+    'safety-risk': 30,
+    'health-risk': 28,
+    'environment-risk': 24,
+    'ethics': 22,
+    'career': 18,
+    'financial': 17,
+    'relationship': 16,
+    'productivity': 13,
+    'social': 12,
+    'travel': 12,
+    'education': 10,
+    'family': 10,
+    'self-care': 8,
+    'leisure': 6,
+    'investments': 18,
+    'other': 10
   };
 
-  let severityScore = riskLevelScores[prediction.riskLevel] || 50;
+  const categoryHarmWeights = {
+    'violence': 40,
+    'consent-risk': 38,
+    'legal-risk': 34,
+    'safety-risk': 32,
+    'health-risk': 30,
+    'environment-risk': 25,
+    'ethics': 22,
+    'relationship': 18,
+    'financial': 16,
+    'career': 14,
+    'social': 12,
+    'productivity': 10,
+    'travel': 10,
+    'education': 8,
+    'family': 8,
+    'self-care': 7,
+    'leisure': 5,
+    'investments': 16,
+    'other': 8
+  };
 
-  // Apply confidence boost
-  severityScore = Math.round(severityScore * prediction.riskConfidence);
+  const riskLevelSeverityBase = {
+    'critical': 72,
+    'high': 54,
+    'medium': 35,
+    'low': 16
+  };
 
-  // Calculate harmfulness based on content indicators
-  const harmfulKeywords = ['harm', 'hurt', 'dangerous', 'risk', 'death', 'injury', 'illegal', 'steal', 'lie', 'cheat', 'violence', 'attack', 'kill', 'punch', 'kick', 'stab', 'drunk', 'drugs', 'assault'];
-  const positiveKeywords = ['help', 'good', 'safe', 'healthy', 'honest', 'kind', 'respect', 'love', 'care', 'support', 'responsible'];
-  
-  const harmfulCount = tokens.filter(t => harmfulKeywords.includes(t)).length;
-  const positiveCount = tokens.filter(t => positiveKeywords.includes(t)).length;
-  
-  let harmfulnessScore = Math.min(100, (harmfulCount * 25) - (positiveCount * 12) + (prediction.categoryConfidence * 30));
-  harmfulnessScore = Math.max(0, harmfulnessScore);
+  const harmfulKeywords = new Set([
+    'harm', 'hurt', 'dangerous', 'risk', 'death', 'injury', 'illegal', 'steal', 'lie', 'cheat',
+    'violence', 'attack', 'kill', 'punch', 'kick', 'stab', 'drunk', 'drugs', 'assault', 'crime',
+    'unsafe', 'threat', 'weapon', 'abuse', 'crash', 'overdose'
+  ]);
+  const protectiveKeywords = new Set([
+    'help', 'good', 'safe', 'healthy', 'honest', 'kind', 'respect', 'love', 'care', 'support',
+    'responsible', 'protect', 'calm', 'legal', 'consent', 'apologize', 'repair'
+  ]);
+  const emotionalNegativeWords = new Set([
+    'angry', 'hate', 'upset', 'furious', 'mad', 'rage', 'annoyed', 'sad', 'depressed', 'stressed',
+    'overwhelmed', 'lonely', 'afraid', 'scared', 'ashamed', 'guilty', 'jealous', 'revenge'
+  ]);
 
-  // Calculate negativity score
-  const negativeWords = ['not', 'never', "don't", "won't", "shouldn't", "can't", "hate", 'angry', 'upset', 'without', 'avoid'];
-  const negativeCount = tokens.filter(t => negativeWords.includes(t)).length;
-  
-  let negativityScore = Math.min(100, negativeCount * 18 + (prediction.riskConfidence * 25));
-  negativityScore = Math.max(0, negativityScore);
+  const phraseSignals = {
+    urgency: ['right now', 'asap', 'as soon as possible', 'immediately', 'this second', 'tonight'],
+    severeConsequences: ['go to jail', 'lose my job', 'ruin my life', 'hurt someone', 'kill someone', 'overdose', 'financial ruin', 'serious injury'],
+    hostileIntent: ['get back at', 'teach them a lesson', 'make them pay', 'hurt them', 'beat them up'],
+    hesitation: ['not sure', 'should i', 'i wonder', 'thinking about', 'maybe i should']
+  };
+
+  const countPhraseMatches = (phrases) => phrases.reduce((sum, phrase) => sum + (normalizedText.includes(phrase) ? 1 : 0), 0);
+
+  const harmfulCount = countMatches(tokens, harmfulKeywords);
+  const protectiveCount = countMatches(tokens, protectiveKeywords);
+  const negationCount = countMatches(tokens, WORD_SETS.negationWords);
+  const riskIndicatorCount = countMatches(tokens, WORD_SETS.riskIndicators);
+  const urgencyCount = countMatches(tokens, WORD_SETS.urgencyWords) + countPhraseMatches(phraseSignals.urgency);
+  const negativeEmotionCount = countMatches(tokens, emotionalNegativeWords);
+  const severeConsequenceCount = countPhraseMatches(phraseSignals.severeConsequences);
+  const hostileIntentCount = countPhraseMatches(phraseSignals.hostileIntent);
+  const hesitationCount = countPhraseMatches(phraseSignals.hesitation);
+  const exclamationCount = (text.match(/[!?]/g) || []).length;
+
+  const confidenceBoost = ((prediction.riskConfidence || 0.5) + (prediction.categoryConfidence || 0.5)) / 2;
+  const severityBase = riskLevelSeverityBase[prediction.riskLevel] || 35;
+  const categorySeverity = categorySeverityWeights[prediction.category] || categorySeverityWeights.other;
+  const categoryHarm = categoryHarmWeights[prediction.category] || categoryHarmWeights.other;
+
+  // Severity = seriousness of likely consequences if the action happens.
+  const severityScore = clampScore(
+    severityBase +
+    categorySeverity +
+    (riskIndicatorCount * 5) +
+    (urgencyCount * 4) +
+    (severeConsequenceCount * 12) +
+    (hostileIntentCount * 10) -
+    (protectiveCount * 4) +
+    ((confidenceBoost - 0.5) * 18)
+  );
+
+  // Harmfulness = how much harm the action itself appears likely to cause to self/others.
+  const harmfulnessScore = clampScore(
+    categoryHarm +
+    (harmfulCount * 7) +
+    (hostileIntentCount * 18) +
+    (severeConsequenceCount * 10) +
+    (riskIndicatorCount * 3) -
+    (protectiveCount * 8) +
+    ((prediction.riskLevel === 'critical' || prediction.riskLevel === 'high') ? 8 : 0)
+  );
+
+  // Negativity = negative emotional tone and discouraging phrasing in the text.
+  const negativityScore = clampScore(
+    6 +
+    (negativeEmotionCount * 10) +
+    (negationCount * 7) +
+    (hostileIntentCount * 10) +
+    (urgencyCount * 3) +
+    Math.min(exclamationCount * 2, 10) -
+    (protectiveCount * 5) -
+    (hesitationCount * 2)
+  );
 
   return {
-    severityScore: Math.round(severityScore),
-    harmfulnessScore: Math.round(harmfulnessScore),
-    negativityScore: Math.round(negativityScore),
+    severityScore,
+    harmfulnessScore,
+    negativityScore,
     predictedRisk: prediction.riskLevel
+  };
+};
+
+const buildHeuristicPrediction = (text) => {
+  const normalizedText = text.toLowerCase();
+  const tokens = tokenizeWithFiltering(text);
+
+  if (tokens.length === 0) {
+    return {
+      category: 'other',
+      riskLevel: 'low',
+      categoryConfidence: 0.35,
+      riskConfidence: 0.35,
+      modelUsed: 'heuristic'
+    };
+  }
+
+  let bestCategory = 'other';
+  let bestCategoryScore = 0;
+
+  for (const [category, patterns] of Object.entries(CATEGORY_PATTERNS)) {
+    const score = tokens.reduce((sum, token) => sum + (patterns.has(token) ? 1 : 0), 0);
+    if (score > bestCategoryScore) {
+      bestCategoryScore = score;
+      bestCategory = category;
+    }
+  }
+
+  const riskSignalCount = countMatches(tokens, WORD_SETS.riskIndicators);
+  const positiveSignalCount = countMatches(tokens, WORD_SETS.positiveWords);
+  const urgencySignalCount = countMatches(tokens, WORD_SETS.urgencyWords);
+  const negationSignalCount = countMatches(tokens, WORD_SETS.negationWords);
+  const questionSignalCount = countMatches(tokens, WORD_SETS.questionWords);
+  const dangerousCategories = new Set(['violence', 'consent-risk', 'legal-risk', 'safety-risk', 'health-risk', 'environment-risk']);
+
+  let riskScore = 8;
+  riskScore += riskSignalCount * 18;
+  riskScore += urgencySignalCount * 7;
+  riskScore += negationSignalCount * 4;
+  riskScore += dangerousCategories.has(bestCategory) ? 20 : 0;
+  riskScore += bestCategoryScore > 0 ? Math.min(bestCategoryScore * 6, 18) : 0;
+  riskScore -= positiveSignalCount * 8;
+
+  // General-information requests should stay low risk.
+  if (bestCategoryScore === 0 && riskSignalCount === 0 && urgencySignalCount === 0) {
+    riskScore -= questionSignalCount > 0 ? 6 : 0;
+    if (normalizedText.includes('weather') || normalizedText.includes('joke')) {
+      riskScore -= 8;
+    }
+  }
+
+  let riskLevel = 'low';
+  if (riskScore >= 75) riskLevel = 'critical';
+  else if (riskScore >= 52) riskLevel = 'high';
+  else if (riskScore >= 28) riskLevel = 'medium';
+
+  return {
+    category: bestCategory,
+    riskLevel,
+    categoryConfidence: Math.min(0.92, 0.4 + (bestCategoryScore * 0.12)),
+    riskConfidence: Math.min(0.9, 0.38 + (Math.max(riskScore, 0) / 100) * 0.5),
+    modelUsed: 'heuristic'
   };
 };
 
@@ -466,41 +625,7 @@ const analyzeDecision = (text) => {
   
   // Fallback: simple heuristic if model unavailable
   if (!prediction) {
-    const tokens = tokenizeWithFiltering(text);
-    let bestCategory = 'other';
-    let riskLevel = 'medium';
-    
-    if (tokens.length > 0) {
-      // Try to match patterns from training data
-      const riskKeywords = {
-        'violence': ['punch', 'hit', 'kick', 'attack', 'fight', 'kill'],
-        'legal-risk': ['steal', 'illegal', 'hack', 'crime'],
-        'health-risk': ['smoke', 'drugs', 'alcohol', 'health'],
-        'safety-risk': ['drunk', 'unsafe', 'helmet', 'seatbelt'],
-        'ethics': ['lie', 'cheat', 'dishonest', 'steal']
-      };
-      
-      for (const [category, keywords] of Object.entries(riskKeywords)) {
-        if (keywords.some(kw => tokens.some(t => t.includes(kw)))) {
-          bestCategory = category;
-          break;
-        }
-      }
-      
-      riskLevel = 'medium';
-      if (text.includes('critical') || text.includes('severe')) riskLevel = 'critical';
-      else if (text.includes('urgent') || text.includes('immediately')) riskLevel = 'high';
-      else if (text.includes('maybe') || text.includes('think')) riskLevel = 'low';
-    }
-    
-    prediction = {
-      category: bestCategory,
-      riskLevel: riskLevel,
-      categoryConfidence: 0.5,
-      riskConfidence: 0.5,
-      modelUsed: 'heuristic'
-    };
-    
+    prediction = buildHeuristicPrediction(text);
     modelUsed = 'heuristic-fallback';
   }
 
@@ -527,6 +652,7 @@ const analyzeDecision = (text) => {
 
     // Descriptions (5-8)
     behaviour: prediction.category,
+    behavior: prediction.category,
     domain: domain,
     intervention: intervention,
     consequences: consequences,

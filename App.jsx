@@ -10,19 +10,22 @@ import {
   loadEmailConfig,
   getOTPTimeRemaining,
   sendPasswordResetEmail,
-  verifyResetToken,
-  markResetTokenAsUsed,
-  clearResetToken
+  verifyResetToken
 } from './emailService.js';
 import { 
   registerUser, 
   authenticateUser, 
   userExists, 
   getUser,
+  getUserHistory,
+  saveDecisionHistory,
   validatePassword,
   changePassword,
   resetPassword,
-  verifyPassword
+  verifyPassword,
+  saveUserSession,
+  getUserSession,
+  clearUserSession
 } from './userDatabase.js';
 
 const COLORS = [
@@ -97,6 +100,16 @@ export default function App() {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
+  const normalizeHistory = (entries) => (
+    Array.isArray(entries)
+      ? entries.filter(Boolean).map((entry) => ({
+          ...entry,
+          behavior: entry.behavior || entry.behaviour || entry.category || 'other',
+          behaviour: entry.behaviour || entry.behavior || entry.category || 'other'
+        }))
+      : []
+  );
+
   useEffect(() => {
     document.body.classList.toggle('light', !isDark);
     // Load email configuration on startup
@@ -111,13 +124,46 @@ export default function App() {
     const emailParam = urlParams.get('email');
     
     if (resetTokenParam && emailParam) {
-      // User clicked on password reset link
-      setForgotEmail(decodeURIComponent(emailParam));
+      const decodedEmail = decodeURIComponent(emailParam);
+      setForgotEmail(decodedEmail);
       setResetToken(resetTokenParam);
-      setStep('reset-password');
       setPage('auth');
+
+      verifyResetToken(decodedEmail, resetTokenParam).then((result) => {
+        if (result.valid) {
+          setStep('reset-password');
+          setForgotError('');
+        } else {
+          setStep('forgot-email');
+          setForgotError(result.message);
+        }
+      });
     }
   }, [isDark]);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      const sessionUser = getUserSession();
+      if (!sessionUser?.email) {
+        return;
+      }
+
+      const latestUser = await getUser(sessionUser.email);
+      const activeUser = latestUser || sessionUser;
+
+      setUser(activeUser);
+      setPage('app');
+      setView('dash');
+      saveUserSession(activeUser);
+
+      const restoredHistory = activeUser.decisionHistory?.length
+        ? activeUser.decisionHistory
+        : await getUserHistory(activeUser.email);
+      setHistory(normalizeHistory(restoredHistory));
+    };
+
+    restoreSession();
+  }, []);
 
   // OTP Timer Effect - Updates every second when OTP is sent
   useEffect(() => {
@@ -156,9 +202,15 @@ export default function App() {
     const result = await authenticateUser(email, password);
     
     if (result.success) {
-      setUser(result.user);
+      const signedInUser = result.user;
+      setUser(signedInUser);
       setPage('app');
       setView('dash');
+      const loadedHistory = signedInUser.decisionHistory?.length
+        ? signedInUser.decisionHistory
+        : await getUserHistory(signedInUser.email);
+      setHistory(normalizeHistory(loadedHistory));
+      saveUserSession(signedInUser);
       setPassword('');
     } else {
       setAuthError(result.message);
@@ -170,9 +222,12 @@ export default function App() {
     const result = await registerUser(email, password, nickname, color);
     
     if (result.success) {
-      setUser({ email, nickname, avatarColor: color, emailLower: email.toLowerCase() });
+      const signedUpUser = result.user || { email, nickname, avatarColor: color, emailLower: email.toLowerCase(), decisionHistory: [] };
+      setUser(signedUpUser);
       setPage('app');
       setView('dash');
+      setHistory(normalizeHistory(signedUpUser.decisionHistory));
+      saveUserSession(signedUpUser);
       setPassword('');
     } else {
       setAuthError(result.message);
@@ -202,12 +257,6 @@ export default function App() {
       setOtpError('');
       setOtpTimeRemaining(60); // Initialize to 60 seconds
       setStep('signup-otp'); // Move to OTP verification step
-      // Show OTP in dev mode
-      if (result.otp) {
-        setTimeout(() => {
-          setOtpError(`[Dev Mode] Your OTP: ${result.otp} (expires in 1 minute)`);
-        }, 500);
-      }
     } else {
       setOtpError(result.message);
     }
@@ -338,7 +387,6 @@ export default function App() {
 
     if (result.success) {
       setForgotMessage('Password reset link has been sent to your email. Check your inbox for further instructions.');
-      setResetToken(result.token); // Store token for dev mode
       // Clear form after 3 seconds
       setTimeout(() => {
         setForgotEmail('');
@@ -400,11 +448,9 @@ export default function App() {
     setIsResettingPassword(true);
 
     // Reset the password
-    const result = await resetPassword(forgotEmail, resetNewPassword);
+    const result = await resetPassword(forgotEmail, resetNewPassword, resetToken);
 
     if (result.success) {
-      // Mark reset token as used
-      markResetTokenAsUsed(forgotEmail);
       setResetMessage('Password reset successfully! Redirecting to login...');
       setTimeout(() => {
         setForgotEmail('');
@@ -427,11 +473,28 @@ export default function App() {
     setIsAnalyzing(true);
     
     // Analyze immediately - model should be pre-loaded from useEffect
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const analysis = analyzeDecision(text);
-        setResult(analysis);
-        setHistory([analysis, ...history]);
+        const normalizedAnalysis = {
+          ...analysis,
+          behavior: analysis.behavior || analysis.behaviour || analysis.category || 'other',
+          behaviour: analysis.behaviour || analysis.behavior || analysis.category || 'other'
+        };
+
+        setResult(normalizedAnalysis);
+        setHistory(prev => [normalizedAnalysis, ...prev]);
+
+        if (user?.email) {
+          const saved = await saveDecisionHistory(user.email, normalizedAnalysis);
+          if (saved.success && Array.isArray(saved.history)) {
+            setHistory(normalizeHistory(saved.history));
+          }
+          if (saved.user) {
+            setUser(saved.user);
+            saveUserSession(saved.user);
+          }
+        }
       } catch (error) {
         console.error('[ML] Error analyzing decision:', error);
         setResult({
@@ -466,6 +529,7 @@ export default function App() {
     setAuthError('');
     setPasswordErrors([]);
     setOtpTimeRemaining(0);
+    clearUserSession();
   };
 
   const getRiskColor = (risk) => {
@@ -819,9 +883,9 @@ export default function App() {
                     <div style={{
                       padding: '10px 12px',
                       borderRadius: '8px',
-                      background: otpError.includes('Dev Mode') ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                      border: otpError.includes('Dev Mode') ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
-                      color: otpError.includes('Dev Mode') ? '#3b82f6' : '#ef4444',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
                       fontSize: '13px',
                       marginBottom: '12px',
                       marginTop: '12px'
@@ -1363,7 +1427,8 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <div className="page active">
+        <div className="page active app-shell">
+          <div className="app-frame">
           <nav className="top-nav">
               <div 
                 className={`nav-item ${view === 'dash' ? 'active' : ''}`}
@@ -1556,13 +1621,23 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Key Details */}
+                      {/* All Model Outputs */}
                       <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                        <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>Decision Analysis</h4>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>All Returned Outputs</h4>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Predicted Risk</div>
+                            <div style={{ fontWeight: '600', color: getRiskColor(result.predictedRisk || 'medium') }}>
+                              {(result.predictedRisk || 'medium').toUpperCase()}
+                            </div>
+                          </div>
                           <div>
                             <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Behavior</div>
                             <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{(result.behaviour || result.behavior || 'other').replace(/-/g, ' ')}</div>
+                          </div>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Negativity</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.negativityScore || 0}/100</div>
                           </div>
                           <div>
                             <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Domain</div>
@@ -1640,7 +1715,7 @@ export default function App() {
                               "{item.text.slice(0, 60)}{item.text.length > 60 ? '...' : ''}"
                             </div>
                             <div style={{ color: 'var(--text3)', fontSize: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                              <span>{item.behavior.replace('-', ' ')}</span>
+                              <span>{(item.behavior || item.behaviour || 'other').replace('-', ' ')}</span>
                               <span>•</span>
                               <span style={{ color: getRiskColor(item.predictedRisk), fontWeight: '600' }}>
                                 {item.predictedRisk.toUpperCase()}
@@ -1696,7 +1771,7 @@ export default function App() {
                                   "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
                                 </div>
                                 <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-                                  {item.behavior.replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
+                                  {(item.behavior || item.behaviour || 'other').replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
                                 </div>
                               </div>
                               <div 
@@ -2120,6 +2195,7 @@ export default function App() {
               )}
 
             </div>
+          </div>
         </div>
       )}
     </div>

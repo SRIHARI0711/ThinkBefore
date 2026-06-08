@@ -50,6 +50,22 @@ const userSchema = new mongoose.Schema({
   verified: {
     type: Boolean,
     default: false
+  },
+  resetToken: {
+    type: String,
+    default: null
+  },
+  resetTokenExpiresAt: {
+    type: Date,
+    default: null
+  },
+  resetTokenUsed: {
+    type: Boolean,
+    default: false
+  },
+  decisionHistory: {
+    type: [mongoose.Schema.Types.Mixed],
+    default: []
   }
 }, { timestamps: true });
 
@@ -211,12 +227,15 @@ app.put('/api/auth/user/:email', async (req, res) => {
   try {
     const { nickname, avatarColor } = req.body;
     const email = req.params.email.toLowerCase();
+    const updates = {};
+    if (typeof nickname === 'string' && nickname.trim()) {
+      updates.nickname = nickname;
+    }
+    if (typeof avatarColor === 'string' && avatarColor.trim()) {
+      updates.avatarColor = avatarColor;
+    }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { email },
-      { nickname, avatarColor },
-      { new: true }
-    );
+    const updatedUser = await User.findOneAndUpdate({ email }, updates, { new: true });
 
     if (!updatedUser) {
       return res.status(404).json({ 
@@ -244,7 +263,172 @@ app.put('/api/auth/user/:email', async (req, res) => {
   }
 });
 
-// 5. Change Password
+// 5. Get Decision History
+app.get('/api/auth/user/:email/history', async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      history: user.decisionHistory || []
+    });
+  } catch (error) {
+    console.error('Get history error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching history',
+      error: error.message
+    });
+  }
+});
+
+// 6. Save Decision History Entry
+app.post('/api/auth/user/:email/history', async (req, res) => {
+  try {
+    const email = req.params.email.toLowerCase();
+    const { entry } = req.body;
+
+    if (!entry || typeof entry !== 'object') {
+      return res.status(400).json({
+        success: false,
+        message: 'History entry is required'
+      });
+    }
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $push: { decisionHistory: { $each: [entry], $position: 0 } } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    res.json({
+      success: true,
+      message: 'History saved successfully',
+      history: userResponse.decisionHistory || [],
+      user: userResponse
+    });
+  } catch (error) {
+    console.error('Save history error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error saving history',
+      error: error.message
+    });
+  }
+});
+
+// 7. Store Password Reset Token
+app.post('/api/auth/request-reset', async (req, res) => {
+  try {
+    const { email, token, expiresAt } = req.body;
+
+    if (!email || !token || !expiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, token, and expiry are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    user.resetToken = token;
+    user.resetTokenExpiresAt = new Date(expiresAt);
+    user.resetTokenUsed = false;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Reset token stored successfully'
+    });
+  } catch (error) {
+    console.error('Request reset error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating reset token',
+      error: error.message
+    });
+  }
+});
+
+// 8. Verify Password Reset Token
+app.post('/api/auth/verify-reset-token', async (req, res) => {
+  try {
+    const { email, token } = req.body;
+
+    if (!email || !token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and token are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (!user.resetToken || user.resetToken !== token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset link. Please request a new one.'
+      });
+    }
+
+    if (user.resetTokenUsed) {
+      return res.status(400).json({
+        success: false,
+        message: 'This reset link has already been used.'
+      });
+    }
+
+    if (!user.resetTokenExpiresAt || Date.now() > user.resetTokenExpiresAt.getTime()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset link has expired. Please request a new one.'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Reset token is valid'
+    });
+  } catch (error) {
+    console.error('Verify reset token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error verifying reset token',
+      error: error.message
+    });
+  }
+});
+
+// 9. Change Password
 app.post('/api/auth/change-password', async (req, res) => {
   try {
     const { email, currentPassword, newPassword } = req.body;
@@ -306,6 +490,76 @@ app.post('/api/auth/change-password', async (req, res) => {
 // ===========================
 // UTILITY FUNCTIONS
 // ===========================
+
+// 10. Reset Password with Token
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword, token } = req.body;
+
+    if (!email || !newPassword || !token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, token, and new password are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (user.resetToken !== token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset link. Please request a new one.'
+      });
+    }
+
+    if (user.resetTokenUsed) {
+      return res.status(400).json({
+        success: false,
+        message: 'This reset link has already been used.'
+      });
+    }
+
+    if (!user.resetTokenExpiresAt || Date.now() > user.resetTokenExpiresAt.getTime()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset link has expired. Please request a new one.'
+      });
+    }
+
+    const passwordValidation = validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: passwordValidation.errors.join('. ')
+      });
+    }
+
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiresAt = null;
+    user.resetTokenUsed = true;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error resetting password',
+      error: error.message
+    });
+  }
+});
 
 // Validate password strength
 function validatePassword(password) {

@@ -199,6 +199,64 @@ export function updateUserProfile(email, updates) {
   })();
 }
 
+export function getUserHistory(email) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}/history`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        return [];
+      }
+
+      const data = await response.json();
+      return Array.isArray(data.history) ? data.history : [];
+    } catch (error) {
+      console.error('Get history error:', error);
+      return [];
+    }
+  })();
+}
+
+export function saveDecisionHistory(email, entry) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}/history`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ entry })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error saving history'
+        };
+      }
+
+      if (data.user) {
+        currentUserCache = data.user;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Save history error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to save history'
+      };
+    }
+  })();
+}
+
 // Change password
 export function changePassword(email, oldPassword, newPassword) {
   return (async () => {
@@ -249,7 +307,7 @@ export function verifyPassword(email, password) {
 }
 
 // Reset password
-export function resetPassword(email, newPassword) {
+export function resetPassword(email, newPassword, token) {
   return (async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/reset-password`, {
@@ -259,7 +317,8 @@ export function resetPassword(email, newPassword) {
         },
         body: JSON.stringify({
           email,
-          newPassword
+          newPassword,
+          token
         })
       });
 
