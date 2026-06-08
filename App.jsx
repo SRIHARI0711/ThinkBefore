@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import './styles.css';
-import { analyzeDecision } from './mlModel.js';
+import { analyzeDecision, loadModel } from './mlModel.js';
 import AnimatedBackground from './AnimatedBackground.jsx';
 import { 
   generateOTP, 
@@ -102,6 +102,9 @@ export default function App() {
     // Load email configuration on startup
     loadEmailConfig();
 
+    // Load ML model for decision analysis
+    loadModel().catch(err => console.error('[ML] Failed to load model:', err));
+
     // Check for reset token in URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const resetTokenParam = urlParams.get('token');
@@ -142,7 +145,7 @@ export default function App() {
     }
   }, [otpSent, step, email]);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setAuthError('');
     if (!email || !password) {
       setAuthError('Please enter both email and password');
@@ -150,7 +153,7 @@ export default function App() {
     }
 
     // Authenticate against user database
-    const result = authenticateUser(email, password);
+    const result = await authenticateUser(email, password);
     
     if (result.success) {
       setUser(result.user);
@@ -162,9 +165,9 @@ export default function App() {
     }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     // Register user in database
-    const result = registerUser(email, password, nickname, color);
+    const result = await registerUser(email, password, nickname, color);
     
     if (result.success) {
       setUser({ email, nickname, avatarColor: color, emailLower: email.toLowerCase() });
@@ -183,7 +186,8 @@ export default function App() {
       return;
     }
 
-    if (userExists(email)) {
+    const emailExists = await userExists(email);
+    if (emailExists) {
       setOtpError('This email is already registered');
       return;
     }
@@ -210,7 +214,7 @@ export default function App() {
     setIsSendingOtp(false);
   };
 
-  const handleVerifyOTP = () => {
+  const handleVerifyOTP = async () => {
     setOtpError('');
     if (!otp) {
       setOtpError('Please enter the OTP');
@@ -218,7 +222,7 @@ export default function App() {
     }
 
     setIsVerifyingOtp(true);
-    const result = verifyOTP(email, otp);
+    const result = await verifyOTP(email, otp);
     
     if (result.valid) {
       setOtpSent(false);
@@ -248,14 +252,14 @@ export default function App() {
     setIsSendingOtp(false);
   };
 
-  const validateCurrentPassword = (password) => {
+  const validateCurrentPassword = async (password) => {
     if (!password) {
       setCurrentPasswordError('');
       return;
     }
     
     // Check if current password is correct
-    const isPasswordCorrect = verifyPassword(user.email, password);
+    const isPasswordCorrect = await verifyPassword(user.email, password);
     if (isPasswordCorrect) {
       setCurrentPasswordError('');
     } else {
@@ -263,7 +267,7 @@ export default function App() {
     }
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     setPasswordChangeError('');
     setPasswordChangeMessage('');
     
@@ -294,7 +298,7 @@ export default function App() {
     }
     
     // Call the changePassword function
-    const result = changePassword(user.email, currentPassword, newPassword);
+    const result = await changePassword(user.email, currentPassword, newPassword);
     
     if (result.success) {
       setPasswordChangeMessage(result.message);
@@ -322,14 +326,15 @@ export default function App() {
     }
 
     // Check if user exists
-    if (!userExists(forgotEmail)) {
+    const emailExists = await userExists(forgotEmail);
+    if (!emailExists) {
       setForgotError('No account found with this email address');
       return;
     }
 
     setIsSendingReset(true);
-    const user = getUser(forgotEmail);
-    const result = await sendPasswordResetEmail(forgotEmail, user?.nickname || forgotEmail.split('@')[0]);
+    const userData = await getUser(forgotEmail);
+    const result = await sendPasswordResetEmail(forgotEmail, userData?.nickname || forgotEmail.split('@')[0]);
 
     if (result.success) {
       setForgotMessage('Password reset link has been sent to your email. Check your inbox for further instructions.');
@@ -347,7 +352,7 @@ export default function App() {
     setIsSendingReset(false);
   };
 
-  const handleVerifyResetToken = () => {
+  const handleVerifyResetToken = async () => {
     setForgotError('');
 
     if (!resetToken) {
@@ -355,7 +360,7 @@ export default function App() {
       return;
     }
 
-    const result = verifyResetToken(forgotEmail, resetToken);
+    const result = await verifyResetToken(forgotEmail, resetToken);
 
     if (result.valid) {
       setForgotError('');
@@ -365,7 +370,7 @@ export default function App() {
     }
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     setForgotError('');
     setResetMessage('');
 
@@ -395,7 +400,7 @@ export default function App() {
     setIsResettingPassword(true);
 
     // Reset the password
-    const result = resetPassword(forgotEmail, resetNewPassword);
+    const result = await resetPassword(forgotEmail, resetNewPassword);
 
     if (result.success) {
       // Mark reset token as used
@@ -420,10 +425,21 @@ export default function App() {
   const handleAnalyze = () => {
     if (!text.trim()) return;
     setIsAnalyzing(true);
+    
+    // Analyze immediately - model should be pre-loaded from useEffect
     setTimeout(() => {
-      const analysis = analyzeDecision(text);
-      setResult(analysis);
-      setHistory([analysis, ...history]);
+      try {
+        const analysis = analyzeDecision(text);
+        setResult(analysis);
+        setHistory([analysis, ...history]);
+      } catch (error) {
+        console.error('[ML] Error analyzing decision:', error);
+        setResult({
+          error: 'Failed to analyze decision. Please try again.',
+          text,
+          timestamp: new Date().toLocaleString()
+        });
+      }
       setIsAnalyzing(false);
     }, 600);
   };
@@ -453,7 +469,9 @@ export default function App() {
   };
 
   const getRiskColor = (risk) => {
-    switch(risk) {
+    if (!risk) return '#6b7280';
+    const riskStr = String(risk).toLowerCase();
+    switch(riskStr) {
       case 'critical': return '#ef4444';
       case 'high': return '#f59e0b';
       case 'medium': return '#3b82f6';
@@ -463,7 +481,9 @@ export default function App() {
   };
 
   const getRiskBg = (risk) => {
-    switch(risk) {
+    if (!risk) return 'rgba(107, 114, 128, 0.1)';
+    const riskStr = String(risk).toLowerCase();
+    switch(riskStr) {
       case 'critical': return 'rgba(239, 68, 68, 0.1)';
       case 'high': return 'rgba(245, 158, 11, 0.1)';
       case 'medium': return 'rgba(59, 130, 246, 0.1)';
@@ -1499,9 +1519,9 @@ export default function App() {
 
                   {/* Result Display */}
                   {result && (
-                    <div className="result-section">
-                      <div className="result-header">
-                        <h3>Analysis Results</h3>
+                    <div className="result-section" style={{ background: 'var(--bg2)', padding: '20px', borderRadius: '12px', marginTop: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h3 style={{ margin: 0 }}>Analysis Results</h3>
                         <button 
                           onClick={() => setResult(null)}
                           style={{
@@ -1516,110 +1536,83 @@ export default function App() {
                         </button>
                       </div>
 
-                      {/* Risk Score and Meter */}
-                      <div className={`result-risk-box ${result.predictedRisk === 'critical' || result.predictedRisk === 'high' ? result.predictedRisk : ''}`}>
-                        <div style={{ marginBottom: '16px' }}>
-                          <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px' }}>RISK LEVEL</div>
-                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                            <div 
-                              style={{
-                                fontSize: '48px',
-                                fontWeight: '800',
-                                color: getRiskColor(result.predictedRisk),
-                                fontFamily: "'DM Mono',monospace"
-                              }}
-                            >
-                              {result.severityScore}
-                            </div>
-                            <div>
-                              <div 
-                                style={{
-                                  display: 'inline-block',
-                                  padding: '6px 14px',
-                                  borderRadius: '8px',
-                                  background: getRiskBg(result.predictedRisk),
-                                  color: getRiskColor(result.predictedRisk),
-                                  fontSize: '13px',
-                                  fontWeight: '700',
-                                  letterSpacing: '1px'
-                                }}
-                              >
-                                {result.predictedRisk.toUpperCase()}
-                              </div>
-                              <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '4px' }}>out of 100</div>
-                            </div>
-                          </div>
+                      {/* Risk Score */}
+                      <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text3)', marginBottom: '8px' }}>RISK LEVEL</div>
+                        <div style={{ fontSize: '32px', fontWeight: '800', color: getRiskColor(result.predictedRisk || 'medium'), marginBottom: '8px' }}>
+                          {result.severityScore || 0}/100
                         </div>
-                        
-                        {/* Meter */}
-                        <div style={{ height: '8px', background: 'var(--bg3)', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div 
-                            style={{
-                              width: `${(result.severityScore / 100) * 100}%`,
-                              height: '100%',
-                              background: getRiskColor(result.predictedRisk),
-                              borderRadius: '4px',
-                              transition: result.predictedRisk === 'critical' ? 'width 0.5s cubic-bezier(0.34, 1.2, 0.64, 1)' : 'width 0.8s cubic-bezier(0.34, 1.2, 0.64, 1)'
-                            }}
-                          ></div>
+                        <div style={{ 
+                          display: 'inline-block',
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          background: getRiskBg(result.predictedRisk || 'medium'),
+                          color: getRiskColor(result.predictedRisk || 'medium'),
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {(result.predictedRisk || 'MEDIUM').toUpperCase()}
                         </div>
                       </div>
 
-                      {/* Analysis Details */}
-                      <div className="result-analysis">
-                        <h4 className="result-subheading">Decision Breakdown</h4>
-                        <div className="analysis-grid">
-                          <div className="analysis-item">
-                            <div className="analysis-label">Severity Score</div>
-                            <div className="analysis-value">{result.severityScore}/100</div>
+                      {/* Key Details */}
+                      <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>Decision Analysis</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Behavior</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{(result.behaviour || result.behavior || 'other').replace(/-/g, ' ')}</div>
                           </div>
-                          <div className="analysis-item">
-                            <div className="analysis-label">Harmfulness</div>
-                            <div className="analysis-value">{result.harmfulnessScore}/100</div>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Domain</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{(result.domain || 'general').replace(/-/g, ' ')}</div>
                           </div>
-                          <div className="analysis-item">
-                            <div className="analysis-label">Negativity Score</div>
-                            <div className="analysis-value">{result.negativityScore}/100</div>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Severity</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.severityScore || 0}/100</div>
                           </div>
-                          <div className="analysis-item">
-                            <div className="analysis-label">Behavior Type</div>
-                            <div className="analysis-value">{result.behavior.replace('-', ' ').charAt(0).toUpperCase() + result.behavior.replace('-', ' ').slice(1)}</div>
-                          </div>
-                          <div className="analysis-item">
-                            <div className="analysis-label">Domain</div>
-                            <div className="analysis-value">{result.domain.replace('-', ' ').charAt(0).toUpperCase() + result.domain.replace('-', ' ').slice(1)}</div>
-                          </div>
-                          <div className="analysis-item">
-                            <div className="analysis-label">Risk Level</div>
-                            <div className="analysis-value" style={{ color: getRiskColor(result.predictedRisk), fontWeight: '700' }}>{result.predictedRisk.toUpperCase()}</div>
+                          <div>
+                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Harmfulness</div>
+                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.harmfulnessScore || 0}/100</div>
                           </div>
                         </div>
                       </div>
 
                       {/* Intervention */}
-                      <div className="result-intervention">
-                        <h4 className="result-subheading">→ Recommended Intervention</h4>
-                        <p style={{ margin: '0', fontSize: '14px', color: 'var(--text2)', lineHeight: '1.6' }}>
-                          {result.intervention}
+                      <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+                        <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>→ Recommended Intervention</h4>
+                        <p style={{ margin: '0', fontSize: '13px', color: 'var(--text2)', lineHeight: '1.6' }}>
+                          {result.intervention || 'Take a moment to reconsider this decision.'}
                         </p>
                       </div>
 
-                      {/* Consequences if present */}
-                      {result.consequences && result.consequences.length > 0 && (
-                        <div className="result-consequences">
-                          <h4 className="result-subheading">⚠ Potential Consequences</h4>
+                      {/* Consequences */}
+                      {result.consequences && (Array.isArray(result.consequences) ? result.consequences.length > 0 : result.consequences) && (
+                        <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
+                          <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>⚠ Potential Consequences</h4>
                           <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px', color: 'var(--text2)', lineHeight: '1.7' }}>
-                            {result.consequences.map((item, idx) => (
-                              <li key={idx}>{item}</li>
-                            ))}
+                            {Array.isArray(result.consequences) ? 
+                              result.consequences.map((item, idx) => <li key={idx}>{item}</li>) :
+                              <li>{String(result.consequences)}</li>
+                            }
                           </ul>
                         </div>
                       )}
 
                       <button 
-                        className="auth-btn"
+                        style={{
+                          background: 'var(--primary)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '10px 16px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          width: '100%'
+                        }}
                         onClick={() => { setText(''); setResult(null); }}
-                        style={{ marginTop: '16px', width: '100%' }}
                       >
                         Analyze Another Decision
                       </button>

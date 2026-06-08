@@ -32,14 +32,29 @@ const loadTrainedModelBrowser = async () => {
   
   modelLoadingPromise = (async () => {
     try {
-      const response = await fetch('./ml-model-trained.json');
-      if (response.ok) {
-        trainedModel = await response.json();
-        console.log('[ML] Naive Bayes model loaded successfully');
-        return trainedModel;
+      // Try multiple paths for the model file
+      const paths = [
+        './ml-model-trained.json',
+        '/ml-model-trained.json',
+        new URL('../ml-model-trained.json', import.meta.url).href
+      ];
+      
+      for (const path of paths) {
+        try {
+          const response = await fetch(path);
+          if (response.ok) {
+            trainedModel = await response.json();
+            console.log('[ML] Naive Bayes model loaded successfully from', path);
+            return trainedModel;
+          }
+        } catch (e) {
+          // Continue to next path
+        }
       }
+      
+      console.warn('[ML] Could not load trained model from any path');
     } catch (error) {
-      console.warn('[ML] Could not load trained model', error);
+      console.warn('[ML] Error attempting to load trained model', error);
     }
     return null;
   })();
