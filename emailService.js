@@ -12,7 +12,7 @@ console.log('EmailJS Config:', {
   publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
 });
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Config ─────────────────────────────────────────────────────────────────
 // Values come from .env (VITE_ prefix makes them available in the browser).
 // Fall back to the hard-coded strings so the app still works if .env is absent.
 const EMAILJS_CONFIG = {
