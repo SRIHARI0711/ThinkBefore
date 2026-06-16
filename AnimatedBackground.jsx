@@ -19,6 +19,7 @@ export default function AnimatedBackground() {
   }, []);
 
   // Generate random particles that float around
+  // 
   const particles = Array.from({ length: 15 }, (_, i) => ({
     id: i,
     size: Math.random() * 4 + 2,
