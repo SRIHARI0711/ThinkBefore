@@ -140,7 +140,6 @@ const prepareDatasets = (data, vocabulary, encodings) => {
 };
 
 // ==================== MODEL ARCHITECTURE ====================
-
 const buildModel = (inputShape, numCategories, numRiskLevels) => {
   const model = tf.sequential({
     layers: [

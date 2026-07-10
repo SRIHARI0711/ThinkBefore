@@ -297,7 +297,49 @@ body.light .feature-card:hover{background:var(--bg2);border-color:rgba(58,90,154
 .neural-bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none}
 .neural-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.85}
 body.light .neural-canvas{opacity:.55}
+.brain-canvas{opacity:.5}
+body.light .brain-canvas{opacity:.42}
 .home-page{position:relative;z-index:1}
+
+/* ─── Full-height brain splash (first screen shows only the brain) ─── */
+.hero-splash{min-height:calc(100vh - 58px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;grid-template-columns:none;gap:0}
+.hero-splash .hero-content{max-width:720px;display:flex;flex-direction:column;align-items:center;gap:4px}
+.hero-splash .hero-title{font-size:clamp(40px,7vw,76px)}
+.hero-splash .hero-subtitle{max-width:600px;margin-bottom:0}
+.hero-splash .hero-badge{margin-bottom:22px}
+
+/* ─── Top-right nav auth buttons (revealed after the user scrolls) ─── */
+.nav-auth{display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .4s ease,transform .4s ease}
+body.scrolled .nav-auth{opacity:1;transform:none;pointer-events:auto}
+.nav-auth-btn{padding:8px 18px;border-radius:9px;font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;letter-spacing:.2px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.3,.64,1);white-space:nowrap}
+.nav-auth-btn.ghost{background:transparent;border:1.5px solid var(--border2);color:var(--text2)}
+.nav-auth-btn.ghost:hover{border-color:rgba(37,99,235,.5);color:var(--text1);background:rgba(37,99,235,.08)}
+.nav-auth-btn.solid{background:linear-gradient(135deg,#2563eb,#1e40af);border:1.5px solid transparent;color:#fff;box-shadow:0 6px 18px rgba(37,99,235,.28)}
+.nav-auth-btn.solid:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(37,99,235,.45)}
+@media(max-width:520px){
+  .nav-auth-btn{padding:7px 13px;font-size:12.5px}
+}
+
+/* ─── Scroll cue (invites user down to the auth panel) ─── */
+.scroll-cue{position:absolute;bottom:34px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text2);font-size:12px;letter-spacing:.18em;text-transform:uppercase;opacity:.85;transition:opacity .4s ease;pointer-events:none}
+body.scrolled .scroll-cue{opacity:0}
+.scroll-cue-arrow{font-size:20px;line-height:1;color:#2563eb;animation:cue-bob 1.8s ease-in-out infinite}
+@keyframes cue-bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:1}}
+
+/* ─── Scroll-revealed authentication panel ─── */
+.auth-reveal{padding:40px 24px 8px;max-width:640px;margin:0 auto;width:100%;position:relative;z-index:1}
+.auth-reveal-card{background:linear-gradient(160deg,var(--bg1),var(--bg2));border:1px solid var(--border2);border-radius:22px;padding:44px 40px;text-align:center;box-shadow:0 0 0 1px rgba(255,255,255,.03),0 40px 90px rgba(0,0,0,.45);backdrop-filter:blur(10px)}
+.auth-reveal-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid var(--border2);border-radius:100px;font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.04em;margin-bottom:20px}
+.auth-reveal-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1.15;margin:0 0 12px;color:var(--text1)}
+.auth-reveal-sub{font-size:16px;color:var(--text2);line-height:1.6;margin:0 auto 28px;max-width:440px}
+.auth-reveal-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-btn.lg{padding:16px 40px;font-size:16px;min-width:150px;justify-content:center}
+@media(max-width:600px){
+  .auth-reveal-card{padding:34px 22px}
+  .auth-reveal-title{font-size:27px}
+  .auth-reveal-actions{flex-direction:column}
+  .cta-btn.lg{width:100%}
+}
 
 /* ─── Scroll progress bar ─── */
 .scroll-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:200;background:transparent;pointer-events:none}

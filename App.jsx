@@ -3,7 +3,8 @@ import './styles.css';
 import { analyzeDecision, loadModel } from './mlModel.js';
 import AnimatedBackground from './AnimatedBackground.jsx';
 import NeuralBackground from './NeuralBackground.jsx';
-import { Reveal, ScrollProgress, CountUp, RiskGauge } from './ScrollFX.jsx';
+import BrainBackground from './BrainBackground.jsx';
+import { Reveal, ScrollProgress, ScrollState, CountUp, RiskGauge } from './ScrollFX.jsx';
 import { 
   generateOTP, 
   sendOTPEmail, 
@@ -568,8 +569,9 @@ export default function App() {
       {!user && step === 'welcome' && (
         <>
           <ScrollProgress />
+          <ScrollState threshold={80} />
           <div className="neural-bg-layer">
-            <NeuralBackground density={1} interactive={true} />
+            <BrainBackground density={1} interactive={true} />
           </div>
         </>
       )}
@@ -581,7 +583,23 @@ export default function App() {
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {user && <div style={{ color: 'var(--text2)', fontSize: '14px', fontWeight: '500' }}>{user.nickname}</div>}
-          <div 
+          {!user && step === 'welcome' && (
+            <div className="nav-auth">
+              <button
+                className="nav-auth-btn ghost"
+                onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
+              >
+                Log In
+              </button>
+              <button
+                className="nav-auth-btn solid"
+                onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
+          <div
             onClick={() => setIsDark(!isDark)} 
             className="theme-toggle"
             style={{ cursor: 'pointer' }}
@@ -598,8 +616,8 @@ export default function App() {
           <div className={`auth-page ${step === 'welcome' ? 'home-mode' : ''}`}>
             {step === 'welcome' ? (
               <section className="home-page">
-                {/* Hero Section */}
-                <div className="home-hero">
+                {/* Hero splash — first screen is just the brain */}
+                <div className="home-hero hero-splash">
                   <div className="hero-content">
                     <div className="hero-badge">
                       <span className="hero-badge-dot"></span>
@@ -611,48 +629,44 @@ export default function App() {
                     <p className="hero-subtitle">
                       CogniAuth reads the intent, emotion and urgency behind your decisions —
                       then intervenes in real time, <em>before</em> the impulse becomes a regret.
-                      Explainable AI, modeled on how the human brain decides.
                     </p>
-                    <div className="hero-cta-group">
-                      <button
-                        className="cta-btn primary"
-                        onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
-                      >
-                        Get Started →
-                      </button>
-                      <button
-                        className="cta-btn secondary"
-                        onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
-                      >
-                        Create Account
-                      </button>
-                    </div>
-                    <div className="hero-badges">
-                      <span className="mini-badge">◆ Local &amp; Private</span>
-                      <span className="mini-badge">◆ Explainable AI</span>
-                      <span className="mini-badge">◆ Works Offline</span>
-                    </div>
                   </div>
-                  <div className="hero-visual">
-                    <div className="brain-orb">
-                      {/* Rotating synapse rings */}
-                      <div className="brain-ring ring-1"></div>
-                      <div className="brain-ring ring-2"></div>
-                      <div className="brain-ring ring-3"></div>
-                      {/* Firing neuron nodes around the core */}
-                      {[0, 1, 2, 3, 4, 5].map((i) => (
-                        <span key={i} className={`brain-node n${i}`}></span>
-                      ))}
-                      <div className="brain-core">
-                        <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.4">
-                          <path d="M9.5 3a2.5 2.5 0 0 0-2.5 2.5c-1.2.2-2 1.2-2 2.4 0 .5.1.9.4 1.3-.6.5-1 1.3-1 2.1 0 1 .5 1.8 1.3 2.3-.1.3-.2.6-.2 1a2.5 2.5 0 0 0 2.5 2.5c.2 1 1.1 1.9 2.3 1.9.7 0 1.3-.3 1.7-.8" />
-                          <path d="M14.5 3A2.5 2.5 0 0 1 17 5.5c1.2.2 2 1.2 2 2.4 0 .5-.1.9-.4 1.3.6.5 1 1.3 1 2.1 0 1-.5 1.8-1.3 2.3.1.3.2.6.2 1a2.5 2.5 0 0 1-2.5 2.5c-.2 1-1.1 1.9-2.3 1.9-.7 0-1.3-.3-1.7-.8" />
-                          <path d="M12 6v13M9 9h3M12 12h3M9.5 15H12" />
-                        </svg>
-                      </div>
-                    </div>
+                  <div className="scroll-cue" aria-hidden="true">
+                    <span>Scroll to enter</span>
+                    <span className="scroll-cue-arrow">↓</span>
                   </div>
                 </div>
+
+                {/* Scroll-revealed authentication panel */}
+                <Reveal className="auth-reveal" delay={0}>
+                  <div className="auth-reveal-card">
+                    <div className="auth-reveal-badge">
+                      <span className="hero-badge-dot"></span>
+                      Enter the network
+                    </div>
+                    <h2 className="auth-reveal-title">
+                      Ready to think <span className="grad-text">clearly</span>?
+                    </h2>
+                    <p className="auth-reveal-sub">
+                      Log in to pick up where your mind left off, or create an
+                      account to let CogniAuth learn how you decide.
+                    </p>
+                    <div className="auth-reveal-actions">
+                      <button
+                        className="cta-btn primary lg"
+                        onClick={() => { setEmail(''); setPassword(''); setStep('login-email'); }}
+                      >
+                        Log In
+                      </button>
+                      <button
+                        className="cta-btn secondary lg"
+                        onClick={() => { setEmail(''); setPassword(''); setNickname(''); setColor('#f0a500'); setStep('signup-email'); }}
+                      >
+                        Sign Up
+                      </button>
+                    </div>
+                  </div>
+                </Reveal>
 
                 {/* Live impact metrics */}
                 <div className="home-metrics">

@@ -45,6 +45,25 @@ export function Reveal({ children, className = '', delay = 0, as: Tag = 'div', .
   );
 }
 
+/* ── Scroll state (adds `scrolled` class to <body> past a threshold) ─ */
+export function ScrollState({ threshold = 80 }) {
+  useEffect(() => {
+    const onScroll = () => {
+      const el = document.scrollingElement || document.documentElement;
+      document.body.classList.toggle('scrolled', el.scrollTop > threshold);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      document.body.classList.remove('scrolled');
+    };
+  }, [threshold]);
+  return null;
+}
+
 /* ── Neural scroll-progress bar (fixed to top of viewport) ────────── */
 export function ScrollProgress() {
   const [pct, setPct] = useState(0);
