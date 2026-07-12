@@ -4,6 +4,7 @@ import { analyzeDecision, loadModel } from './mlModel.js';
 import AnimatedBackground from './AnimatedBackground.jsx';
 import NeuralBackground from './NeuralBackground.jsx';
 import BrainBackground from './BrainBackground.jsx';
+import InsightsDashboard from './InsightsDashboard.jsx';
 import { Reveal, ScrollProgress, ScrollState, CountUp, RiskGauge } from './ScrollFX.jsx';
 import { 
   generateOTP, 
@@ -1642,7 +1643,15 @@ export default function App() {
                 <span className="nav-icon">●</span> History
               </div>
               <div className="nav-sep"></div>
-              <div 
+              <div
+                className={`nav-item ${view === 'insights' ? 'active' : ''}`}
+                onClick={() => setView('insights')}
+                style={{ cursor: 'pointer' }}
+              >
+                <span className="nav-icon">◈</span> Insights
+              </div>
+              <div className="nav-sep"></div>
+              <div
                 className={`nav-item ${view === 'profile' ? 'active' : ''}`}
                 onClick={() => setView('profile')}
                 style={{ cursor: 'pointer' }}
@@ -2388,6 +2397,10 @@ export default function App() {
                     </button>
                   </div>
                 </div>
+              )}
+
+              {view === 'insights' && (
+                <InsightsDashboard history={history} isDark={isDark} />
               )}
 
             </div>
