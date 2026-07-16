@@ -221,8 +221,8 @@ const shuffleInPlace = (arr, rng) => {
   return arr;
 };
 
-// Stratified split: hold out `testRatio` of EACH category so every class is
-// represented in both train and test (plain slice-off-the-end would not be).
+// Stratified split: hold out `testRatio` of EACH category
+// So every class is represented in both train and test (plain slice-off-the-end would not be).
 const stratifiedSplit = (data, testRatio, seed) => {
   const rng = mulberry32(seed);
   const byLabel = {};
