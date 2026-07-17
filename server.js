@@ -334,6 +334,100 @@ app.post('/api/auth/user/:email/history', async (req, res) => {
   }
 });
 
+// 6b. Add / Update Journal Outcome for a Decision History Entry
+app.post('/api/auth/user/:email/journal-entry', async (req, res) => {
+  try {
+    const email = req.params.email.toLowerCase();
+    const { decisionId, outcome, actualRisk, note } = req.body;
+
+    const validRisks = ['better_than_expected', 'as_expected', 'worse_than_expected'];
+    if (!decisionId || !validRisks.includes(actualRisk)) {
+      return res.status(400).json({
+        success: false,
+        message: 'decisionId and a valid actualRisk are required'
+      });
+    }
+
+    const journal = {
+      outcome: typeof outcome === 'string' ? outcome : '',
+      actualRisk,
+      note: typeof note === 'string' ? note : '',
+      loggedAt: new Date().toISOString()
+    };
+
+    // Update the specific history entry, matched by its timestamp id, via arrayFilters.
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $set: { 'decisionHistory.$[entry].journal': journal } },
+      {
+        new: true,
+        arrayFilters: [{ 'entry.timestamp': decisionId }]
+      }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    res.json({
+      success: true,
+      message: 'Journal outcome saved successfully',
+      history: userResponse.decisionHistory || [],
+      user: userResponse
+    });
+  } catch (error) {
+    console.error('Save journal entry error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error saving journal outcome',
+      error: error.message
+    });
+  }
+});
+
+// 6c. Clear all journal outcomes for a user
+app.delete('/api/auth/user/:email/journal', async (req, res) => {
+  try {
+    const email = req.params.email.toLowerCase();
+
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { $unset: { 'decisionHistory.$[].journal': '' } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    const userResponse = updatedUser.toObject();
+    delete userResponse.password;
+
+    res.json({
+      success: true,
+      message: 'Journal cleared successfully',
+      history: userResponse.decisionHistory || [],
+      user: userResponse
+    });
+  } catch (error) {
+    console.error('Clear journal error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error clearing journal',
+      error: error.message
+    });
+  }
+});
+
 // 7. Store Password Reset Token
 app.post('/api/auth/request-reset', async (req, res) => {
   try {

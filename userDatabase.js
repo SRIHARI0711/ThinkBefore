@@ -257,6 +257,77 @@ export function saveDecisionHistory(email, entry) {
   })();
 }
 
+// Save a journal outcome onto a decision history entry (matched by timestamp id)
+export function saveJournalEntry(email, decisionId, { outcome, actualRisk, note }) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}/journal-entry`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decisionId, outcome, actualRisk, note })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error saving journal outcome'
+        };
+      }
+
+      if (data.user) {
+        currentUserCache = data.user;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Save journal entry error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to save journal outcome'
+      };
+    }
+  })();
+}
+
+// Clear all journal outcomes for a user
+export function clearJournal(email) {
+  return (async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/user/${encodeURIComponent(email.toLowerCase())}/journal`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error clearing journal'
+        };
+      }
+
+      if (data.user) {
+        currentUserCache = data.user;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Clear journal error:', error);
+      return {
+        success: false,
+        message: 'Network error: Unable to clear journal'
+      };
+    }
+  })();
+}
+
 // Change password
 export function changePassword(email, oldPassword, newPassword) {
   return (async () => {

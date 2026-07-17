@@ -1,6 +1,11 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
+} from 'recharts';
 import './styles.css';
 import { analyzeDecision, loadModel } from './mlModel.js';
+import { analyzeJournal } from './journalAnalytics.js';
+import { accuracyColor as accuracyColorFor } from './journalAnalytics.js';
 import AnimatedBackground from './AnimatedBackground.jsx';
 import NeuralBackground from './NeuralBackground.jsx';
 import BrainBackground from './BrainBackground.jsx';
@@ -17,12 +22,14 @@ import {
   verifyResetToken
 } from './emailService.js';
 import { 
-  registerUser, 
-  authenticateUser, 
-  userExists, 
+  registerUser,
+  authenticateUser,
+  userExists,
   getUser,
   getUserHistory,
   saveDecisionHistory,
+  saveJournalEntry,
+  clearJournal,
   validatePassword,
   changePassword,
   resetPassword,
@@ -42,6 +49,17 @@ const COLORS = [
   { hex: '#f97316', label: 'Orange' },
   { hex: '#ec4899', label: 'Pink' },
 ];
+
+const OUTCOME_OPTIONS = [
+  { value: 'better_than_expected', label: 'Better than expected 😊' },
+  { value: 'as_expected', label: 'About what I expected 😐' },
+  { value: 'worse_than_expected', label: 'Worse than expected 😟' }
+];
+
+const OUTCOME_LABELS = OUTCOME_OPTIONS.reduce((acc, o) => {
+  acc[o.value] = o.label;
+  return acc;
+}, {});
 
 const DECISION_EXAMPLES = [
   "Got a $2K bonus and thinking about splurging on a new laptop I don't really need",
@@ -64,6 +82,12 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [category, setCategory] = useState('shopping');
   const [history, setHistory] = useState([]);
+  const [historyTab, setHistoryTab] = useState('decisions'); // 'decisions' | 'journal'
+  const [outcomeFormId, setOutcomeFormId] = useState(null); // timestamp id of card with open form
+  const [outcomeNote, setOutcomeNote] = useState('');
+  const [outcomeRisk, setOutcomeRisk] = useState('as_expected');
+  const [isSavingOutcome, setIsSavingOutcome] = useState(false);
+  const [showFullBreakdown, setShowFullBreakdown] = useState(false);
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -509,6 +533,76 @@ export default function App() {
       }
       setIsAnalyzing(false);
     }, 600);
+  };
+
+  // Cached prediction-accuracy analysis; recomputes only when history changes.
+  const journalAnalysis = useMemo(() => analyzeJournal(history), [history]);
+
+  const journaledCount = useMemo(
+    () => history.filter((h) => h && h.journal && h.journal.actualRisk).length,
+    [history]
+  );
+
+  const openOutcomeForm = (item) => {
+    setOutcomeFormId(item.timestamp);
+    setOutcomeNote(item.journal?.outcome || '');
+    setOutcomeRisk(item.journal?.actualRisk || 'as_expected');
+  };
+
+  const closeOutcomeForm = () => {
+    setOutcomeFormId(null);
+    setOutcomeNote('');
+    setOutcomeRisk('as_expected');
+  };
+
+  const handleSaveOutcome = async (item) => {
+    if (!item?.timestamp) return;
+    setIsSavingOutcome(true);
+
+    const journal = {
+      outcome: outcomeNote.slice(0, 200),
+      actualRisk: outcomeRisk,
+      note: outcomeNote.slice(0, 200)
+    };
+
+    // Optimistic local update so the UI reflects the change immediately.
+    setHistory((prev) =>
+      prev.map((h) =>
+        h.timestamp === item.timestamp ? { ...h, journal: { ...journal } } : h
+      )
+    );
+
+    if (user?.email) {
+      const saved = await saveJournalEntry(user.email, item.timestamp, journal);
+      if (saved.success && Array.isArray(saved.history)) {
+        setHistory(normalizeHistory(saved.history));
+      }
+      if (saved.user) {
+        setUser(saved.user);
+        saveUserSession(saved.user);
+      }
+    }
+
+    setIsSavingOutcome(false);
+    closeOutcomeForm();
+  };
+
+  const handleClearJournal = async () => {
+    if (!window.confirm('Clear all journal outcomes? This cannot be undone.')) return;
+
+    setHistory((prev) => prev.map(({ journal, ...rest }) => rest));
+
+    if (user?.email) {
+      const cleared = await clearJournal(user.email);
+      if (cleared.success && Array.isArray(cleared.history)) {
+        setHistory(normalizeHistory(cleared.history));
+      }
+      if (cleared.user) {
+        setUser(cleared.user);
+        saveUserSession(cleared.user);
+      }
+    }
+    setShowFullBreakdown(false);
   };
 
   const handleLogout = () => {
@@ -1935,12 +2029,38 @@ export default function App() {
                       <div className="view-title">Decision History</div>
                       <div className="view-sub">Review all your analyzed decisions.</div>
                     </div>
-                    
+
+                    {/* Tabs within the History view */}
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '20px', borderBottom: '1px solid var(--border)' }}>
+                      {[
+                        { id: 'decisions', label: 'Decisions' },
+                        { id: 'journal', label: `Journal${journaledCount ? ` (${journaledCount})` : ''}` }
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          onClick={() => setHistoryTab(tab.id)}
+                          style={{
+                            padding: '10px 18px',
+                            background: 'transparent',
+                            border: 'none',
+                            borderBottom: '2px solid ' + (historyTab === tab.id ? 'var(--blue)' : 'transparent'),
+                            color: historyTab === tab.id ? 'var(--text1)' : 'var(--text2)',
+                            fontSize: '14px',
+                            fontWeight: historyTab === tab.id ? '700' : '500',
+                            cursor: 'pointer',
+                            marginBottom: '-1px'
+                          }}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+
                     {history.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--bg2)', borderRadius: '12px', marginTop: '24px' }}>
                         <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>No decisions yet</div>
                         <div style={{ fontSize: '13px', color: 'var(--text3)', marginBottom: '24px' }}>Start analyzing decisions to build your complete history.</div>
-                        <button 
+                        <button
                           className="auth-btn"
                           onClick={() => setView('dash')}
                           style={{ padding: '10px 20px', fontSize: '14px', maxWidth: '300px', margin: '0 auto' }}
@@ -1948,11 +2068,13 @@ export default function App() {
                           Go to Dashboard →
                         </button>
                       </div>
-                    ) : (
+                    ) : historyTab === 'decisions' ? (
                       <div style={{ marginTop: '24px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {history.map((item, idx) => (
-                            <div 
+                          {history.map((item, idx) => {
+                            const formOpen = outcomeFormId === item.timestamp;
+                            return (
+                            <div
                               key={idx}
                               style={{
                                 padding: '16px',
@@ -1960,38 +2082,251 @@ export default function App() {
                                 borderRadius: '10px',
                                 background: 'var(--bg2)',
                                 display: 'flex',
-                                gap: '16px',
-                                justifyContent: 'space-between',
-                                alignItems: 'flex-start',
+                                flexDirection: 'column',
+                                gap: '12px',
                                 transition: 'all 0.2s'
                               }}
                             >
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
-                                  "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
+                              <div style={{ display: 'flex', gap: '16px', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontWeight: '600', color: 'var(--text1)', marginBottom: '6px', fontSize: '14px' }}>
+                                    "{item.text.slice(0, 70)}{item.text.length > 70 ? '...' : ''}"
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                                    {(item.behavior || item.behaviour || 'other').replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
+                                  </div>
                                 </div>
-                                <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-                                  {(item.behavior || item.behaviour || 'other').replace('-', ' ')} • Severity: {item.severityScore}/100 • {item.timestamp}
+                                <div
+                                  style={{
+                                    padding: '8px 14px',
+                                    borderRadius: '8px',
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    background: getRiskBg(item.predictedRisk),
+                                    color: getRiskColor(item.predictedRisk),
+                                    whiteSpace: 'nowrap',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px'
+                                  }}
+                                >
+                                  {item.predictedRisk}
                                 </div>
                               </div>
-                              <div 
-                                style={{
-                                  padding: '8px 14px',
-                                  borderRadius: '8px',
-                                  fontSize: '12px',
-                                  fontWeight: '700',
-                                  background: getRiskBg(item.predictedRisk),
-                                  color: getRiskColor(item.predictedRisk),
-                                  whiteSpace: 'nowrap',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.5px'
-                                }}
-                              >
-                                {item.predictedRisk}
+
+                              {/* Existing outcome badge */}
+                              {item.journal?.actualRisk && !formOpen && (
+                                <div style={{ fontSize: '12px', color: 'var(--text2)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                  <span style={{ fontWeight: '600', color: 'var(--text1)' }}>Outcome:</span>
+                                  <span>{OUTCOME_LABELS[item.journal.actualRisk] || item.journal.actualRisk}</span>
+                                  {item.journal.outcome && <span style={{ color: 'var(--text3)' }}>— "{item.journal.outcome}"</span>}
+                                </div>
+                              )}
+
+                              {/* Add / Edit outcome control */}
+                              <div>
+                                <button
+                                  onClick={() => (formOpen ? closeOutcomeForm() : openOutcomeForm(item))}
+                                  style={{
+                                    padding: '6px 14px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    borderRadius: '8px',
+                                    border: '1px solid var(--border2)',
+                                    background: 'var(--bg3)',
+                                    color: 'var(--text1)',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  {formOpen ? 'Cancel' : item.journal?.actualRisk ? 'Edit Outcome' : '+ Add Outcome'}
+                                </button>
+                              </div>
+
+                              {/* Inline outcome form */}
+                              {formOpen && (
+                                <div style={{ padding: '14px', background: 'var(--bg3)', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                  <div>
+                                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text1)', display: 'block', marginBottom: '6px' }}>
+                                      What actually happened?
+                                    </label>
+                                    <textarea
+                                      value={outcomeNote}
+                                      maxLength={200}
+                                      onChange={(e) => setOutcomeNote(e.target.value)}
+                                      rows={2}
+                                      placeholder="Describe how it turned out..."
+                                      style={{
+                                        width: '100%',
+                                        resize: 'vertical',
+                                        padding: '10px',
+                                        borderRadius: '8px',
+                                        border: '1px solid var(--border2)',
+                                        background: 'var(--bg2)',
+                                        color: 'var(--text1)',
+                                        fontSize: '13px',
+                                        fontFamily: 'inherit'
+                                      }}
+                                    />
+                                    <div style={{ fontSize: '11px', color: 'var(--text3)', textAlign: 'right', marginTop: '2px' }}>
+                                      {outcomeNote.length}/200
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {OUTCOME_OPTIONS.map((opt) => (
+                                      <label key={opt.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text1)', cursor: 'pointer' }}>
+                                        <input
+                                          type="radio"
+                                          name={`outcome-${item.timestamp}`}
+                                          value={opt.value}
+                                          checked={outcomeRisk === opt.value}
+                                          onChange={() => setOutcomeRisk(opt.value)}
+                                        />
+                                        {opt.label}
+                                      </label>
+                                    ))}
+                                  </div>
+
+                                  <div>
+                                    <button
+                                      onClick={() => handleSaveOutcome(item)}
+                                      disabled={isSavingOutcome}
+                                      className="auth-btn"
+                                      style={{ padding: '8px 18px', fontSize: '13px', maxWidth: '160px' }}
+                                    >
+                                      {isSavingOutcome ? 'Saving...' : 'Save'}
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );})}
+                        </div>
+                      </div>
+                    ) : (
+                      /* Journal tab */
+                      <div style={{ marginTop: '24px' }}>
+                        {!journalAnalysis.hasEnoughData ? (
+                          <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--bg2)', borderRadius: '12px' }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text1)', marginBottom: '8px' }}>
+                              Not enough journal entries yet
+                            </div>
+                            <div style={{ fontSize: '13px', color: 'var(--text3)' }}>
+                              Add outcomes to at least 5 decisions to unlock your Prediction Accuracy analysis.
+                              You have {journalAnalysis.totalEntries}/5.
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ padding: '24px', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: '14px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                              <div>
+                                <div style={{ fontSize: '13px', color: 'var(--text2)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+                                  Your Prediction Accuracy
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+                                  <span style={{ fontSize: '52px', fontWeight: '800', color: accuracyColorFor(journalAnalysis.overallScore), lineHeight: 1 }}>
+                                    {journalAnalysis.overallScore}
+                                  </span>
+                                  <span style={{ fontSize: '20px', color: 'var(--text3)' }}>/100</span>
+                                  <span style={{
+                                    fontSize: '24px',
+                                    fontWeight: '700',
+                                    color: journalAnalysis.trendDirection === 'up' ? 'var(--green)' : 'var(--red)'
+                                  }}>
+                                    {journalAnalysis.trendDirection === 'up' ? '↑' : '↓'}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--text3)', marginTop: '6px' }}>
+                                  {journalAnalysis.correctPredictions}/{journalAnalysis.totalEntries} predictions matched your outcomes
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => setShowFullBreakdown((v) => !v)}
+                                  style={{
+                                    padding: '8px 14px', fontSize: '12px', fontWeight: '600', borderRadius: '8px',
+                                    border: '1px solid var(--border2)', background: 'var(--bg3)', color: 'var(--text1)', cursor: 'pointer'
+                                  }}
+                                >
+                                  {showFullBreakdown ? 'Hide Breakdown' : 'View Full Breakdown'}
+                                </button>
+                                <button
+                                  onClick={handleClearJournal}
+                                  style={{
+                                    padding: '8px 14px', fontSize: '12px', fontWeight: '600', borderRadius: '8px',
+                                    border: '1px solid var(--red)', background: 'transparent', color: 'var(--red)', cursor: 'pointer'
+                                  }}
+                                >
+                                  Clear Journal
+                                </button>
                               </div>
                             </div>
-                          ))}
-                        </div>
+
+                            {/* Domain breakdown (expandable) */}
+                            {showFullBreakdown && (
+                              <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+                                <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text1)', marginBottom: '14px' }}>
+                                  Accuracy by Domain
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                  {journalAnalysis.byDomain.map((d) => (
+                                    <div key={d.domain}>
+                                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '5px' }}>
+                                        <span style={{ color: 'var(--text1)', fontWeight: '600' }}>{d.label}</span>
+                                        <span style={{ color: 'var(--text2)' }}>{d.correct}/{d.total} correct ({d.percent}%)</span>
+                                      </div>
+                                      <div style={{ height: '8px', background: 'var(--bg4)', borderRadius: '5px', overflow: 'hidden' }}>
+                                        <div style={{ width: `${d.percent}%`, height: '100%', background: d.color, borderRadius: '5px', transition: 'width 0.3s' }} />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Pattern insights */}
+                            <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+                              <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text1)', marginBottom: '12px' }}>
+                                Pattern Insights
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {journalAnalysis.insights.map((insight, i) => (
+                                  <div key={i} style={{
+                                    fontSize: '13px', color: 'var(--text2)', lineHeight: 1.5,
+                                    padding: '10px 12px', background: 'var(--bg3)', borderRadius: '8px',
+                                    borderLeft: '3px solid var(--blue)'
+                                  }}>
+                                    {insight}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Trend visualization */}
+                            {journalAnalysis.trend.length > 1 && (
+                              <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+                                <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text1)', marginBottom: '12px' }}>
+                                  Accuracy Trend (last 8 weeks)
+                                </div>
+                                <div style={{ width: '100%', height: '220px' }}>
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={journalAnalysis.trend} margin={{ top: 8, right: 12, bottom: 4, left: -12 }}>
+                                      <CartesianGrid stroke="var(--border)" vertical={false} />
+                                      <XAxis dataKey="week" stroke="var(--text3)" tick={{ fontSize: 11 }} tickLine={false} />
+                                      <YAxis domain={[0, 100]} stroke="var(--text3)" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
+                                      <Tooltip
+                                        contentStyle={{ background: 'var(--bg3)', border: '1px solid var(--border2)', borderRadius: '8px', fontSize: '12px' }}
+                                        formatter={(v, name) => [`${v}%`, name === 'movingAvg' ? 'Moving avg' : 'Accuracy']}
+                                      />
+                                      <Legend wrapperStyle={{ fontSize: '12px' }} />
+                                      <Line type="monotone" dataKey="accuracy" name="Accuracy" stroke="var(--blue)" strokeWidth={2.4} dot={{ r: 2.5 }} />
+                                      <Line type="monotone" dataKey="movingAvg" name="Moving avg" stroke="#10b981" strokeWidth={2.4} strokeDasharray="5 4" dot={false} />
+                                    </LineChart>
+                                  </ResponsiveContainer>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
