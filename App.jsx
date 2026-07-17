@@ -548,6 +548,14 @@ export default function App() {
     }
   };
 
+  // Magnitude color for 0-100 scores, same thresholds as InsightsDashboard's risk line
+  const getScoreColor = (score) => {
+    const s = Number(score) || 0;
+    if (s > 60) return '#ef4444';
+    if (s >= 40) return '#f59e0b';
+    return '#10b981';
+  };
+
   const getRiskBg = (risk) => {
     if (!risk) return 'rgba(107, 114, 128, 0.1)';
     const riskStr = String(risk).toLowerCase();
@@ -1828,34 +1836,21 @@ export default function App() {
 
                       {/* All Model Outputs */}
                       <div style={{ background: 'var(--bg3)', padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                        <h4 style={{ margin: '0 0 12px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>All Returned Outputs</h4>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Predicted Risk</div>
-                            <div style={{ fontWeight: '600', color: getRiskColor(result.predictedRisk || 'medium') }}>
-                              {(result.predictedRisk || 'medium').toUpperCase()}
+                        <h4 style={{ margin: '0 0 16px 0', fontSize: '13px', fontWeight: '600', color: 'var(--text3)' }}>All Returned Outputs</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px', justifyItems: 'center' }}>
+                          {[
+                            { label: 'Severity', value: result.severityScore || 0, sub: '/ 100', color: getScoreColor(result.severityScore) },
+                            { label: 'Harmfulness', value: result.harmfulnessScore || 0, sub: '/ 100', color: getScoreColor(result.harmfulnessScore) },
+                            { label: 'Negativity', value: result.negativityScore || 0, sub: '/ 100', color: getScoreColor(result.negativityScore) },
+                            { label: 'Predicted Risk', text: (result.predictedRisk || 'medium').toUpperCase(), value: result.confidence?.risk ?? 50, sub: result.confidence?.risk != null ? `${result.confidence.risk}% conf` : '', color: getRiskColor(result.predictedRisk || 'medium') },
+                            { label: 'Behavior', text: (result.behaviour || result.behavior || 'other').replace(/-/g, ' '), value: result.confidence?.category ?? 50, sub: result.confidence?.category != null ? `${result.confidence.category}% conf` : '', color: '#3b82f6' },
+                            { label: 'Domain', text: (result.domain || 'general').replace(/-/g, ' '), value: result.confidence?.category ?? 50, sub: result.confidence?.category != null ? `${result.confidence.category}% conf` : '', color: '#8b5cf6' }
+                          ].map(d => (
+                            <div key={d.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <RiskGauge size={104} value={d.value} text={d.text} sub={d.sub} color={d.color} track="var(--border)" />
+                              <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: '600', color: 'var(--text3)', textAlign: 'center' }}>{d.label}</div>
                             </div>
-                          </div>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Behavior</div>
-                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{(result.behaviour || result.behavior || 'other').replace(/-/g, ' ')}</div>
-                          </div>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Negativity</div>
-                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.negativityScore || 0}/100</div>
-                          </div>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Domain</div>
-                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{(result.domain || 'general').replace(/-/g, ' ')}</div>
-                          </div>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Severity</div>
-                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.severityScore || 0}/100</div>
-                          </div>
-                          <div>
-                            <div style={{ color: 'var(--text3)', marginBottom: '4px' }}>Harmfulness</div>
-                            <div style={{ fontWeight: '600', color: 'var(--text1)' }}>{result.harmfulnessScore || 0}/100</div>
-                          </div>
+                          ))}
                         </div>
                       </div>
 

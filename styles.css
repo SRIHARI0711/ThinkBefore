@@ -403,6 +403,8 @@ body.scrolled .scroll-cue{opacity:0}
 .risk-gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .risk-gauge-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;line-height:1}
 .risk-gauge-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-top:2px}
+.risk-gauge-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;line-height:1.15;text-align:center;text-transform:uppercase;letter-spacing:.3px;max-width:72%;word-break:break-word}
+.risk-gauge-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:3px}
 .gauge-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text1)}
 .gauge-note{font-size:12.5px;color:var(--text2);font-family:'DM Mono',monospace}
 

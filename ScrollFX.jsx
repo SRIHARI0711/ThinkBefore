@@ -124,7 +124,7 @@ export function CountUp({ end = 100, duration = 1600, suffix = '', decimals = 0 
 }
 
 /* ── Circular risk gauge (animated arc) ───────────────────────────── */
-export function RiskGauge({ value = 0, size = 132, label = '', color = '#2563eb' }) {
+export function RiskGauge({ value = 0, size = 132, label = '', color = '#2563eb', text = null, sub = '', track = 'rgba(255,255,255,.08)' }) {
   const ref = useRef(null);
   const [shown, setShown] = useState(false);
   const stroke = 10;
@@ -151,7 +151,7 @@ export function RiskGauge({ value = 0, size = 132, label = '', color = '#2563eb'
       <svg width={size} height={size}>
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          fill="none" stroke="rgba(255,255,255,.08)" strokeWidth={stroke}
+          fill="none" stroke={track} strokeWidth={stroke}
         />
         <circle
           cx={size / 2} cy={size / 2} r={radius}
@@ -162,9 +162,14 @@ export function RiskGauge({ value = 0, size = 132, label = '', color = '#2563eb'
         />
       </svg>
       <div className="risk-gauge-center">
-        <div className="risk-gauge-val" style={{ color }}>
-          <CountUp end={pct} duration={1400} />
-        </div>
+        {text != null ? (
+          <div className="risk-gauge-text" style={{ color }}>{text}</div>
+        ) : (
+          <div className="risk-gauge-val" style={{ color }}>
+            <CountUp end={pct} duration={1400} />
+          </div>
+        )}
+        {sub && <div className="risk-gauge-sub">{sub}</div>}
         {label && <div className="risk-gauge-lbl">{label}</div>}
       </div>
     </div>
