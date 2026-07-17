@@ -1,194 +1,4658 @@
 {
   "metadata": {
-    "description": "Training dataset for decision risk classification",
-    "version": "1.0",
-    "task": "multi-class classification",
-    "classes": 19,
-    "total_samples": 380,
-    "split": {
-      "train": 0.70,
-      "validation": 0.15,
-      "test": 0.15
-    }
+    "version": "3.0",
+    "description": "Expanded labeled dataset for CogniAuth decision classifier. Targets: label (category), risk_level, emotional_tone, reversibility.",
+    "generated": "2026-07-17",
+    "totalSamples": 709,
+    "targets": {
+      "label": [
+        "consent-risk",
+        "environment-risk",
+        "violence",
+        "health-risk",
+        "financial",
+        "ethics",
+        "relationship",
+        "safety-risk",
+        "legal-risk",
+        "productivity",
+        "career",
+        "travel",
+        "education",
+        "family",
+        "leisure",
+        "social",
+        "self-care"
+      ],
+      "risk_level": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "emotional_tone": [
+        "calm",
+        "neutral",
+        "anxious",
+        "angry",
+        "excited",
+        "sad"
+      ],
+      "reversibility": [
+        "reversible",
+        "hard-to-reverse",
+        "irreversible"
+      ]
+    },
+    "note": "Original 178 samples merged back (category+risk labels only); tone/reversibility trained on the 531 fully-labeled samples."
   },
   "training_data": [
-    {"text": "Should I kiss someone without asking if they want me to?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "I want to hug my friend without permission", "label": "consent-risk", "risk_level": "medium"},
-    {"text": "Should I touch someone's personal space without consent?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "Is it okay to hold someone's hand without asking?", "label": "consent-risk", "risk_level": "medium"},
-    {"text": "Should I cut down these old trees in the forest?", "label": "environment-risk", "risk_level": "high"},
-    {"text": "Can I throw plastic trash into the ocean?", "label": "environment-risk", "risk_level": "high"},
-    {"text": "Should I pollute the environment for profit?", "label": "environment-risk", "risk_level": "critical"},
-    {"text": "I want to dump chemicals into the river", "label": "environment-risk", "risk_level": "critical"},
-    {"text": "Should I punch someone in anger?", "label": "violence", "risk_level": "critical"},
-    {"text": "I feel like hitting my coworker right now", "label": "violence", "risk_level": "critical"},
-    {"text": "Should I start a fight with someone?", "label": "violence", "risk_level": "critical"},
-    {"text": "What if I kicked someone?", "label": "violence", "risk_level": "high"},
-    {"text": "Should I smoke a cigarette daily?", "label": "health-risk", "risk_level": "high"},
-    {"text": "I want to drink alcohol every night", "label": "health-risk", "risk_level": "high"},
-    {"text": "Should I take drugs to feel better?", "label": "health-risk", "risk_level": "critical"},
-    {"text": "Is it okay to skip sleep for a week?", "label": "health-risk", "risk_level": "medium"},
-    {"text": "Got a $2000 bonus and thinking about buying an unnecessary laptop", "label": "financial", "risk_level": "medium"},
-    {"text": "Should I invest all my savings in cryptocurrency?", "label": "financial", "risk_level": "high"},
-    {"text": "I want to spend my rent money on luxury items", "label": "financial", "risk_level": "critical"},
-    {"text": "Should I take out a large loan for a vacation?", "label": "financial", "risk_level": "medium"},
-    {"text": "Should I lie on my resume to get the job?", "label": "ethics", "risk_level": "high"},
-    {"text": "I want to cheat on the exam", "label": "ethics", "risk_level": "high"},
-    {"text": "Should I steal money from my employer?", "label": "ethics", "risk_level": "critical"},
-    {"text": "Is it okay to be dishonest with my partner?", "label": "ethics", "risk_level": "high"},
-    {"text": "Should I text my ex at 2 AM?", "label": "relationship", "risk_level": "medium"},
-    {"text": "I want to break up with my partner via text", "label": "relationship", "risk_level": "high"},
-    {"text": "Should I confess my feelings right now when upset?", "label": "relationship", "risk_level": "medium"},
-    {"text": "I'm thinking about proposing impulsively", "label": "relationship", "risk_level": "medium"},
-    {"text": "Should I drive while drunk?", "label": "safety-risk", "risk_level": "critical"},
-    {"text": "I want to skip my seatbelt while driving", "label": "safety-risk", "risk_level": "high"},
-    {"text": "Should I ride a motorcycle without a helmet?", "label": "safety-risk", "risk_level": "high"},
-    {"text": "Is it okay to speed on the highway?", "label": "safety-risk", "risk_level": "high"},
-    {"text": "Should I steal this car?", "label": "legal-risk", "risk_level": "critical"},
-    {"text": "I want to break into this house", "label": "legal-risk", "risk_level": "critical"},
-    {"text": "Should I sell illegal goods?", "label": "legal-risk", "risk_level": "critical"},
-    {"text": "Is it okay to hack someone's account?", "label": "legal-risk", "risk_level": "critical"},
-    {"text": "Should I skip my project deadline and fail the class?", "label": "productivity", "risk_level": "medium"},
-    {"text": "I want to procrastinate on this important task", "label": "productivity", "risk_level": "medium"},
-    {"text": "Should I spend all day gaming instead of studying?", "label": "productivity", "risk_level": "high"},
-    {"text": "I'm thinking about quitting my job without a new one lined up", "label": "career", "risk_level": "high"},
-    {"text": "Should I resign in anger right now?", "label": "career", "risk_level": "high"},
-    {"text": "I want to send an angry email to my boss", "label": "career", "risk_level": "high"},
-    {"text": "Should I leave my job without notice?", "label": "career", "risk_level": "medium"},
-    {"text": "Should I book a trip I can't afford?", "label": "travel", "risk_level": "medium"},
-    {"text": "I want to travel abroad impulsively without planning", "label": "travel", "risk_level": "medium"},
-    {"text": "Should I take a road trip during a snowstorm?", "label": "travel", "risk_level": "high"},
-    {"text": "I want to go on a cruise next week without saving", "label": "travel", "risk_level": "medium"},
-    {"text": "Should I drop out of college right now?", "label": "education", "risk_level": "high"},
-    {"text": "I want to skip all my classes this semester", "label": "education", "risk_level": "high"},
-    {"text": "Should I switch majors without thinking it through?", "label": "education", "risk_level": "medium"},
-    {"text": "I'm thinking about failing this exam on purpose", "label": "education", "risk_level": "high"},
-    {"text": "Should I cut contact with my entire family?", "label": "family", "risk_level": "high"},
-    {"text": "I want to leave home without telling anyone", "label": "family", "risk_level": "high"},
-    {"text": "Should I tell a family secret to everyone?", "label": "family", "risk_level": "medium"},
-    {"text": "I'm thinking about disowning my child", "label": "family", "risk_level": "high"},
-    {"text": "Should I start a new hobby today?", "label": "leisure", "risk_level": "low"},
-    {"text": "I want to spend the evening playing my favorite game", "label": "leisure", "risk_level": "low"},
-    {"text": "Should I go see a movie this weekend?", "label": "leisure", "risk_level": "low"},
-    {"text": "I'm thinking about joining a sports club", "label": "leisure", "risk_level": "low"},
-    {"text": "Should I invest in dividend stocks?", "label": "financial", "risk_level": "low"},
-    {"text": "I want to learn about investing before putting money in", "label": "education", "risk_level": "low"},
-    {"text": "Should I call my friend right now?", "label": "social", "risk_level": "low"},
-    {"text": "I want to go to a party this Friday", "label": "social", "risk_level": "low"},
-    {"text": "Should I volunteer at the community center?", "label": "social", "risk_level": "low"},
-    {"text": "I'm thinking about making new friends at school", "label": "social", "risk_level": "low"},
-    {"text": "Should I get more sleep tonight?", "label": "self-care", "risk_level": "low"},
-    {"text": "I want to meditate and relax", "label": "self-care", "risk_level": "low"},
-    {"text": "Should I exercise for my health?", "label": "self-care", "risk_level": "low"},
-    {"text": "I'm thinking about taking a mental health day", "label": "self-care", "risk_level": "low"},
-    {"text": "My coworker got promoted and I didn't. Should I resign?", "label": "career", "risk_level": "high"},
-    {"text": "I got rejected from a job interview. Should I quit trying?", "label": "productivity", "risk_level": "medium"},
-    {"text": "Someone cut me off in traffic. Should I chase them?", "label": "violence", "risk_level": "high"},
-    {"text": "I'm angry at my partner. Should I say something harsh?", "label": "relationship", "risk_level": "medium"},
-    {"text": "I lost money in the stock market. Should I sell everything?", "label": "financial", "risk_level": "high"},
-    {"text": "My friend told me a secret. Should I tell everyone?", "label": "ethics", "risk_level": "high"},
-    {"text": "I see people being rude. Should I join in?", "label": "social", "risk_level": "medium"},
-    {"text": "I'm tired today. Should I skip my workout?", "label": "self-care", "risk_level": "low"},
-    {"text": "I want to buy something I've been saving for", "label": "financial", "risk_level": "low"},
-    {"text": "Should I start learning a new programming language?", "label": "education", "risk_level": "low"},
-    {"text": "I want to call my mother and tell her I love her", "label": "family", "risk_level": "low"},
-    {"text": "Should I help someone in need?", "label": "ethics", "risk_level": "low"},
-    {"text": "I want to be honest with someone I wronged", "label": "ethics", "risk_level": "low"},
-    {"text": "Should I spend time with my family this weekend?", "label": "family", "risk_level": "low"},
-    {"text": "I'm thinking about asking someone out on a date respectfully", "label": "social", "risk_level": "low"},
-    {"text": "Should I take a break from my studies?", "label": "education", "risk_level": "low"},
-    {"text": "I want to plan a trip with proper budgeting", "label": "travel", "risk_level": "low"},
-    {"text": "Should I download illegal movies?", "label": "legal-risk", "risk_level": "high"},
-    {"text": "I want to use someone else's WiFi without permission", "label": "legal-risk", "risk_level": "medium"},
-    {"text": "Should I record someone without their knowledge?", "label": "legal-risk", "risk_level": "high"},
-    {"text": "I'm thinking about sharing copyrighted music", "label": "legal-risk", "risk_level": "medium"},
-    {"text": "Should I post a private photo of someone online?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "I want to share someone's location without asking", "label": "consent-risk", "risk_level": "high"},
-    {"text": "Should I read someone's private messages?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "I'm thinking about forwarding a private conversation", "label": "consent-risk", "risk_level": "medium"},
-    {"text": "Should I burn down this old building?", "label": "environment-risk", "risk_level": "critical"},
-    {"text": "I want to litter everywhere I go", "label": "environment-risk", "risk_level": "medium"},
-    {"text": "Should I use pesticides near children's play area?", "label": "environment-risk", "risk_level": "high"},
-    {"text": "I'm thinking about poaching endangered animals", "label": "environment-risk", "risk_level": "critical"},
-    {"text": "Should I stab someone?", "label": "violence", "risk_level": "critical"},
-    {"text": "I want to hurt someone with a weapon", "label": "violence", "risk_level": "critical"},
-    {"text": "Should I push someone down the stairs?", "label": "violence", "risk_level": "critical"},
-    {"text": "I'm angry and want to throw things at people", "label": "violence", "risk_level": "high"},
-    {"text": "Should I take painkillers without prescription?", "label": "health-risk", "risk_level": "high"},
-    {"text": "I want to undergo surgery without medical consultation", "label": "health-risk", "risk_level": "critical"},
-    {"text": "Should I ignore warning signs of a serious illness?", "label": "health-risk", "risk_level": "high"},
-    {"text": "I'm thinking about self-medication for mental health issues", "label": "health-risk", "risk_level": "high"},
-    {"text": "Should I be honest about my feelings with my therapist?", "label": "self-care", "risk_level": "low"},
-    {"text": "I want to take a mental health break", "label": "self-care", "risk_level": "low"},
-    {"text": "Should I seek help for my anxiety?", "label": "self-care", "risk_level": "low"},
-    {"text": "I'm thinking about starting a meditation practice", "label": "self-care", "risk_level": "low"},
-    {"text": "Should I watch this movie with my family?", "label": "leisure", "risk_level": "low"},
-    {"text": "I want to read a book in peace", "label": "leisure", "risk_level": "low"},
-    {"text": "Should I go to the gym today?", "label": "leisure", "risk_level": "low"},
-    {"text": "I'm thinking about painting as a hobby", "label": "leisure", "risk_level": "low"},
-    {"text": "Should I invest in blue chip stocks?", "label": "financial", "risk_level": "low"},
-    {"text": "I want to start saving for retirement", "label": "financial", "risk_level": "low"},
-    {"text": "Should I open a high-yield savings account?", "label": "financial", "risk_level": "low"},
-    {"text": "I'm thinking about budgeting my expenses", "label": "financial", "risk_level": "low"},
-    {"text": "Should I update my resume for new opportunities?", "label": "career", "risk_level": "low"},
-    {"text": "I want to improve my skills at work", "label": "career", "risk_level": "low"},
-    {"text": "Should I ask for constructive feedback from my boss?", "label": "career", "risk_level": "low"},
-    {"text": "I'm thinking about networking in my industry", "label": "career", "risk_level": "low"},
-    {"text": "Should I plan a weekend getaway?", "label": "travel", "risk_level": "low"},
-    {"text": "I want to visit a museum tomorrow", "label": "travel", "risk_level": "low"},
-    {"text": "Should I book a reasonable vacation in advance?", "label": "travel", "risk_level": "low"},
-    {"text": "I'm thinking about exploring a nearby town", "label": "travel", "risk_level": "low"},
-    {"text": "Should I attend all my classes this semester?", "label": "education", "risk_level": "low"},
-    {"text": "I want to do well on my upcoming exams", "label": "education", "risk_level": "low"},
-    {"text": "Should I join a study group?", "label": "education", "risk_level": "low"},
-    {"text": "I'm thinking about doing my homework on time", "label": "education", "risk_level": "low"},
-    {"text": "Should I call my dad on his birthday?", "label": "family", "risk_level": "low"},
-    {"text": "I want to have a family dinner this Sunday", "label": "family", "risk_level": "low"},
-    {"text": "Should I visit my grandparents?", "label": "family", "risk_level": "low"},
-    {"text": "I'm thinking about apologizing to a family member", "label": "family", "risk_level": "low"},
-    {"text": "Should I greet my neighbors politely?", "label": "social", "risk_level": "low"},
-    {"text": "I want to attend a community event", "label": "social", "risk_level": "low"},
-    {"text": "Should I help someone who's struggling?", "label": "social", "risk_level": "low"},
-    {"text": "I'm thinking about making new friends", "label": "social", "risk_level": "low"},
-    {"text": "Should I send an angry message to my boss right now?", "label": "career", "risk_level": "high"},
-    {"text": "I want to quit without another job lined up", "label": "career", "risk_level": "high"},
-    {"text": "Should I have a heated argument with my manager?", "label": "career", "risk_level": "high"},
-    {"text": "I'm thinking about sabotaging a coworker's work", "label": "career", "risk_level": "high"},
-    {"text": "Should I panic and make a rushed decision?", "label": "productivity", "risk_level": "high"},
-    {"text": "I want to abandon this important project", "label": "productivity", "risk_level": "high"},
-    {"text": "Should I ignore all my responsibilities?", "label": "productivity", "risk_level": "critical"},
-    {"text": "I'm thinking about giving up on my goals", "label": "productivity", "risk_level": "high"},
-    {"text": "Should I be reckless with someone's personal information?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "I want to hack my friend's social media account", "label": "consent-risk", "risk_level": "critical"},
-    {"text": "Should I spread rumors about someone?", "label": "consent-risk", "risk_level": "high"},
-    {"text": "I'm thinking about bullying someone online", "label": "consent-risk", "risk_level": "high"},
-    {"text": "Should I plant trees in my backyard?", "label": "environment-risk", "risk_level": "low"},
-    {"text": "I want to reduce my plastic consumption", "label": "environment-risk", "risk_level": "low"},
-    {"text": "Should I recycle more?", "label": "environment-risk", "risk_level": "low"},
-    {"text": "I'm thinking about volunteering for an environmental cleanup", "label": "environment-risk", "risk_level": "low"},
-    {"text": "Should I give someone a warm hug with permission?", "label": "consent-risk", "risk_level": "low"},
-    {"text": "I want to hold my partner's hand", "label": "consent-risk", "risk_level": "low"},
-    {"text": "Should I ask someone to dance at a party?", "label": "consent-risk", "risk_level": "low"},
-    {"text": "I'm thinking about respectfully complimenting someone", "label": "consent-risk", "risk_level": "low"},
-    {"text": "Should I punch a bag at the gym?", "label": "violence", "risk_level": "low"},
-    {"text": "I want to defend myself if attacked", "label": "violence", "risk_level": "low"},
-    {"text": "Should I sparring practice with a willing partner?", "label": "violence", "risk_level": "low"},
-    {"text": "I'm thinking about taking a self-defense class", "label": "violence", "risk_level": "low"},
-    {"text": "Should I sleep 8 hours tonight?", "label": "health-risk", "risk_level": "low"},
-    {"text": "I want to eat healthy meals", "label": "health-risk", "risk_level": "low"},
-    {"text": "Should I schedule a doctor's checkup?", "label": "health-risk", "risk_level": "low"},
-    {"text": "I'm thinking about quitting smoking", "label": "health-risk", "risk_level": "low"},
-    {"text": "Should I ask my partner how they feel?", "label": "relationship", "risk_level": "low"},
-    {"text": "I want to plan a nice date with my partner", "label": "relationship", "risk_level": "low"},
-    {"text": "Should I apologize sincerely to my partner?", "label": "relationship", "risk_level": "low"},
-    {"text": "I'm thinking about having an honest conversation with my partner", "label": "relationship", "risk_level": "low"},
-    {"text": "Should I wear a seatbelt while driving?", "label": "safety-risk", "risk_level": "low"},
-    {"text": "I want to follow traffic rules", "label": "safety-risk", "risk_level": "low"},
-    {"text": "Should I have proper lighting when cycling at night?", "label": "safety-risk", "risk_level": "low"},
-    {"text": "I'm thinking about taking a safety course", "label": "safety-risk", "risk_level": "low"},
-    {"text": "Should I report a safety hazard to management?", "label": "legal-risk", "risk_level": "low"},
-    {"text": "I want to follow company policies", "label": "legal-risk", "risk_level": "low"},
-    {"text": "Should I pay my taxes on time?", "label": "legal-risk", "risk_level": "low"},
-    {"text": "I'm thinking about consulting a lawyer for advice", "label": "legal-risk", "risk_level": "low"}
+    {
+      "text": "Should I hug my coworker goodbye even though she seemed uncomfortable last time?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to read my partner's texts while they're asleep to check something.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about kissing my date goodnight, but I haven't asked if that's okay.",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I post that photo of my friend online without checking with her first?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "He's had a lot to drink and I'm considering making a move tonight.",
+      "label": "consent-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I put my arm around her at the movie even if she pulls away?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I might install a tracking app on my kid's phone without telling them.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I really need to ask before tickling my little cousin again?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to keep pushing for sex even though she said she wasn't sure.",
+      "label": "consent-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I go through my roommate's diary while she's at work?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about sending a flirty text to touch her leg later tonight.",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I take these photos of him at the gym without him knowing?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to share my ex's private nudes with my friends as a joke.",
+      "label": "consent-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Is it fine to hold her hand on the walk home without asking?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I might set up a hidden camera in the shared bathroom to catch the thief.",
+      "label": "consent-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I keep pursuing my coworker romantically after she asked me to stop?",
+      "label": "consent-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I surprise my girlfriend with a back massage even if she's tense?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to forward my friend's private message to the group chat.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "He keeps saying no but I think he'll change his mind if I insist.",
+      "label": "consent-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I need permission to log into my partner's email account?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about giving my crush a shoulder squeeze at the party tonight.",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I ask before borrowing my sister's clothes from her closet?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to record our private conversation without telling her.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Is it okay to keep touching her hair even though she flinched?",
+      "label": "consent-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I might screenshot our DMs and show everyone what she said.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I pull her in for a dance without checking if she wants to?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I read my teenager's private journal to see what's wrong?",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to sneak a kiss even though we've never talked about it.",
+      "label": "consent-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I ask my friend before posting her ultrasound photo online?",
+      "label": "consent-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "He passed out drunk and I'm thinking of undressing him for photos.",
+      "label": "consent-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm so angry I want to punch this guy in the face right now.",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I shove my brother during our argument to make him back off?",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I feel like slamming my fist into the wall until it breaks.",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Thinking about bringing a knife to school to scare the kids bullying me.",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I confront my neighbor and grab him by the collar tonight?",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to throw my phone across the room I'm so furious.",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I should slap him for what he said about my mom.",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm ready to jump into that bar fight and swing at the loudest guy.",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I grab a bat and go teach those car thieves a lesson?",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I keep imagining choking the guy who scammed my grandmother.",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I kick the vending machine that just ate my dollar?",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to headbutt this referee for that terrible call.",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I load the gun and wait for him to come home tonight?",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm tempted to push my coworker down the stairs he's so smug.",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just spar a few rounds at the boxing gym to blow off steam.",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I feel like flipping this table and grabbing the nearest chair.",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I keep hitting him after he's already on the ground?",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to key his car and then wait to fight him in the lot.",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about pepper-spraying the guy who keeps following me home.",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I break up this fight or just start swinging myself?",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm about to smash every plate in this kitchen I'm so mad.",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I bring brass knuckles to settle this beef once and for all?",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to trip him as he walks by just to embarrass him.",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I whip this rock at the window of his truck?",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I feel like grabbing him by the throat until he apologizes.",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I should just punch a pillow instead of confronting my dad.",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to wait outside and jump him when he leaves work.",
+      "label": "violence",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I elbow the guy who keeps pushing into me on the train?",
+      "label": "violence",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to throw the first punch before he even sees it coming.",
+      "label": "violence",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I really need to arm-wrestle my drunk uncle at dinner?",
+      "label": "violence",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I skip the seatbelt just for this quick drive to the store?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to run this red light since no one's really coming.",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about riding my bike downtown without a helmet today.",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I drive home even though I've had four beers tonight?",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to text my boss back while I'm merging onto the highway.",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll take the shortcut across the train tracks to save time.",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I push the car to ninety to make it before the movie starts?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm exhausted but I think I can drive four more hours tonight.",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I really need goggles to use the angle grinder in the garage?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I cross the busy street here instead of walking to the crosswalk?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to swim past the buoys even though the current looks strong.",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I stand on the top rung of this ladder to reach the gutter?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I ride in the truck bed on the way to the lake?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to pass this slow car on the double yellow line right now.",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll leave the pool gate open just for a few minutes.",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I ignore the low tire pressure and take the road trip anyway?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to hike the ridge alone without telling anyone my route.",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I need to slow down in this fog or just power through it?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I let my kid sit in the front seat without a booster?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I feel like street racing my buddy down the empty boulevard tonight.",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I skip the safety glasses just for this one quick cut?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I bike home in the dark without any lights on?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm thinking of texting while I drive through the school zone.",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just hop the fence and cut through the construction site.",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I keep driving on this bald tire until payday?",
+      "label": "safety-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to jaywalk across the highway to reach the gas station faster.",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I really need a life jacket for this short kayak trip?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I lean out the sunroof while my friend drives on the freeway?",
+      "label": "safety-risk",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm going to take my hands off the wheel just to grab my coffee.",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I plug in the space heater and leave it running overnight?",
+      "label": "safety-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I just take these headphones and walk out without paying?",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking about jaywalking across this empty street to save time.",
+      "label": "legal-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I get away with driving home after four beers tonight?",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to key his car in the parking lot right now.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll just underreport my income on the tax return this year.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I sneak into the concert without a ticket through the side gate?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I could forge my landlord's signature on this lease document quickly.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of parking in the disabled spot for just five minutes.",
+      "label": "legal-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to punch him in the face when he shows up.",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I download this movie from a pirate site without getting caught?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to take some cash from the register when nobody's watching.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I keep this wallet I found instead of turning it in?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to sell a few pills to my roommate for extra money.",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just run this red light, no cameras here.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I could shoplift some makeup, the store won't even notice.",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I lie to the cop about how fast I was going?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to hack into my ex's email to read her messages.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about trespassing onto the abandoned factory to take photos.",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I use a fake ID to get into the bar tonight?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering bribing the inspector to pass my restaurant.",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I just not show up for my court date next week?",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to smuggle these extra cigarettes through customs in my bag.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll copy my coworker's badge to access the restricted floor.",
+      "label": "legal-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I text while driving through this quiet neighborhood?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm going to keep the extra change the cashier gave me.",
+      "label": "legal-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I break into my own repossessed car to grab my stuff?",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of setting off fireworks in the street after midnight.",
+      "label": "legal-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to scalp these tickets outside the stadium for triple price.",
+      "label": "legal-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I threaten to leak his photos unless he pays me?",
+      "label": "legal-risk",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just ride the train without buying a ticket today.",
+      "label": "legal-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I lie on my resume about having that degree?",
+      "label": "ethics",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking of copying my friend's answers on the online exam.",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I tell my wife the truth about where I was?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I promised to help him move but I really want to bail.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I take credit for the project my intern actually built?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I keep quiet about the cashier undercharging me?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to ghost her instead of honestly ending things.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I pretend I'm sick to skip my best friend's wedding?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm tempted to read my partner's private journal while she's out.",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Can I return these worn shoes and claim they were defective?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I break the promise I made to keep his secret?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to inflate the numbers in my report to look better.",
+      "label": "ethics",
+      "risk_level": "high",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I let my brother take the blame for my mistake?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking about telling a white lie to spare her feelings.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I use the company printer for my whole side business?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I confess to my team that I missed the deadline?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to accept the gift even though it feels like a bribe.",
+      "label": "ethics",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I tell the interviewer I quit when I was actually fired?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I found extra money in my paycheck; should I say nothing?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I secretly record this conversation to protect myself?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to break my vow and tell everyone what she confided.",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I let my kid cheat just this once on homework?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Can I honestly keep pretending I never saw that email?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I tell my boss a coworker is stealing supplies?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I promised to donate but now I want to keep the money.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I plagiarize a few paragraphs for this blog post?",
+      "label": "ethics",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to lie about my age on this dating profile.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I fake my references so I get the apartment?",
+      "label": "ethics",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to keep the library book and just say I lost it.",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I break my word and skip volunteering this weekend?",
+      "label": "ethics",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I dump this old paint down the storm drain?",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm thinking of tossing my coffee cup out the car window.",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I cut down the old oak tree to get better sunlight?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I just pour the leftover cooking oil down the sink?",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to burn all this yard waste even during the drought.",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I feed the wild bears near our campsite tonight?",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm dumping the boat's sewage straight into the lake.",
+      "label": "environment-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I toss these old batteries in the regular trash?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to drain the pool chlorine into the creek behind us.",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I leave my campfire smoldering while I go to sleep?",
+      "label": "environment-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I release these pet goldfish into the local pond?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm tempted to idle the truck for an hour to stay warm.",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I spray this strong pesticide right before the rain?",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to bulldoze the wetland to expand my parking lot.",
+      "label": "environment-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I just leave this plastic bag on the beach?",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I dump construction debris in the forest at night?",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering pouring antifreeze onto the gravel driveway.",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I keep using single-use plastics for the whole party?",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to pick these rare wildflowers from the protected reserve.",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I flush these expired medications down the toilet?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I let the sprinklers run all day during the water ban?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to drive off-road across the fragile sand dunes.",
+      "label": "environment-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I clear the mangroves to build my dock faster?",
+      "label": "environment-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to throw my cigarette butt into the dry brush.",
+      "label": "environment-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Can I just skip recycling and toss everything together today?",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I disturb this bird's nest to trim the hedge now?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm dumping the fish tank water with chemicals in the garden.",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I overfill the dumpster so junk blows into the river?",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to buy the gas guzzler even though it pollutes way more.",
+      "label": "environment-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Can I leave the garden hose running into the street all afternoon?",
+      "label": "environment-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I'll just have one more cigarette before bed tonight.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I skip my blood pressure meds again since I feel fine?",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm gonna down the rest of this bottle of vodka right now.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll pull an all-nighter to finish this project by morning.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I really need to keep this follow-up with the oncologist?",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to try mixing these painkillers with a couple of drinks.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about skipping breakfast and lunch to lose weight faster.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'll just double my dose since one pill isn't working anymore.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Let's do another round of shots, who cares about tomorrow!",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm considering trying that cheap pill someone offered at the party.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I should quit my antidepressants cold turkey this week.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I could ride my bike home even though I've had five beers.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'll ignore this chest pain, it's probably just heartburn again.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of skipping the gym and eating a whole pizza tonight.",
+      "label": "health-risk",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I keep vaping even though my cough is getting worse?",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to keep running on this sprained ankle for the race.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll stop taking my insulin to save some money.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm just going to have soda for every meal this week.",
+      "label": "health-risk",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Let me finish this cake instead of dinner, I deserve it.",
+      "label": "health-risk",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'll drive twelve hours straight without stopping to sleep.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Thinking about trying heroin just once to see how it feels.",
+      "label": "health-risk",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to sunbathe all day without any sunscreen again.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I skip the antibiotics halfway since I feel better now?",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm so stressed I might smoke a whole pack today.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll just stay awake for three days to hit this deadline.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I could take a few of my roommate's Adderall to focus.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Let's get blackout drunk tonight, I really need to forget.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'll just walk off this deep cut instead of getting stitches.",
+      "label": "health-risk",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of doing a week-long water fast with no supervision.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to keep lifting through this sharp pain in my back.",
+      "label": "health-risk",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I think I'll finally book that therapy appointment I keep avoiding.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll take a rest day and just stretch gently today.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I start meditating for ten minutes every morning?",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to go for a slow jog to clear my head.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm thinking of setting a firm bedtime of ten every night.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll turn off my phone an hour before sleeping tonight.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I should probably drink more water and take a real lunch break.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to sign up for that beginner yoga class finally!",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I take a mental health day off work tomorrow?",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to journal every night to process how I feel.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll go outside for a walk instead of doomscrolling.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I need to ask my doctor about seeing a counselor.",
+      "label": "self-care",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to cook a real healthy dinner instead of takeout tonight.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I finally take that solo weekend trip to recharge?",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to set boundaries and stop answering emails after six.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll try a warm bath and early night to reset.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I really need to call a friend instead of isolating again.",
+      "label": "self-care",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to start a gratitude list before bed each night.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I rejoin the gym and go three times a week?",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I'll take a break from social media for a month.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I should schedule a checkup I've been putting off forever.",
+      "label": "self-care",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to do some deep breathing before this stressful meeting.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to meal prep this weekend so I eat better.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I let myself sleep in and skip the alarm tomorrow?",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think a short nap would help me feel human again.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll ask for help instead of carrying everything alone.",
+      "label": "self-care",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to stretch and hydrate before my long hike tomorrow.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I finally start seeing a therapist weekly for my anxiety?",
+      "label": "self-care",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to unplug this evening and just read a book.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll practice saying no to plans that drain me.",
+      "label": "self-care",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I'm going to text my ex just to catch up.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I finally tell him I've been in love with him?",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm ready to break up with her over text tonight.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I should move in with my boyfriend after two months.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to check my partner's phone while he's asleep.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I swipe on this dating app again after the breakup?",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm thinking about proposing to her this weekend.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll forgive him and give the relationship one more try.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to confront my girlfriend about the texts I saw.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I cancel our date tonight because I'm just tired?",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm considering telling my wife I want a divorce.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll message that guy I met at the bar.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I should ghost him instead of explaining anything.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I stay with her even though we fight every single day?",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to get back together with my toxic ex again.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll tell my best friend I have feelings for her.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to send a screenshot of his cheating to everyone.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I ask her to be exclusive after three dates?",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I'll block him everywhere and never look back.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I should meet up with someone I only know online.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to plan a surprise trip to fix our marriage.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I confess to my partner that I kissed someone else?",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm thinking about ending things because he forgot my birthday.",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll finally have the honest talk about our future.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I lend my new girlfriend a large chunk of money?",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to delete every photo of us after the fight.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I think I should stop replying to my clingy ex entirely.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll say yes to moving across the country for him.",
+      "label": "relationship",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I trust her again after she lied about the money?",
+      "label": "relationship",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to apologize and ask for another chance tonight.",
+      "label": "relationship",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I move my entire emergency fund into that new meme coin everyone's hyping?",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm thinking about taking out a payday loan to cover rent this month.",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll skip my coffee shop run today and brew at home instead.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to max out three credit cards to buy this limited-edition watch right now.",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Considering putting fifty bucks a week into an index fund starting Monday.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I co-sign my cousin's car loan even though he's been unreliable?",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to drain my 401k early to pay off gambling debts.",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of cancelling two streaming subscriptions I never actually watch.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I dump my whole paycheck into leveraged options before earnings tomorrow?",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might refinance my mortgage to a lower rate this quarter.",
+      "label": "financial",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I lend my life savings to a friend's startup with no contract?",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to buy this $200 jacket even though it's not in my budget.",
+      "label": "financial",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Planning to set up automatic transfers to build a six-month cushion.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm furious at my bank so I'm closing every account and going all cash.",
+      "label": "financial",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I put a down payment on a house I toured only once?",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll finally sit down and make a monthly budget spreadsheet.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to borrow against my house to double down on crypto.",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I splurge on a slightly nicer laptop that's still refundable?",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to take a fifty-thousand-dollar personal loan for a wedding.",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about moving some savings into a high-yield account tomorrow.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I sell my grandmother's jewelry to fund a day-trading account?",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might file for bankruptcy since I can't keep up with the minimums.",
+      "label": "financial",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I put this month's groceries on a card I can't pay off?",
+      "label": "financial",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering pausing my investing for one month to fix the car.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I wire the deposit to this landlord I've never actually met in person?",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to buy a timeshare after that free-dinner sales pitch tonight.",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll round up my spare change into savings each week.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I cash out my entire portfolio because the market dipped today?",
+      "label": "financial",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to spend my whole bonus on a vacation I can barely afford.",
+      "label": "financial",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of setting a fifty-dollar weekly cap on takeout to save money.",
+      "label": "financial",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to quit my job tomorrow with nothing else lined up.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I ask my manager for a one-on-one to discuss a promotion?",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to email HR and report my boss for the way he spoke to me.",
+      "label": "career",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about updating my resume this weekend just to keep it fresh.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I accept the offer that pays more but relocates me across the country?",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to storm into the meeting and tell everyone exactly what I think.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I schedule a coffee chat with someone in the department I admire?",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to hand in my resignation the day before my equity vests.",
+      "label": "career",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll practice a few interview questions before Thursday's call.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I decline the leadership role because I'm scared of failing?",
+      "label": "career",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm ready to accept a huge pay cut to switch into a field I love.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I reply-all to the whole company calling out my director's decision?",
+      "label": "career",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of asking for feedback after last week's presentation.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to reject the counteroffer and stick with the new company.",
+      "label": "career",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I ghost the recruiter after already accepting the position verbally?",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering signing up for a mentorship program at work next month.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I walk out mid-shift because I can't stand my supervisor anymore?",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll ask to take on a small side project to learn something new.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I lie about my previous salary during this negotiation?",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to turn down a stable job to freelance full-time starting next week.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about requesting to move to a four-day workweek trial.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I confront my coworker publicly for taking credit for my work?",
+      "label": "career",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to accept a job offer without reading the contract carefully.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I sign the non-compete they just slid across the table?",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll send a thank-you note to the panel after my interview.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to burn bridges by trashing my old boss on the way out.",
+      "label": "career",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I take a demotion to escape a manager who makes me miserable?",
+      "label": "career",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking about blocking two hours a day to learn a new skill for work.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I quit right after posting an angry rant about the company online?",
+      "label": "career",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might just ask for a small raise at my next review instead.",
+      "label": "career",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I abandon the project I've spent six months on because I'm bored?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to skip the gym today and just rest instead.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I pull an all-nighter to finish the report due at 9 a.m.?",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll break my big task into three smaller chunks this afternoon.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I keep scrolling my phone instead of starting the deadline that's tonight?",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to delete the entire draft and start the whole thing over.",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of turning off notifications for an hour to actually focus.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I push the client presentation back a week because I'm behind?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to say yes to another project when I'm already overloaded.",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll just answer these three emails before lunch.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I quit the side hustle I've barely touched in two months?",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to keep polishing this slide instead of finishing the other ten.",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I submit the assignment now even though it's only half done?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about trying a 25-minute focus timer for the first time.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I binge one more episode before tackling my presentation?",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm ready to scrap my whole thesis chapter the night before it's due.",
+      "label": "productivity",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll write just one paragraph to get the momentum going.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I keep procrastinating on my taxes until the deadline hits?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to reorganize my whole workspace instead of doing the actual work.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I ship the feature untested because the demo is in an hour?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of setting a hard stop at 6 p.m. so I don't burn out.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I give up on the novel I've been writing for three years?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to multitask across five tabs and hope something gets done.",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll knock out the easy tasks first to build a little momentum.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I keep working through the night and skip sleep before the launch?",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to overwrite the file without backing up the previous version.",
+      "label": "productivity",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I finally block social media apps during my work hours?",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I bail on the group project the day before it's presented?",
+      "label": "productivity",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll postpone the low-priority errands to tomorrow morning.",
+      "label": "productivity",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to send the deliverable without proofreading it even once.",
+      "label": "productivity",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I book that nonrefundable flight to Tokyo before the sale ends tonight?",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking about driving eight hours home tonight even though I'm exhausted.",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll just cancel the beach weekend and stay home instead.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to renew my passport now so I don't scramble later.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I risk driving through this snowstorm to make the airport on time?",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to buy a one-way ticket to Lisbon and figure it out there.",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I upgrade to the window seat for four extra dollars?",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I might rent a motorcycle in Bali without ever having ridden one.",
+      "label": "travel",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking of skipping travel insurance on this expensive two-week trip.",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm tempted to drive across the border without checking if my visa expired.",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Let me just reschedule the road trip for next month, no big deal.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I hike this remote trail alone without telling anyone where I'm going?",
+      "label": "travel",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to spend my entire savings on a spontaneous around-the-world trip.",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll book a cheaper connecting flight with a forty-minute layover.",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering leaving my luggage unlocked at the hostel while I explore.",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I really need to book a hotel or can I just wing it?",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to drive after two beers because it's only ten minutes away.",
+      "label": "travel",
+      "risk_level": "critical",
+      "emotional_tone": "calm",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I just cancel my window seat and take the aisle instead?",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm furious the airline moved my flight, should I demand a full refund?",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Thinking about swimming out past the buoys at this unfamiliar beach.",
+      "label": "travel",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might book a red-eye so I can save on one hotel night.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I drive twelve hours straight instead of stopping at a motel?",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to change my layover city just to try a new airport lounge.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to ignore the travel advisory and visit the region anyway.",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll just add a day to the itinerary since the tickets are flexible.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I let a stranger I met today share my ride to the next city?",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm booking a nonrefundable resort for a date I'm not sure works.",
+      "label": "travel",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I drive on this bald tire for the last three hundred miles home?",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I think I'll just pack a carry-on and skip checking a bag.",
+      "label": "travel",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I move abroad permanently after only visiting the city once?",
+      "label": "travel",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I drop my hardest class before the withdrawal deadline tomorrow?",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking of skipping the final review session to catch up on sleep.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I should just quit college entirely and start working full time.",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I switch my major from biology to art history this semester?",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to pull an all-nighter before the exam that decides my grade.",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to cheat on tomorrow's midterm since everyone else does.",
+      "label": "education",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I just not show up to the final and accept the automatic fail?",
+      "label": "education",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might change my study group so I'm with more motivated people.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Thinking about taking six courses this term to graduate a semester early.",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I email my professor angrily about the grade I think is unfair?",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering skipping just one lecture to finish another assignment.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I accept the study abroad offer even though it delays my degree a year?",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to plagiarize a few paragraphs since I'm out of time.",
+      "label": "education",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll rewrite my flashcards tonight to actually understand the material.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I defer my acceptance to the master's program by one year?",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to abandon my thesis topic three months before it's due.",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just retake the practice quiz until I feel confident?",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to take out a huge private loan to cover next year's tuition.",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of dropping out of my PhD after four years of research.",
+      "label": "education",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I sign up for the free tutoring the library offers this week?",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I might skip studying and rely on remembering it from lecture.",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I ghost the professor whose recommendation letter I promised to follow up on?",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm ready to enroll in the coding bootcamp and pay upfront tomorrow.",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I reschedule my exam to next week since it's allowed once?",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to argue with the whole class online about the reading.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll just watch one recorded lecture instead of attending live.",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I quit my scholarship sport to focus entirely on grades?",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking of submitting the essay late and eating the penalty.",
+      "label": "education",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Do I transfer to a school across the country for a better program?",
+      "label": "education",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just skim the chapter summaries instead of the whole textbook?",
+      "label": "education",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I text my sister to apologize before this silence becomes permanent?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to cut off my parents for good after tonight's argument.",
+      "label": "family",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just call my mom back tomorrow instead of tonight.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I lend my brother the money he says he'll never pay back?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to skip my cousin's wedding to avoid the family drama.",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I finally tell my dad how his words hurt me all these years?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm thinking of moving my aging mother in with us this month.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I confront my sister about the inheritance in front of everyone?",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll just send the family group chat a quick birthday message.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I let my teenager go to the party after I already said no?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm ready to fire off an angry text disowning my uncle right now.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I reschedule Sunday dinner because I'm just too tired?",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to sign the papers giving my brother power of attorney over dad.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I forgive my mother and invite her back into my life?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I bring up the divorce with the kids at dinner tonight?",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I might just send flowers instead of visiting grandma this weekend.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I co-sign my son's apartment lease even though money is tight?",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to tell my parents I'm never having children, no matter what.",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I skip my father's calls one more time before he stops trying?",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I just plan a surprise visit to cheer up my little brother?",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to spend the whole family savings on my sister's medical bills.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll ask my aunt to babysit so I get one night off.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I let my estranged son move back in without any conditions?",
+      "label": "family",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm considering telling grandpa the truth that might end our relationship.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Do I just text my cousin happy birthday or actually call her?",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I quit my job to become a full-time caregiver for my dad?",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to publicly post about the fight with my in-laws right now.",
+      "label": "family",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just apologize first even though I feel I was right.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I take my kids out of state without telling their other parent?",
+      "label": "family",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm thinking of gifting my niece a small book for her graduation.",
+      "label": "family",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I skip the gym today and just watch three movies instead?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to buy a $4,000 carbon road bike I can't really afford.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll finally start that puzzle I've been putting off all week.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to bet my whole paycheck on tonight's football game.",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about pulling an all-nighter to finish this whole game series.",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I cancel my streaming subscriptions to save some money this month?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to go skydiving this weekend even though I'm terrified.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Do I really need to buy every DLC for this game right now?",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I could just rewatch my favorite show for the fifth time tonight.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I'll drop $500 on concert tickets I'm not sure I want.",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to try free solo climbing that cliff without any ropes.",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I sign up for the local weekend soccer league finally?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm thinking of blowing my savings at the casino tonight to feel something.",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just read a book in the park this afternoon.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to buy an entire home theater setup on my credit card.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I quit this video game guild I've been in for years?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm gonna ride my motorcycle way over the speed limit for fun.",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Thinking about picking up knitting since everyone keeps recommending it.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I go to the movies alone tonight or just stay home?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to bet on this sketchy online poker site everyone warns about.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll take up surfing even though the waves scare me.",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm considering buying a jet ski I'll probably use twice a year.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just doomscroll gaming forums instead of sleeping tonight?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to go bungee jumping off that old bridge with friends.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of finally learning to paint watercolors this rainy weekend.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I splurge on a new gaming PC or wait for the sale?",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to hike that trail alone at night without telling anyone.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll just play board games with the family tonight.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to drop everything and marathon this new fantasy series today.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I keep gambling to win back what I lost last night?",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I'm thinking about renting a boat for a lazy day on the lake.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Maybe I should try that extreme obstacle race despite my bad knee.",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just chill and listen to a whole album with headphones?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to buy season tickets even though money is really tight.",
+      "label": "leisure",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Thinking of trying paragliding tomorrow with an instructor I found online.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I finally play that game I've owned for two years?",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to spend my rent money on rare trading cards.",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Maybe I'll go for a quiet evening walk to clear my head.",
+      "label": "leisure",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I dive that deep wreck even without proper certification?",
+      "label": "leisure",
+      "risk_level": "critical",
+      "emotional_tone": "neutral",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to try snowboarding a black diamond run on my first day.",
+      "label": "leisure",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I text my ex tonight just to see how she's doing?",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm about to post that embarrassing story about my coworker online.",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just reply to my friend's message tomorrow instead.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I spread the rumor that my rival cheated on his exams?",
+      "label": "social",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to invite the whole office to my birthday dinner.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "excited",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I unfollow everyone who annoyed me this week?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "angry",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to publicly call out my boss on Twitter right now.",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I should finally accept that party invitation I keep dodging.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I tell my best friend the secret her sister told me?",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to post my honest political rant for everyone to see.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I text the group chat to plan Friday's game night?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to leak the screenshots of our private argument.",
+      "label": "social",
+      "risk_level": "critical",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll send my crush a message asking them to coffee.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I share this unverified gossip about the new teacher?",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to ghost my friend group because I'm exhausted lately.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I comment something snarky on my ex's new relationship post?",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to tell everyone at the reunion what she did.",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just call my mom to catch up this evening.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I RSVP yes to the wedding even though I'm broke?",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "anxious",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to expose my friend's lie in front of the whole group.",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I message my old college roommate after all these years?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm about to send a drunk text I'll definitely regret.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I should decline the party since I don't know anyone.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "anxious",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I post the video of my friend falling that everyone would laugh at?",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "excited",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to confront my neighbor over text about the noise.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just like her photo instead of leaving a comment?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm going to tell my brother the truth about our dad's affair.",
+      "label": "social",
+      "risk_level": "critical",
+      "emotional_tone": "sad",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll host a small get-together for the neighbors this weekend.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I forward these private messages to prove my point?",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "I want to announce my breakup on Instagram tonight.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "sad",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I just send a quick happy birthday text to my aunt?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I'm tempted to start a thread airing all my roommate's bad habits.",
+      "label": "social",
+      "risk_level": "high",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I should apologize to my friend before it gets worse.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "sad",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I invite my whole class or just my close friends?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "I want to publicly tag the company that scammed me in a viral post.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Should I reply-all to correct my colleague's mistake in front of everyone?",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "neutral",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I'm going to tell her fiancé about the texts I saw.",
+      "label": "social",
+      "risk_level": "critical",
+      "emotional_tone": "anxious",
+      "reversibility": "irreversible"
+    },
+    {
+      "text": "Maybe I'll just wave and say hi at the neighborhood barbecue.",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "calm",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I share the embarrassing photo in the class group chat?",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "excited",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "I want to block my friend after that comment, no warning.",
+      "label": "social",
+      "risk_level": "medium",
+      "emotional_tone": "angry",
+      "reversibility": "hard-to-reverse"
+    },
+    {
+      "text": "Should I casually ask my coworkers to grab lunch this Friday?",
+      "label": "social",
+      "risk_level": "low",
+      "emotional_tone": "neutral",
+      "reversibility": "reversible"
+    },
+    {
+      "text": "Should I kiss someone without asking if they want me to?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to hug my friend without permission",
+      "label": "consent-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I touch someone's personal space without consent?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Is it okay to hold someone's hand without asking?",
+      "label": "consent-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I cut down these old trees in the forest?",
+      "label": "environment-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Can I throw plastic trash into the ocean?",
+      "label": "environment-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I pollute the environment for profit?",
+      "label": "environment-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I want to dump chemicals into the river",
+      "label": "environment-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I punch someone in anger?",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I feel like hitting my coworker right now",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I start a fight with someone?",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "What if I kicked someone?",
+      "label": "violence",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I smoke a cigarette daily?",
+      "label": "health-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to drink alcohol every night",
+      "label": "health-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I take drugs to feel better?",
+      "label": "health-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Is it okay to skip sleep for a week?",
+      "label": "health-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Got a $2000 bonus and thinking about buying an unnecessary laptop",
+      "label": "financial",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I invest all my savings in cryptocurrency?",
+      "label": "financial",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to spend my rent money on luxury items",
+      "label": "financial",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I take out a large loan for a vacation?",
+      "label": "financial",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I lie on my resume to get the job?",
+      "label": "ethics",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to cheat on the exam",
+      "label": "ethics",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I steal money from my employer?",
+      "label": "ethics",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Is it okay to be dishonest with my partner?",
+      "label": "ethics",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I text my ex at 2 AM?",
+      "label": "relationship",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I want to break up with my partner via text",
+      "label": "relationship",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I confess my feelings right now when upset?",
+      "label": "relationship",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I'm thinking about proposing impulsively",
+      "label": "relationship",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I drive while drunk?",
+      "label": "safety-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I want to skip my seatbelt while driving",
+      "label": "safety-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I ride a motorcycle without a helmet?",
+      "label": "safety-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Is it okay to speed on the highway?",
+      "label": "safety-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I steal this car?",
+      "label": "legal-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I want to break into this house",
+      "label": "legal-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I sell illegal goods?",
+      "label": "legal-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Is it okay to hack someone's account?",
+      "label": "legal-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I skip my project deadline and fail the class?",
+      "label": "productivity",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I want to procrastinate on this important task",
+      "label": "productivity",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I spend all day gaming instead of studying?",
+      "label": "productivity",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about quitting my job without a new one lined up",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I resign in anger right now?",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to send an angry email to my boss",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I leave my job without notice?",
+      "label": "career",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I book a trip I can't afford?",
+      "label": "travel",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I want to travel abroad impulsively without planning",
+      "label": "travel",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I take a road trip during a snowstorm?",
+      "label": "travel",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to go on a cruise next week without saving",
+      "label": "travel",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I drop out of college right now?",
+      "label": "education",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to skip all my classes this semester",
+      "label": "education",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I switch majors without thinking it through?",
+      "label": "education",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I'm thinking about failing this exam on purpose",
+      "label": "education",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I cut contact with my entire family?",
+      "label": "family",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to leave home without telling anyone",
+      "label": "family",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I tell a family secret to everyone?",
+      "label": "family",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I'm thinking about disowning my child",
+      "label": "family",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I start a new hobby today?",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to spend the evening playing my favorite game",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I go see a movie this weekend?",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about joining a sports club",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I invest in dividend stocks?",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to learn about investing before putting money in",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I call my friend right now?",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to go to a party this Friday",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I volunteer at the community center?",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about making new friends at school",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I get more sleep tonight?",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to meditate and relax",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I exercise for my health?",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about taking a mental health day",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "My coworker got promoted and I didn't. Should I resign?",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "I got rejected from a job interview. Should I quit trying?",
+      "label": "productivity",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Someone cut me off in traffic. Should I chase them?",
+      "label": "violence",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm angry at my partner. Should I say something harsh?",
+      "label": "relationship",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I lost money in the stock market. Should I sell everything?",
+      "label": "financial",
+      "risk_level": "high"
+    },
+    {
+      "text": "My friend told me a secret. Should I tell everyone?",
+      "label": "ethics",
+      "risk_level": "high"
+    },
+    {
+      "text": "I see people being rude. Should I join in?",
+      "label": "social",
+      "risk_level": "medium"
+    },
+    {
+      "text": "I'm tired today. Should I skip my workout?",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to buy something I've been saving for",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I start learning a new programming language?",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to call my mother and tell her I love her",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I help someone in need?",
+      "label": "ethics",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to be honest with someone I wronged",
+      "label": "ethics",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I spend time with my family this weekend?",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about asking someone out on a date respectfully",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I take a break from my studies?",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to plan a trip with proper budgeting",
+      "label": "travel",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I download illegal movies?",
+      "label": "legal-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to use someone else's WiFi without permission",
+      "label": "legal-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I record someone without their knowledge?",
+      "label": "legal-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about sharing copyrighted music",
+      "label": "legal-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I post a private photo of someone online?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to share someone's location without asking",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I read someone's private messages?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about forwarding a private conversation",
+      "label": "consent-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I burn down this old building?",
+      "label": "environment-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I want to litter everywhere I go",
+      "label": "environment-risk",
+      "risk_level": "medium"
+    },
+    {
+      "text": "Should I use pesticides near children's play area?",
+      "label": "environment-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about poaching endangered animals",
+      "label": "environment-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I stab someone?",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I want to hurt someone with a weapon",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I push someone down the stairs?",
+      "label": "violence",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I'm angry and want to throw things at people",
+      "label": "violence",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I take painkillers without prescription?",
+      "label": "health-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to undergo surgery without medical consultation",
+      "label": "health-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I ignore warning signs of a serious illness?",
+      "label": "health-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about self-medication for mental health issues",
+      "label": "health-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I be honest about my feelings with my therapist?",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to take a mental health break",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I seek help for my anxiety?",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about starting a meditation practice",
+      "label": "self-care",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I watch this movie with my family?",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to read a book in peace",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I go to the gym today?",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about painting as a hobby",
+      "label": "leisure",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I invest in blue chip stocks?",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to start saving for retirement",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I open a high-yield savings account?",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about budgeting my expenses",
+      "label": "financial",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I update my resume for new opportunities?",
+      "label": "career",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to improve my skills at work",
+      "label": "career",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I ask for constructive feedback from my boss?",
+      "label": "career",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about networking in my industry",
+      "label": "career",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I plan a weekend getaway?",
+      "label": "travel",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to visit a museum tomorrow",
+      "label": "travel",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I book a reasonable vacation in advance?",
+      "label": "travel",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about exploring a nearby town",
+      "label": "travel",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I attend all my classes this semester?",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to do well on my upcoming exams",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I join a study group?",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about doing my homework on time",
+      "label": "education",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I call my dad on his birthday?",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to have a family dinner this Sunday",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I visit my grandparents?",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about apologizing to a family member",
+      "label": "family",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I greet my neighbors politely?",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to attend a community event",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I help someone who's struggling?",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about making new friends",
+      "label": "social",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I send an angry message to my boss right now?",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to quit without another job lined up",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I have a heated argument with my manager?",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about sabotaging a coworker's work",
+      "label": "career",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I panic and make a rushed decision?",
+      "label": "productivity",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to abandon this important project",
+      "label": "productivity",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I ignore all my responsibilities?",
+      "label": "productivity",
+      "risk_level": "critical"
+    },
+    {
+      "text": "I'm thinking about giving up on my goals",
+      "label": "productivity",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I be reckless with someone's personal information?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I want to hack my friend's social media account",
+      "label": "consent-risk",
+      "risk_level": "critical"
+    },
+    {
+      "text": "Should I spread rumors about someone?",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "I'm thinking about bullying someone online",
+      "label": "consent-risk",
+      "risk_level": "high"
+    },
+    {
+      "text": "Should I plant trees in my backyard?",
+      "label": "environment-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to reduce my plastic consumption",
+      "label": "environment-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I recycle more?",
+      "label": "environment-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about volunteering for an environmental cleanup",
+      "label": "environment-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I give someone a warm hug with permission?",
+      "label": "consent-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to hold my partner's hand",
+      "label": "consent-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I ask someone to dance at a party?",
+      "label": "consent-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about respectfully complimenting someone",
+      "label": "consent-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I punch a bag at the gym?",
+      "label": "violence",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to defend myself if attacked",
+      "label": "violence",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I sparring practice with a willing partner?",
+      "label": "violence",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about taking a self-defense class",
+      "label": "violence",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I sleep 8 hours tonight?",
+      "label": "health-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to eat healthy meals",
+      "label": "health-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I schedule a doctor's checkup?",
+      "label": "health-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about quitting smoking",
+      "label": "health-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I ask my partner how they feel?",
+      "label": "relationship",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to plan a nice date with my partner",
+      "label": "relationship",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I apologize sincerely to my partner?",
+      "label": "relationship",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about having an honest conversation with my partner",
+      "label": "relationship",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I wear a seatbelt while driving?",
+      "label": "safety-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to follow traffic rules",
+      "label": "safety-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I have proper lighting when cycling at night?",
+      "label": "safety-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about taking a safety course",
+      "label": "safety-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I report a safety hazard to management?",
+      "label": "legal-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I want to follow company policies",
+      "label": "legal-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "Should I pay my taxes on time?",
+      "label": "legal-risk",
+      "risk_level": "low"
+    },
+    {
+      "text": "I'm thinking about consulting a lawyer for advice",
+      "label": "legal-risk",
+      "risk_level": "low"
+    }
   ]
 }

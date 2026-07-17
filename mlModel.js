@@ -280,6 +280,26 @@ const CONSEQUENCE_TEMPLATES = {
 
 // ==================== ML MODEL INFERENCE (NAIVE BAYES) ====================
 
+// Score one target (category / risk / tone / reversibility) against the text
+// tokens: log-prior + summed log-likelihoods, argmax, softmax confidence.
+const scoreTarget = (tokens, termIndex, priors, featureProbs) => {
+  if (!priors || !featureProbs) return null;
+  const scores = [...priors];
+  tokens.forEach((token) => {
+    const termIdx = termIndex.get(token);
+    if (termIdx !== undefined) {
+      for (let c = 0; c < featureProbs.length; c++) {
+        if (featureProbs[c] && featureProbs[c][termIdx] !== undefined) scores[c] += featureProbs[c][termIdx];
+      }
+    }
+  });
+  let bestIdx = 0;
+  for (let i = 1; i < scores.length; i++) if (scores[i] > scores[bestIdx]) bestIdx = i;
+  const max = scores[bestIdx];
+  const denom = scores.reduce((sum, s) => sum + Math.exp(s - max), 0);
+  return { idx: bestIdx, confidence: 1 / denom };
+};
+
 const predictWithTrainedModel = (text) => {
   if (!trainedModel || !trainedModel.model || !trainedModel.vocabulary) {
     return null;
@@ -287,86 +307,37 @@ const predictWithTrainedModel = (text) => {
 
   try {
     const tokens = tokenizeWithFiltering(text);
-    
+
     if (tokens.length === 0) {
       return null;
     }
 
-    const vocabulary = trainedModel.vocabulary;
     const model = trainedModel.model;
     const encodings = trainedModel.encodings;
-    
-    // Calculate scores for each category
-    const categoryScores = [...model.categoryPriors];
-    const numCategories = categoryScores.length;
-    
-    tokens.forEach(token => {
-      const termIdx = vocabulary.indexOf(token);
-      if (termIdx !== -1) {
-        for (let catIdx = 0; catIdx < numCategories; catIdx++) {
-          if (model.categoryFeatureProbs[catIdx] && model.categoryFeatureProbs[catIdx][termIdx] !== undefined) {
-            categoryScores[catIdx] += model.categoryFeatureProbs[catIdx][termIdx];
-          }
-        }
-      }
-    });
-
-    // Get best category
-    let bestCategoryIdx = 0;
-    let bestCategoryScore = categoryScores[0];
-    for (let i = 1; i < categoryScores.length; i++) {
-      if (categoryScores[i] > bestCategoryScore) {
-        bestCategoryScore = categoryScores[i];
-        bestCategoryIdx = i;
-      }
+    // Cache a Map for O(1) token lookups instead of vocabulary.indexOf per token.
+    if (!trainedModel.__termIndex) {
+      trainedModel.__termIndex = new Map(trainedModel.vocabulary.map((t, i) => [t, i]));
     }
+    const termIndex = trainedModel.__termIndex;
 
-    // Calculate risk scores
-    const riskScores = [...model.riskPriors];
-    const numRisks = riskScores.length;
-    
-    tokens.forEach(token => {
-      const termIdx = vocabulary.indexOf(token);
-      if (termIdx !== -1) {
-        for (let riskIdx = 0; riskIdx < numRisks; riskIdx++) {
-          if (model.riskFeatureProbs[riskIdx] && model.riskFeatureProbs[riskIdx][termIdx] !== undefined) {
-            riskScores[riskIdx] += model.riskFeatureProbs[riskIdx][termIdx];
-          }
-        }
-      }
-    });
+    const cat = scoreTarget(tokens, termIndex, model.categoryPriors, model.categoryFeatureProbs);
+    const risk = scoreTarget(tokens, termIndex, model.riskPriors, model.riskFeatureProbs);
+    if (!cat || !risk) return null;
 
-    // Get best risk level
-    let bestRiskIdx = 0;
-    let bestRiskScore = riskScores[0];
-    for (let i = 1; i < riskScores.length; i++) {
-      if (riskScores[i] > bestRiskScore) {
-        bestRiskScore = riskScores[i];
-        bestRiskIdx = i;
-      }
-    }
-
-    // Calculate confidence scores using softmax
-    const softmax = (scores) => {
-      const maxScore = Math.max(...scores);
-      const exp = scores.map(s => Math.exp(s - maxScore));
-      const sum = exp.reduce((a, b) => a + b, 0);
-      return exp.map(e => e / sum);
-    };
-
-    const categoryProbs = softmax(categoryScores);
-    const riskProbs = softmax(riskScores);
-    
-    const category = encodings.idxToCategory[bestCategoryIdx];
-    const riskLevel = encodings.idxToRisk[bestRiskIdx];
-    const categoryConfidence = categoryProbs[bestCategoryIdx];
-    const riskConfidence = riskProbs[bestRiskIdx];
+    // New ML targets (v3 model). Older exported models won't have these —
+    // the fields stay null and analyzeDecision falls back to heuristics.
+    const tone = scoreTarget(tokens, termIndex, model.tonePriors, model.toneFeatureProbs);
+    const rev = scoreTarget(tokens, termIndex, model.reversibilityPriors, model.reversibilityFeatureProbs);
 
     return {
-      category,
-      riskLevel,
-      categoryConfidence,
-      riskConfidence,
+      category: encodings.idxToCategory[cat.idx],
+      riskLevel: encodings.idxToRisk[risk.idx],
+      categoryConfidence: cat.confidence,
+      riskConfidence: risk.confidence,
+      emotionalTone: tone && encodings.idxToTone ? encodings.idxToTone[tone.idx] : null,
+      toneConfidence: tone ? tone.confidence : null,
+      reversibility: rev && encodings.idxToReversibility ? encodings.idxToReversibility[rev.idx] : null,
+      reversibilityConfidence: rev ? rev.confidence : null,
       modelUsed: 'naive-bayes'
     };
   } catch (error) {
@@ -558,6 +529,10 @@ const buildHeuristicPrediction = (text) => {
       riskLevel: 'low',
       categoryConfidence: 0.35,
       riskConfidence: 0.35,
+      emotionalTone: 'neutral',
+      toneConfidence: 0.35,
+      reversibility: 'reversible',
+      reversibilityConfidence: 0.35,
       modelUsed: 'heuristic'
     };
   }
@@ -601,11 +576,34 @@ const buildHeuristicPrediction = (text) => {
   else if (riskScore >= 52) riskLevel = 'high';
   else if (riskScore >= 28) riskLevel = 'medium';
 
+  // Rough tone/reversibility estimates so the fallback still returns every output.
+  const toneSets = {
+    angry: ['angry', 'furious', 'hate', 'rage', 'mad', 'revenge'],
+    anxious: ['worried', 'anxious', 'scared', 'nervous', 'afraid', 'stressed'],
+    excited: ['excited', 'cant', 'wait', 'amazing', 'awesome', 'finally'],
+    sad: ['sad', 'depressed', 'lonely', 'hopeless', 'cry', 'miss'],
+    calm: ['maybe', 'thinking', 'consider', 'plan', 'wonder'],
+  };
+  let emotionalTone = 'neutral';
+  let toneBest = 0;
+  for (const [toneName, words] of Object.entries(toneSets)) {
+    const hits = tokens.reduce((s, t) => s + (words.includes(t) ? 1 : 0), 0);
+    if (hits > toneBest) { toneBest = hits; emotionalTone = toneName; }
+  }
+  const irreversibleCats = new Set(['violence', 'consent-risk', 'legal-risk', 'safety-risk']);
+  const reversibility = irreversibleCats.has(bestCategory) && riskLevel !== 'low'
+    ? 'irreversible'
+    : (riskLevel === 'high' || riskLevel === 'critical') ? 'hard-to-reverse' : 'reversible';
+
   return {
     category: bestCategory,
     riskLevel,
     categoryConfidence: Math.min(0.92, 0.4 + (bestCategoryScore * 0.12)),
     riskConfidence: Math.min(0.9, 0.38 + (Math.max(riskScore, 0) / 100) * 0.5),
+    emotionalTone,
+    toneConfidence: Math.min(0.8, 0.4 + toneBest * 0.15),
+    reversibility,
+    reversibilityConfidence: 0.5,
     modelUsed: 'heuristic'
   };
 };
@@ -657,6 +655,10 @@ const analyzeDecision = (text) => {
     intervention: intervention,
     consequences: consequences,
 
+    // New ML-predicted outputs (Naive Bayes, same model family as category/risk)
+    emotionalTone: prediction.emotionalTone || null,
+    reversibility: prediction.reversibility || null,
+
     // Metadata
     text,
     category: prediction.category,
@@ -665,7 +667,9 @@ const analyzeDecision = (text) => {
     timestamp,
     confidence: {
       category: Math.round(prediction.categoryConfidence * 100),
-      risk: Math.round(prediction.riskConfidence * 100)
+      risk: Math.round(prediction.riskConfidence * 100),
+      tone: prediction.toneConfidence != null ? Math.round(prediction.toneConfidence * 100) : null,
+      reversibility: prediction.reversibilityConfidence != null ? Math.round(prediction.reversibilityConfidence * 100) : null
     },
     // Backward compatibility
     consequenceSeverity: prediction.riskLevel.toUpperCase()

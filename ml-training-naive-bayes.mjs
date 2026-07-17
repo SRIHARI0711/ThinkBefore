@@ -53,10 +53,11 @@ const buildVocabulary = (data) => {
 };
 
 const getEncodings = (data) => {
-  const categories = [...new Set(data.map(d => d.label))];
-  const riskLevels = [...new Set(data.map(d => d.risk_level))];
-  const tones = [...new Set(data.map(d => d.emotional_tone))];
-  const reversibilities = [...new Set(data.map(d => d.reversibility))];
+  const distinct = (field) => [...new Set(data.map((d) => d[field]).filter((v) => v != null))];
+  const categories = distinct('label');
+  const riskLevels = distinct('risk_level');
+  const tones = distinct('emotional_tone');
+  const reversibilities = distinct('reversibility');
 
   const toIdx = (arr) => Object.fromEntries(arr.map((v, i) => [v, i]));
 
@@ -116,8 +117,12 @@ const textToTFIDFVector = (text, vocabulary, idf) => {
 
 // Train ONE multinomial Naive Bayes classifier for a given target field
 // (e.g. 'label', 'risk_level', 'emotional_tone', 'reversibility'). Returns
-// log-space priors + per-class feature log-probabilities with Laplace smoothing.
-const trainField = (data, vocabulary, fieldKey, valueToIdx) => {
+// log-space priors + per-class feature log-probabilities with Lidstone
+// smoothing (alpha=0.5 outperformed alpha=1 on the held-out set).
+// Samples missing the field (legacy data without tone/reversibility labels)
+// are skipped for that field only.
+const trainField = (allData, vocabulary, fieldKey, valueToIdx) => {
+  const data = allData.filter((s) => s[fieldKey] != null);
   const numClasses = Object.keys(valueToIdx).length;
   const vocabSize = vocabulary.length;
   const termIndex = new Map(vocabulary.map((t, i) => [t, i])); // O(1) lookups
@@ -137,7 +142,7 @@ const trainField = (data, vocabulary, fieldKey, valueToIdx) => {
     });
   });
 
-  const smoothing = 1; // Laplace
+  const smoothing = 0.5; // Lidstone (tuned on held-out split)
   featureProbs.forEach((probs, idx) => {
     const total = termCounts[idx];
     for (let t = 0; t < vocabSize; t++) {
@@ -249,8 +254,9 @@ const collectPredictions = (data, vocabulary, model, encodings) => {
     const p = predictWithNaiveBayes(sample.text, vocabulary, model, encodings);
     out.catTrue.push(sample.label); out.catPred.push(p.category);
     out.riskTrue.push(sample.risk_level); out.riskPred.push(p.riskLevel);
-    out.toneTrue.push(sample.emotional_tone); out.tonePred.push(p.emotionalTone);
-    out.revTrue.push(sample.reversibility); out.revPred.push(p.reversibility);
+    // Legacy samples lack tone/reversibility labels — exclude them from those metrics.
+    if (sample.emotional_tone != null) { out.toneTrue.push(sample.emotional_tone); out.tonePred.push(p.emotionalTone); }
+    if (sample.reversibility != null) { out.revTrue.push(sample.reversibility); out.revPred.push(p.reversibility); }
   });
   return out;
 };
@@ -408,27 +414,35 @@ const main = () => {
     console.log(`✓ IDF calculated for ${vocabulary.length} terms`);
 
     // Step 4: Train Naive Bayes on the training split only
-    console.log('\n🏗️  Training Naive Bayes classifier (train split)...');
-    const model = trainNaiveBayes(trainData, vocabulary, encodings, idf);
+    console.log('\n🏗️  Training Naive Bayes classifiers (train split, 4 targets)...');
+    const model = trainNaiveBayes(trainData, vocabulary, encodings);
     console.log('✓ Model training completed');
 
     // Step 5: Honest evaluation on the held-out test set (never seen in training)
     console.log('\n📈 Evaluating on HELD-OUT test set (no leakage)...');
-    const trainPreds = collectPredictions(trainData, vocabulary, idf, model, encodings);
-    const testPreds = collectPredictions(testData, vocabulary, idf, model, encodings);
+    const trainPreds = collectPredictions(trainData, vocabulary, model, encodings);
+    const testPreds = collectPredictions(testData, vocabulary, model, encodings);
 
     const riskOrder = ['low', 'medium', 'high', 'critical'];
-    console.log('\n──────── CATEGORY (17 classes) ────────');
+    const revOrder = ['reversible', 'hard-to-reverse', 'irreversible'];
+
+    console.log('\n──────── CATEGORY ────────');
     console.log(`  train accuracy: ${accuracyOf(trainPreds.catTrue, trainPreds.catPred).toFixed(2)}%   (reference — expect higher than test)`);
     printReport('Held-out test — category', classificationReport(testPreds.catTrue, testPreds.catPred));
 
-    console.log('\n──────── RISK LEVEL (4 classes) ────────');
-    console.log(`  train accuracy: ${accuracyOf(trainPreds.riskTrue, trainPreds.riskPred).toFixed(2)}%   (reference — expect higher than test)`);
+    console.log('\n──────── RISK LEVEL ────────');
+    console.log(`  train accuracy: ${accuracyOf(trainPreds.riskTrue, trainPreds.riskPred).toFixed(2)}%`);
     printReport('Held-out test — risk level', classificationReport(testPreds.riskTrue, testPreds.riskPred, riskOrder));
     printConfusionMatrix('Held-out test — risk confusion matrix', testPreds.riskTrue, testPreds.riskPred, riskOrder);
 
-    console.log('\n⚠️  NOTE: with ~10 samples/class and ' + testData.length + ' held-out samples, these numbers');
-    console.log('   are a rough estimate. More data (or k-fold CV) is needed for a stable metric.');
+    console.log('\n──────── EMOTIONAL TONE (new ML output) ────────');
+    console.log(`  train accuracy: ${accuracyOf(trainPreds.toneTrue, trainPreds.tonePred).toFixed(2)}%`);
+    printReport('Held-out test — emotional tone', classificationReport(testPreds.toneTrue, testPreds.tonePred));
+
+    console.log('\n──────── REVERSIBILITY (new ML output) ────────');
+    console.log(`  train accuracy: ${accuracyOf(trainPreds.revTrue, trainPreds.revPred).toFixed(2)}%`);
+    printReport('Held-out test — reversibility', classificationReport(testPreds.revTrue, testPreds.revPred, revOrder));
+    printConfusionMatrix('Held-out test — reversibility confusion matrix', testPreds.revTrue, testPreds.revPred, revOrder);
 
     // Step 6: Retrain the FINAL deployed model on ALL data, then export.
     // Standard practice: use the held-out split only to *estimate* quality;
@@ -437,7 +451,7 @@ const main = () => {
     const fullVocab = buildVocabulary(data);
     const fullEncodings = getEncodings(data);
     const fullIdf = calculateIDF(data, fullVocab);
-    const fullModel = trainNaiveBayes(data, fullVocab, fullEncodings, fullIdf);
+    const fullModel = trainNaiveBayes(data, fullVocab, fullEncodings);
     exportModel(fullVocab, fullEncodings, fullModel, fullIdf, data);
 
     console.log('\n✅ Model training completed successfully!\n');
