@@ -47,16 +47,41 @@ export default function BrainBackground({ density = 1, interactive = true }) {
     const LINK_COLOR = '95, 145, 240';
     const SIGNAL_COLOR = '245, 158, 11';
 
+    // The FontAwesome brain path does not fill its 576x512 viewBox
+    // symmetrically, so we measure the path's real bounding box once and
+    // center THAT (rather than the viewBox) to place the visible brain dead
+    // center. Falls back to the full viewBox if getBBox is unavailable.
+    const measurePathBBox = () => {
+      try {
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('width', '0');
+        svg.setAttribute('height', '0');
+        svg.style.position = 'absolute';
+        svg.style.left = '-9999px';
+        const p = document.createElementNS(svgNS, 'path');
+        p.setAttribute('d', BRAIN_PATH);
+        svg.appendChild(p);
+        document.body.appendChild(svg);
+        const bb = p.getBBox();
+        document.body.removeChild(svg);
+        if (bb && bb.width > 0 && bb.height > 0) return bb;
+      } catch (e) { /* ignore */ }
+      return { x: 0, y: 0, width: VB_W, height: VB_H };
+    };
+    const pathBBox = measurePathBBox();
+
     const buildBrain = () => {
-      // Fit the brain into a large centred box (device px).
+      // Fit the brain's ACTUAL shape into a large centred box (device px).
       const boxW = Math.min(CW * 0.66, 760 * dpr);
       const boxH = Math.min(CH * 0.78, 680 * dpr);
-      const s = Math.min(boxW / VB_W, boxH / VB_H);
-      const bw = VB_W * s;
-      const bh = VB_H * s;
-      const tx = (CW - bw) / 2;
-      const ty = CH * 0.47 - bh / 2;
-      box = { x: tx, y: ty, w: bw, h: bh };
+      const s = Math.min(boxW / pathBBox.width, boxH / pathBBox.height);
+      const bw = pathBBox.width * s;
+      const bh = pathBBox.height * s;
+      // Place so the visible brain center lands at (CW/2, CH*0.47).
+      const tx = CW / 2 - (pathBBox.x + pathBBox.width / 2) * s;
+      const ty = CH * 0.47 - (pathBBox.y + pathBBox.height / 2) * s;
+      box = { x: CW / 2 - bw / 2, y: CH * 0.47 - bh / 2, w: bw, h: bh };
       linkDist = bw * 0.11;
 
       const raw = new Path2D(BRAIN_PATH);
