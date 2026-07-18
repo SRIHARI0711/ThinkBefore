@@ -278,14 +278,17 @@ export default function BrainBackground({ density = 1, interactive = true }) {
     const onMouseLeave = () => { mouseRef.current = { x: -99999, y: -99999 }; };
     const onScroll = () => {
       const el = document.scrollingElement || document.documentElement;
+      const st = Math.max(el.scrollTop, document.body.scrollTop || 0);
       const vh = el.clientHeight || window.innerHeight || 1;
-      scrollRef.current = Math.max(0, Math.min(1.4, el.scrollTop / vh));
+      scrollRef.current = Math.max(0, Math.min(1.4, st / vh));
     };
 
     resize();
     onScroll();
     window.addEventListener('resize', resize);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    // capture-phase: body is its own scroll container (overflow-x:hidden on
+    // html+body) and its scroll events don't bubble to window
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     if (interactive) {
       window.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseleave', onMouseLeave);
@@ -303,7 +306,7 @@ export default function BrainBackground({ density = 1, interactive = true }) {
       running = false;
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', resize);
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll, { capture: true });
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseleave', onMouseLeave);
     };

@@ -6,9 +6,7 @@ import './styles.css';
 import { analyzeDecision, loadModel } from './mlModel.js';
 import { analyzeJournal } from './journalAnalytics.js';
 import { accuracyColor as accuracyColorFor } from './journalAnalytics.js';
-import AnimatedBackground from './AnimatedBackground.jsx';
-import NeuralBackground from './NeuralBackground.jsx';
-import BrainBackground from './BrainBackground.jsx';
+import Brain3DBackground from './Brain3DBackground.jsx';
 import InsightsDashboard from './InsightsDashboard.jsx';
 import { Reveal, ScrollProgress, ScrollState, CountUp, RiskGauge } from './ScrollFX.jsx';
 import { 
@@ -668,13 +666,13 @@ export default function App() {
       <div className="glow-orb a"></div>
       <div className="glow-orb b"></div>
       
-      {/* Neural-network background + scroll progress on the landing page */}
+      {/* Persistent 3D brain background + scroll progress on the landing page */}
       {!user && step === 'welcome' && (
         <>
           <ScrollProgress />
           <ScrollState threshold={80} />
           <div className="neural-bg-layer">
-            <BrainBackground density={1} interactive={true} />
+            <Brain3DBackground />
           </div>
         </>
       )}

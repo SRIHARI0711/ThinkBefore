@@ -9,6 +9,14 @@ const prefersReduced = () =>
   window.matchMedia &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// html and body both declare overflow-x:hidden, which promotes <body> to its
+// own scroll container in some browsers — its scroll events don't bubble to
+// window. Read whichever element actually scrolled and listen capture-phase.
+const getScrollTop = () => {
+  const se = document.scrollingElement || document.documentElement;
+  return Math.max(se.scrollTop, document.body ? document.body.scrollTop : 0);
+};
+
 /* ── Reveal on scroll ─────────────────────────────────────────────── */
 export function Reveal({ children, className = '', delay = 0, as: Tag = 'div', ...rest }) {
   const ref = useRef(null);
@@ -49,14 +57,13 @@ export function Reveal({ children, className = '', delay = 0, as: Tag = 'div', .
 export function ScrollState({ threshold = 80 }) {
   useEffect(() => {
     const onScroll = () => {
-      const el = document.scrollingElement || document.documentElement;
-      document.body.classList.toggle('scrolled', el.scrollTop > threshold);
+      document.body.classList.toggle('scrolled', getScrollTop() > threshold);
     };
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll, { capture: true });
       window.removeEventListener('resize', onScroll);
       document.body.classList.remove('scrolled');
     };
@@ -70,14 +77,14 @@ export function ScrollProgress() {
   useEffect(() => {
     const onScroll = () => {
       const el = document.scrollingElement || document.documentElement;
-      const max = el.scrollHeight - el.clientHeight;
-      setPct(max > 0 ? (el.scrollTop / max) * 100 : 0);
+      const max = Math.max(el.scrollHeight, document.body.scrollHeight) - el.clientHeight;
+      setPct(max > 0 ? (getScrollTop() / max) * 100 : 0);
     };
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
     window.addEventListener('resize', onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('scroll', onScroll, { capture: true });
       window.removeEventListener('resize', onScroll);
     };
   }, []);
