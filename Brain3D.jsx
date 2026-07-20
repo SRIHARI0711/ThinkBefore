@@ -44,8 +44,8 @@ const easeInOut = (t) => t * t * (3 - 2 * t); // smoothstep — eased, not linea
 /* ── Neural overlay sampling ──────────────────────────────────────── */
 
 // Sample neuron anchor points from the displaced hemisphere vertices so the
-// overlay sits exactly on the sculpted surface. Medial-wall verts (hidden in
-// the fissure) are skipped and a minimum spacing keeps the layout even.
+// overlay sits exactly on the sculpted surface. Medial-wall verts 
+// (hidden in the fissure) are skipped and a minimum spacing keeps the layout even.
 function sampleNodes(geos) {
   const candidates = [];
   const v = new THREE.Vector3();
