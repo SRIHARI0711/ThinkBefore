@@ -4,8 +4,7 @@
 // Rank predicted risk levels onto a severity scale.
 const RISK_RANK = { low: 1, medium: 2, high: 3, critical: 4 };
 
-// A prediction is "correct" when the predicted risk lines up with the
-// outcome the user reported:
+// A prediction is "correct" when the predicted risk lines up with the outcome the user reported:
 //   high/critical  <-> worse_than_expected
 //   medium         <-> as_expected
 //   low            <-> better_than_expected
